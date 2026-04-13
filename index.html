@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>XP Питание</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            padding: 12px;
+            min-height: 100vh;
+        }
+
+        /* Вкладки */
+        .meal-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            background: var(--tg-theme-secondary-bg-color);
+            padding: 8px;
+            border-radius: 12px;
+        }
+
+        .meal-tab {
+            flex: 1;
+            padding: 10px 8px;
+            text-align: center;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .meal-tab.active {
+            background: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+        }
+
+        /* Сводка */
+        .summary {
+            background: var(--tg-theme-secondary-bg-color);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .summary-header {
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .calories-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: rgba(128, 128, 128, 0.3);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--tg-theme-button-color);
+            transition: width 0.3s ease;
+            border-radius: 5px;
+        }
+
+        .macros-row {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 12px;
+            gap: 12px;
+        }
+
+        .macro-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .macro-value {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .macro-label {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        /* Поиск */
+        .search-container {
+            margin-bottom: 16px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 1px solid var(--tg-theme-hint-color);
+            border-radius: 25px;
+            background: var(--tg-theme-secondary-bg-color);
+            color: var(--tg-theme-text-color);
+            outline: none;
+        }
+
+        .search-box:focus {
+            border-color: var(--tg-theme-button-color);
+        }
+
+        /* Кнопки действий */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .action-btn:active {
+            transform: scale(0.97);
+        }
+
+        .scan-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .history-btn {
+            background: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+        }
+
+        /* Список продуктов */
+        .food-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .food-item {
+            background: var(--tg-theme-secondary-bg-color);
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .food-item:active {
+            transform: scale(0.98);
+        }
+
+        .food-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .food-calories {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+
+        .food-macros {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+        }
+
+        /* Модальное окно для веса */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--tg-theme-bg-color);
+            border-radius: 20px;
+            padding: 20px;
+            width: 90%;
+            max-width: 320px;
+        }
+
+        .modal-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .quick-weights {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .weight-btn {
+            background: var(--tg-theme-secondary-bg-color);
+            padding: 12px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .weight-btn:active {
+            transform: scale(0.97);
+        }
+
+        .custom-weight-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid var(--tg-theme-hint-color);
+            border-radius: 10px;
+            background: var(--tg-theme-secondary-bg-color);
+            color: var(--tg-theme-text-color);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .modal-btn.confirm {
+            background: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+        }
+
+        .modal-btn.cancel {
+            background: var(--tg-theme-secondary-bg-color);
+            color: var(--tg-theme-text-color);
+        }
+
+        /* Сканер */
+        .scanner-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: black;
+            z-index: 1001;
+            flex-direction: column;
+        }
+
+        .scanner-container.active {
+            display: flex;
+        }
+
+        #qr-reader {
+            width: 100%;
+            flex: 1;
+        }
+
+        .close-scanner {
+            padding: 15px;
+            background: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* История */
+        .history-item {
+            background: var(--tg-theme-secondary-bg-color);
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .history-details {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .delete-history {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* Часто используемые */
+        .frequent-title {
+            font-weight: bold;
+            margin: 16px 0 8px;
+            font-size: 14px;
+        }
+
+        .frequent-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .frequent-item {
+            background: var(--tg-theme-secondary-bg-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Загрузка */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.7;
+        }
+
+        /* Пустое состояние */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Вкладки -->
+        <div class="meal-tabs">
+            <div class="meal-tab" data-meal="breakfast">🍳 Завтрак</div>
+            <div class="meal-tab" data-meal="lunch">🍲 Обед</div>
+            <div class="meal-tab" data-meal="dinner">🍽️ Ужин</div>
+            <div class="meal-tab" data-meal="snack">🍎 Перекус</div>
+        </div>
+
+        <!-- Сводка -->
+        <div class="summary" id="summary">
+            <div class="loading">Загрузка...</div>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="action-buttons">
+            <button class="action-btn scan-btn" onclick="startScanner()">📷 Сканер</button>
+            <button class="action-btn history-btn" onclick="showHistory()">📋 История</button>
+        </div>
+
+        <!-- Поиск -->
+        <div class="search-container">
+            <input type="text" class="search-box" id="search" placeholder="🔍 Поиск продуктов..." autocomplete="off">
+        </div>
+
+        <!-- Результаты поиска -->
+        <div id="results" class="food-list"></div>
+    </div>
+
+    <!-- Модальное окно для веса -->
+    <div class="modal" id="weightModal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalFoodName">Выберите вес</div>
+            <div class="quick-weights">
+                <div class="weight-btn" onclick="selectWeight(50)">50г</div>
+                <div class="weight-btn" onclick="selectWeight(100)">100г</div>
+                <div class="weight-btn" onclick="selectWeight(150)">150г</div>
+                <div class="weight-btn" onclick="selectWeight(200)">200г</div>
+                <div class="weight-btn" onclick="selectWeight(250)">250г</div>
+                <div class="weight-btn" onclick="selectWeight(300)">300г</div>
+            </div>
+            <input type="number" class="custom-weight-input" id="customWeight" placeholder="✏️ Свой вес (г)" value="">
+            <div class="modal-buttons">
+                <button class="modal-btn confirm" onclick="confirmAddFood()">Добавить</button>
+                <button class="modal-btn cancel" onclick="closeWeightModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Сканер штрихкодов -->
+    <div class="scanner-container" id="scannerContainer">
+        <div id="qr-reader"></div>
+        <button class="close-scanner" onclick="stopScanner()">✕ Закрыть сканер</button>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.MainButton.hide();
+        
+        let currentMeal = 'breakfast';
+        let currentFood = null;
+        let html5QrCode = null;
+        let searchTimeout = null;
+        
+        const mealMap = {
+            'breakfast': 'завтрак',
+            'lunch': 'обед',
+            'dinner': 'ужин',
+            'snack': 'перекус'
+        };
+        
+        const mealEmoji = {
+            'breakfast': '🍳',
+            'lunch': '🍲',
+            'dinner': '🍽️',
+            'snack': '🍎'
+        };
+        
+        // Загрузка дневной сводки
+        async function loadSummary() {
+            try {
+                const response = await fetch('/api/daily_summary', {
+                    headers: {
+                        'X-Telegram-User-Id': tg.initDataUnsafe.user.id
+                    }
+                });
+                const data = await response.json();
+                
+                const percent = (data.calories / data.goal * 100).toFixed(1);
+                const isOver = data.calories > data.goal;
+                
+                document.getElementById('summary').innerHTML = `
+                    <div class="summary-header">📊 ${new Date().toLocaleDateString('ru-RU')}</div>
+                    <div class="calories-row">
+                        <span>🔥 Калории</span>
+                        <span><strong>${data.calories}</strong> / ${data.goal} ккал</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${Math.min(percent, 100)}%"></div>
+                    </div>
+                    <div class="macros-row">
+                        <div class="macro-item">
+                            <div class="macro-value">🥩 ${data.protein.toFixed(1)}г</div>
+                            <div class="macro-label">Белки</div>
+                        </div>
+                        <div class="macro-item">
+                            <div class="macro-value">🧈 ${data.fat.toFixed(1)}г</div>
+                            <div class="macro-label">Жиры</div>
+                        </div>
+                        <div class="macro-item">
+                            <div class="macro-value">🍚 ${data.carbs.toFixed(1)}г</div>
+                            <div class="macro-label">Углеводы</div>
+                        </div>
+                    </div>
+                    ${isOver ? '<div style="color: #f44336; text-align: center; margin-top: 8px;">⚠️ Превышение нормы!</div>' : 
+                               `<div style="text-align: center; margin-top: 8px;">✅ Осталось: ${data.goal - data.calories} ккал</div>`}
+                `;
+            } catch(e) {
+                console.error('Error loading summary:', e);
+            }
+        }
+        
+        // Поиск продуктов
+        async function searchFood(query) {
+            if (query.length < 2) {
+                document.getElementById('results').innerHTML = '';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/search_food?q=${encodeURIComponent(query)}`);
+                const foods = await response.json();
+                
+                if (foods.length === 0) {
+                    document.getElementById('results').innerHTML = '<div class="empty-state">❌ Ничего не найдено</div>';
+                    return;
+                }
+                
+                document.getElementById('results').innerHTML = foods.map(food => `
+                    <div class="food-item" onclick="selectFood(${food.id}, '${food.name.replace(/'/g, "\\'")}', ${food.calories}, ${food.protein}, ${food.fat}, ${food.carbs})">
+                        <div class="food-name">${food.name}</div>
+                        <div class="food-calories">🔥 ${food.calories} ккал / 100г</div>
+                        <div class="food-macros">
+                            <span>🥩 ${food.protein}г</span>
+                            <span>🧈 ${food.fat}г</span>
+                            <span>🍚 ${food.carbs}г</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) {
+                console.error('Search error:', e);
+            }
+        }
+        
+        // Выбор продукта
+        function selectFood(id, name, calories, protein, fat, carbs) {
+            currentFood = { id, name, calories, protein, fat, carbs };
+            document.getElementById('modalFoodName').innerHTML = `✅ ${name}`;
+            document.getElementById('customWeight').value = '100';
+            document.getElementById('weightModal').classList.add('active');
+        }
+        
+        // Выбор веса из быстрых
+        function selectWeight(grams) {
+            document.getElementById('customWeight').value = grams;
+        }
+        
+        // Подтверждение добавления
+        async function confirmAddFood() {
+            const grams = parseInt(document.getElementById('customWeight').value);
+            if (isNaN(grams) || grams <= 0 || grams > 5000) {
+                tg.showAlert('❌ Введите корректный вес (1-5000г)');
+                return;
+            }
+            
+            tg.showPopup({
+                title: 'Подтверждение',
+                message: `Добавить ${grams}г "${currentFood.name}" в ${mealEmoji[currentMeal]} ${mealMap[currentMeal]}?`,
+                buttons: [
+                    {id: 'cancel', type: 'cancel', text: 'Отмена'},
+                    {id: 'ok', type: 'default', text: 'Добавить'}
+                ]
+            }, async (buttonId) => {
+                if (buttonId === 'ok') {
+                    try {
+                        const response = await fetch('/api/add_food', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Telegram-User-Id': tg.initDataUnsafe.user.id
+                            },
+                            body: JSON.stringify({
+                                food_id: currentFood.id,
+                                quantity: grams,
+                                meal: mealMap[currentMeal]
+                            })
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                            tg.HapticFeedback.notificationOccurred('success');
+                            tg.showAlert(`✅ Добавлено ${grams}г "${currentFood.name}"!`);
+                            closeWeightModal();
+                            loadSummary();
+                            document.getElementById('search').value = '';
+                            document.getElementById('results').innerHTML = '';
+                        } else {
+                            tg.showAlert('❌ Ошибка при сохранении');
+                        }
+                    } catch(e) {
+                        console.error('Add food error:', e);
+                        tg.showAlert('❌ Ошибка соединения');
+                    }
+                }
+            });
+        }
+        
+        function closeWeightModal() {
+            document.getElementById('weightModal').classList.remove('active');
+            currentFood = null;
+        }
+        
+        // Сканер штрихкодов
+        async function startScanner() {
+            document.getElementById('scannerContainer').classList.add('active');
+            
+            html5QrCode = new Html5Qrcode("qr-reader");
+            
+            try {
+                await html5QrCode.start(
+                    { facingMode: "environment" },
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 }
+                    },
+                    onScanSuccess,
+                    onScanError
+                );
+            } catch(err) {
+                console.error('Scanner error:', err);
+                tg.showAlert('❌ Не удалось запустить камеру');
+                stopScanner();
+            }
+        }
+        
+        async function onScanSuccess(decodedText, decodedResult) {
+            tg.HapticFeedback.impactOccurred('medium');
+            stopScanner();
+            tg.showAlert(`🔍 Найден штрихкод: ${decodedText}`);
+            await searchByBarcode(decodedText);
+        }
+        
+        function onScanError(errorMessage) {
+            // Игнорируем ошибки сканирования
+        }
+        
+        function stopScanner() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('scannerContainer').classList.remove('active');
+                }).catch(err => console.error('Stop scanner error:', err));
+            } else {
+                document.getElementById('scannerContainer').classList.remove('active');
+            }
+        }
+        
+        async function searchByBarcode(barcode) {
+            try {
+                const response = await fetch(`/api/search_by_barcode?barcode=${encodeURIComponent(barcode)}`, {
+                    headers: {
+                        'X-Telegram-User-Id': tg.initDataUnsafe.user.id
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.food) {
+                    selectFood(data.food.id, data.food.name, data.food.calories, data.food.protein, data.food.fat, data.food.carbs);
+                } else {
+                    tg.showAlert(`❌ Продукт со штрихкодом ${barcode} не найден\n\nВы можете добавить его вручную через поиск`);
+                }
+            } catch(e) {
+                console.error('Barcode search error:', e);
+                tg.showAlert('❌ Ошибка поиска по штрихкоду');
+            }
+        }
+        
+        // История
+        async function showHistory() {
+            try {
+                const response = await fetch('/api/today_entries', {
+                    headers: {
+                        'X-Telegram-User-Id': tg.initDataUnsafe.user.id
+                    }
+                });
+                const entries = await response.json();
+                
+                if (entries.length === 0) {
+                    tg.showAlert('📭 Сегодня ещё нет записей');
+                    return;
+                }
+                
+                let message = '📋 *СЕГОДНЯШНИЕ ЗАПИСИ*\n\n';
+                for (const entry of entries) {
+                    const mealEmoji = {
+                        'завтрак': '🍳', 'обед': '🍲', 'ужин': '🍽️', 'перекус': '🍎'
+                    };
+                    message += `${mealEmoji[entry.meal]} *${entry.meal.toUpperCase()}*: ${entry.food_name} - ${entry.quantity}г (${entry.calories} ккал)\n`;
+                }
+                
+                tg.showPopup({
+                    title: 'История питания',
+                    message: message.replace(/\*/g, ''),
+                    buttons: [{id: 'ok', type: 'ok', text: 'OK'}]
+                });
+            } catch(e) {
+                console.error('History error:', e);
+            }
+        }
+        
+        // Обработка вкладок
+        document.querySelectorAll('.meal-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.meal-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentMeal = tab.dataset.meal;
+                tg.HapticFeedback.impactOccurred('light');
+            });
+        });
+        
+        // Поиск с debounce
+        document.getElementById('search').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => searchFood(e.target.value), 300);
+        });
+        
+        // Закрытие модального окна по клику вне
+        document.getElementById('weightModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('weightModal')) {
+                closeWeightModal();
+            }
+        });
+        
+        // Загрузка данных
+        loadSummary();
+        
+        // Настройка главной кнопки
+        tg.MainButton.setText('🔄 Обновить');
+        tg.MainButton.onClick(() => {
+            loadSummary();
+            tg.HapticFeedback.impactOccurred('light');
+        });
+        tg.MainButton.show();
+        
+        // Обработка закрытия
+        tg.onEvent('mainButtonClicked', () => {
+            loadSummary();
+        });
+    </script>
+</body>
+</html>>
