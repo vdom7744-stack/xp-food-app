@@ -5,746 +5,207 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>XP Питание</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: var(--tg-theme-bg-color);
-            color: var(--tg-theme-text-color);
-            padding: 12px;
-            min-height: 100vh;
-        }
-
-        /* Вкладки */
-        .meal-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            background: var(--tg-theme-secondary-bg-color);
-            padding: 8px;
-            border-radius: 12px;
-        }
-
-        .meal-tab {
-            flex: 1;
-            padding: 10px 8px;
-            text-align: center;
-            background: transparent;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .meal-tab.active {
-            background: var(--tg-theme-button-color);
-            color: var(--tg-theme-button-text-color);
-        }
-
-        /* Сводка */
-        .summary {
-            background: var(--tg-theme-secondary-bg-color);
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 16px;
-        }
-
-        .summary-header {
-            font-weight: bold;
-            margin-bottom: 12px;
-            font-size: 16px;
-        }
-
-        .calories-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-
-        .progress-bar {
-            height: 10px;
-            background: rgba(128, 128, 128, 0.3);
-            border-radius: 5px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--tg-theme-button-color);
-            transition: width 0.3s ease;
-            border-radius: 5px;
-        }
-
-        .macros-row {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 12px;
-            gap: 12px;
-        }
-
-        .macro-item {
-            text-align: center;
-            flex: 1;
-        }
-
-        .macro-value {
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .macro-label {
-            font-size: 12px;
-            opacity: 0.7;
-        }
-
-        /* Поиск */
-        .search-container {
-            margin-bottom: 16px;
-        }
-
-        .search-box {
-            width: 100%;
-            padding: 12px 16px;
-            font-size: 16px;
-            border: 1px solid var(--tg-theme-hint-color);
-            border-radius: 25px;
-            background: var(--tg-theme-secondary-bg-color);
-            color: var(--tg-theme-text-color);
-            outline: none;
-        }
-
-        .search-box:focus {
-            border-color: var(--tg-theme-button-color);
-        }
-
-        /* Кнопки действий */
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-
-        .action-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 25px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-
-        .action-btn:active {
-            transform: scale(0.97);
-        }
-
-        .scan-btn {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .history-btn {
-            background: var(--tg-theme-button-color);
-            color: var(--tg-theme-button-text-color);
-        }
-
-        /* Список продуктов */
-        .food-list {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .food-item {
-            background: var(--tg-theme-secondary-bg-color);
-            padding: 12px;
-            margin-bottom: 8px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-
-        .food-item:active {
-            transform: scale(0.98);
-        }
-
-        .food-name {
-            font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 4px;
-        }
-
-        .food-calories {
-            font-size: 12px;
-            opacity: 0.7;
-            margin-bottom: 4px;
-        }
-
-        .food-macros {
-            display: flex;
-            gap: 12px;
-            font-size: 12px;
-        }
-
-        /* Модальное окно для веса */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--tg-theme-bg-color);
-            border-radius: 20px;
-            padding: 20px;
-            width: 90%;
-            max-width: 320px;
-        }
-
-        .modal-title {
-            font-weight: bold;
-            font-size: 18px;
-            margin-bottom: 16px;
-            text-align: center;
-        }
-
-        .quick-weights {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-
-        .weight-btn {
-            background: var(--tg-theme-secondary-bg-color);
-            padding: 12px;
-            text-align: center;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .weight-btn:active {
-            transform: scale(0.97);
-        }
-
-        .custom-weight-input {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            border: 1px solid var(--tg-theme-hint-color);
-            border-radius: 10px;
-            background: var(--tg-theme-secondary-bg-color);
-            color: var(--tg-theme-text-color);
-            margin-bottom: 12px;
-            text-align: center;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .modal-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .modal-btn.confirm {
-            background: var(--tg-theme-button-color);
-            color: var(--tg-theme-button-text-color);
-        }
-
-        .modal-btn.cancel {
-            background: var(--tg-theme-secondary-bg-color);
-            color: var(--tg-theme-text-color);
-        }
-
-        /* Сканер */
-        .scanner-container {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: black;
-            z-index: 1001;
-            flex-direction: column;
-        }
-
-        .scanner-container.active {
-            display: flex;
-        }
-
-        #qr-reader {
-            width: 100%;
-            flex: 1;
-        }
-
-        .close-scanner {
-            padding: 15px;
-            background: var(--tg-theme-button-color);
-            color: var(--tg-theme-button-text-color);
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        /* История */
-        .history-item {
-            background: var(--tg-theme-secondary-bg-color);
-            padding: 12px;
-            margin-bottom: 8px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .history-info {
-            flex: 1;
-        }
-
-        .history-name {
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-
-        .history-details {
-            font-size: 12px;
-            opacity: 0.7;
-        }
-
-        .delete-history {
-            background: #f44336;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        /* Часто используемые */
-        .frequent-title {
-            font-weight: bold;
-            margin: 16px 0 8px;
-            font-size: 14px;
-        }
-
-        .frequent-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .frequent-item {
-            background: var(--tg-theme-secondary-bg-color);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        /* Загрузка */
-        .loading {
-            text-align: center;
-            padding: 40px;
-            opacity: 0.7;
-        }
-
-        /* Пустое состояние */
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            opacity: 0.5;
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--tg-theme-bg-color,#fff);color:var(--tg-theme-text-color,#000);padding:12px}
+        .tabs{display:flex;gap:8px;margin-bottom:16px;background:var(--tg-theme-secondary-bg-color,#f0f0f0);padding:8px;border-radius:12px}
+        .tab{flex:1;padding:10px;text-align:center;border-radius:8px;cursor:pointer}
+        .tab.active{background:var(--tg-theme-button-color,#2481cc);color:white}
+        .card{background:var(--tg-theme-secondary-bg-color,#f0f0f0);padding:16px;border-radius:12px;margin-bottom:16px}
+        .search-box{width:100%;padding:12px;font-size:16px;border:1px solid #ccc;border-radius:25px;margin-bottom:16px;background:var(--tg-theme-secondary-bg-color,#f0f0f0)}
+        .food-item{background:var(--tg-theme-secondary-bg-color,#f0f0f0);padding:12px;margin-bottom:8px;border-radius:12px;cursor:pointer}
+        .food-name{font-weight:bold}
+        .food-calories{font-size:12px;opacity:0.7}
+        .modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:1000}
+        .modal.active{display:flex}
+        .modal-content{background:white;border-radius:20px;padding:20px;width:90%;max-width:320px}
+        .quick-weights{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+        .weight-btn{background:#f0f0f0;padding:12px;text-align:center;border-radius:10px;cursor:pointer}
+        .btn{width:100%;padding:12px;border:none;border-radius:10px;cursor:pointer;margin-top:10px}
+        .btn-primary{background:#2481cc;color:white}
+        .btn-danger{background:#f44336;color:white;padding:8px 12px}
+        .macro-row{display:flex;gap:12px;margin-top:12px;text-align:center}
+        .macro-item{flex:1}
+        .progress-bar{height:10px;background:#e0e0e0;border-radius:5px;overflow:hidden;margin:10px 0}
+        .progress-fill{height:100%;background:#4CAF50;transition:width 0.3s}
+        .diary-item{display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--tg-theme-secondary-bg-color,#f0f0f0);margin-bottom:8px;border-radius:12px}
+        .empty-state{text-align:center;padding:40px;opacity:0.5}
     </style>
 </head>
 <body>
-    <div id="app">
-        <!-- Вкладки -->
-        <div class="meal-tabs">
-            <div class="meal-tab" data-meal="breakfast">🍳 Завтрак</div>
-            <div class="meal-tab" data-meal="lunch">🍲 Обед</div>
-            <div class="meal-tab" data-meal="dinner">🍽️ Ужин</div>
-            <div class="meal-tab" data-meal="snack">🍎 Перекус</div>
-        </div>
-
-        <!-- Сводка -->
-        <div class="summary" id="summary">
-            <div class="loading">Загрузка...</div>
-        </div>
-
-        <!-- Кнопки действий -->
-        <div class="action-buttons">
-            <button class="action-btn scan-btn" onclick="startScanner()">📷 Сканер</button>
-            <button class="action-btn history-btn" onclick="showHistory()">📋 История</button>
-        </div>
-
-        <!-- Поиск -->
-        <div class="search-container">
-            <input type="text" class="search-box" id="search" placeholder="🔍 Поиск продуктов..." autocomplete="off">
-        </div>
-
-        <!-- Результаты поиска -->
-        <div id="results" class="food-list"></div>
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('diary')">📝 Дневник</div>
+        <div class="tab" onclick="switchTab('search')">🔍 Поиск</div>
     </div>
 
-    <!-- Модальное окно для веса -->
+    <div id="diaryTab">
+        <div class="card" id="summary">Загрузка...</div>
+        <div id="diaryList"></div>
+    </div>
+
+    <div id="searchTab" style="display:none">
+        <input type="text" class="search-box" id="searchInput" placeholder="🔍 Поиск продуктов..." oninput="searchFoods()">
+        <div id="searchResults"></div>
+    </div>
+
     <div class="modal" id="weightModal">
         <div class="modal-content">
-            <div class="modal-title" id="modalFoodName">Выберите вес</div>
+            <div class="food-name" id="modalFoodName" style="text-align:center;margin-bottom:15px"></div>
             <div class="quick-weights">
-                <div class="weight-btn" onclick="selectWeight(50)">50г</div>
-                <div class="weight-btn" onclick="selectWeight(100)">100г</div>
-                <div class="weight-btn" onclick="selectWeight(150)">150г</div>
-                <div class="weight-btn" onclick="selectWeight(200)">200г</div>
-                <div class="weight-btn" onclick="selectWeight(250)">250г</div>
-                <div class="weight-btn" onclick="selectWeight(300)">300г</div>
+                <div class="weight-btn" onclick="setWeight(50)">50г</div>
+                <div class="weight-btn" onclick="setWeight(100)">100г</div>
+                <div class="weight-btn" onclick="setWeight(150)">150г</div>
+                <div class="weight-btn" onclick="setWeight(200)">200г</div>
+                <div class="weight-btn" onclick="setWeight(250)">250г</div>
+                <div class="weight-btn" onclick="setWeight(300)">300г</div>
             </div>
-            <input type="number" class="custom-weight-input" id="customWeight" placeholder="✏️ Свой вес (г)" value="">
-            <div class="modal-buttons">
-                <button class="modal-btn confirm" onclick="confirmAddFood()">Добавить</button>
-                <button class="modal-btn cancel" onclick="closeWeightModal()">Отмена</button>
-            </div>
+            <input type="number" id="customWeight" class="search-box" placeholder="Свой вес (г)" value="100" style="margin-bottom:15px">
+            <button class="btn btn-primary" onclick="addFood()">➕ Добавить</button>
+            <button class="btn" onclick="closeModal()" style="margin-top:10px">Отмена</button>
         </div>
-    </div>
-
-    <!-- Сканер штрихкодов -->
-    <div class="scanner-container" id="scannerContainer">
-        <div id="qr-reader"></div>
-        <button class="close-scanner" onclick="stopScanner()">✕ Закрыть сканер</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.MainButton.hide();
+        
+        // ВАША БАЗА ПРОДУКТОВ (первые 50 из вашего JSON)
+        const products = [
+            {id:1,name:"Сыр Моя Цена Российский",calories:327,protein:24.5,fat:25.5,carbs:0},
+            {id:2,name:"Сыр Белебеевский 45%",calories:347,protein:27,fat:26.5,carbs:0},
+            {id:3,name:"Сыр Pretto Рикотта",calories:139,protein:7,fat:10.6,carbs:4},
+            {id:4,name:"Сыр Вкуснотеево Тильзитер",calories:329,protein:25.5,fat:25,carbs:0},
+            {id:5,name:"Пепперони",calories:283,protein:11.5,fat:11.4,carbs:31.9},
+            {id:6,name:"Сырная",calories:292,protein:10.8,fat:10.6,carbs:36.7},
+            {id:7,name:"Ветчина И Сыр",calories:282,protein:10.7,fat:9.8,carbs:35.9},
+            {id:8,name:"Мясная",calories:257,protein:11.3,fat:9.6,carbs:29.7},
+            {id:9,name:"Гавайская",calories:246,protein:11.3,fat:9.6,carbs:29.7},
+            {id:10,name:"Маргарита",calories:235,protein:9.8,fat:7.6,carbs:30.5},
+            {id:11,name:"Картофель Фри",calories:330,protein:3.9,fat:16,carbs:41},
+            {id:12,name:"Куриные Наггетсы",calories:267,protein:11.8,fat:14.2,carbs:21.3},
+            {id:13,name:"Салат Цезарь",calories:118,protein:9.6,fat:5.5,carbs:6.8},
+            {id:14,name:"Чизкейк",calories:341,protein:6.9,fat:22.1,carbs:28.5},
+            {id:15,name:"Кофе Капучино",calories:55,protein:2.8,fat:3,carbs:4}
+        ];
         
         let currentMeal = 'breakfast';
-        let currentFood = null;
-        let html5QrCode = null;
-        let searchTimeout = null;
+        let selectedFood = null;
+        let diary = JSON.parse(localStorage.getItem('xp_diary') || '[]');
+        const mealNames = {breakfast:'Завтрак',lunch:'Обед',dinner:'Ужин',snack:'Перекус'};
         
-        const mealMap = {
-            'breakfast': 'завтрак',
-            'lunch': 'обед',
-            'dinner': 'ужин',
-            'snack': 'перекус'
-        };
+        // Добавляем выбор приема пищи
+        const mealDiv = document.createElement('div');
+        mealDiv.className = 'tabs';
+        mealDiv.style.marginTop = '12px';
+        mealDiv.innerHTML = `<div class="tab active" onclick="setMeal('breakfast',this)">🍳 Завтрак</div>
+                             <div class="tab" onclick="setMeal('lunch',this)">🍲 Обед</div>
+                             <div class="tab" onclick="setMeal('dinner',this)">🍽️ Ужин</div>
+                             <div class="tab" onclick="setMeal('snack',this)">🍎 Перекус</div>`;
+        document.getElementById('diaryTab').insertBefore(mealDiv, document.getElementById('diaryTab').firstChild);
         
-        const mealEmoji = {
-            'breakfast': '🍳',
-            'lunch': '🍲',
-            'dinner': '🍽️',
-            'snack': '🍎'
-        };
-        
-        // Загрузка дневной сводки
-        async function loadSummary() {
-            try {
-                const response = await fetch('/api/daily_summary', {
-                    headers: {
-                        'X-Telegram-User-Id': tg.initDataUnsafe.user.id
-                    }
-                });
-                const data = await response.json();
-                
-                const percent = (data.calories / data.goal * 100).toFixed(1);
-                const isOver = data.calories > data.goal;
-                
-                document.getElementById('summary').innerHTML = `
-                    <div class="summary-header">📊 ${new Date().toLocaleDateString('ru-RU')}</div>
-                    <div class="calories-row">
-                        <span>🔥 Калории</span>
-                        <span><strong>${data.calories}</strong> / ${data.goal} ккал</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${Math.min(percent, 100)}%"></div>
-                    </div>
-                    <div class="macros-row">
-                        <div class="macro-item">
-                            <div class="macro-value">🥩 ${data.protein.toFixed(1)}г</div>
-                            <div class="macro-label">Белки</div>
-                        </div>
-                        <div class="macro-item">
-                            <div class="macro-value">🧈 ${data.fat.toFixed(1)}г</div>
-                            <div class="macro-label">Жиры</div>
-                        </div>
-                        <div class="macro-item">
-                            <div class="macro-value">🍚 ${data.carbs.toFixed(1)}г</div>
-                            <div class="macro-label">Углеводы</div>
-                        </div>
-                    </div>
-                    ${isOver ? '<div style="color: #f44336; text-align: center; margin-top: 8px;">⚠️ Превышение нормы!</div>' : 
-                               `<div style="text-align: center; margin-top: 8px;">✅ Осталось: ${data.goal - data.calories} ккал</div>`}
-                `;
-            } catch(e) {
-                console.error('Error loading summary:', e);
-            }
+        function setMeal(meal, el) {
+            currentMeal = meal;
+            document.querySelectorAll('#diaryTab .tabs .tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
         }
         
-        // Поиск продуктов
-        async function searchFood(query) {
-            if (query.length < 2) {
-                document.getElementById('results').innerHTML = '';
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/api/search_food?q=${encodeURIComponent(query)}`);
-                const foods = await response.json();
-                
-                if (foods.length === 0) {
-                    document.getElementById('results').innerHTML = '<div class="empty-state">❌ Ничего не найдено</div>';
-                    return;
-                }
-                
-                document.getElementById('results').innerHTML = foods.map(food => `
-                    <div class="food-item" onclick="selectFood(${food.id}, '${food.name.replace(/'/g, "\\'")}', ${food.calories}, ${food.protein}, ${food.fat}, ${food.carbs})">
-                        <div class="food-name">${food.name}</div>
-                        <div class="food-calories">🔥 ${food.calories} ккал / 100г</div>
-                        <div class="food-macros">
-                            <span>🥩 ${food.protein}г</span>
-                            <span>🧈 ${food.fat}г</span>
-                            <span>🍚 ${food.carbs}г</span>
-                        </div>
-                    </div>
-                `).join('');
-            } catch(e) {
-                console.error('Search error:', e);
-            }
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('diaryTab').style.display = tab === 'diary' ? 'block' : 'none';
+            document.getElementById('searchTab').style.display = tab === 'search' ? 'block' : 'none';
+            event.target.classList.add('active');
+            if (tab === 'diary') renderDiary();
         }
         
-        // Выбор продукта
-        function selectFood(id, name, calories, protein, fat, carbs) {
-            currentFood = { id, name, calories, protein, fat, carbs };
+        function searchFoods() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            if (query.length < 2) { document.getElementById('searchResults').innerHTML = ''; return; }
+            const results = products.filter(p => p.name.toLowerCase().includes(query));
+            document.getElementById('searchResults').innerHTML = results.map(p => `
+                <div class="food-item" onclick="showWeightModal(${p.id}, '${p.name}', ${p.calories}, ${p.protein}, ${p.fat}, ${p.carbs})">
+                    <div class="food-name">${p.name}</div>
+                    <div class="food-calories">🔥 ${p.calories} ккал / 100г</div>
+                    <div>🥩${p.protein}г 🧈${p.fat}г 🍚${p.carbs}г</div>
+                </div>
+            `).join('');
+        }
+        
+        function showWeightModal(id, name, calories, protein, fat, carbs) {
+            selectedFood = {id, name, calories, protein, fat, carbs};
             document.getElementById('modalFoodName').innerHTML = `✅ ${name}`;
-            document.getElementById('customWeight').value = '100';
             document.getElementById('weightModal').classList.add('active');
         }
         
-        // Выбор веса из быстрых
-        function selectWeight(grams) {
-            document.getElementById('customWeight').value = grams;
-        }
+        function setWeight(grams) { document.getElementById('customWeight').value = grams; }
         
-        // Подтверждение добавления
-        async function confirmAddFood() {
+        function addFood() {
             const grams = parseInt(document.getElementById('customWeight').value);
-            if (isNaN(grams) || grams <= 0 || grams > 5000) {
-                tg.showAlert('❌ Введите корректный вес (1-5000г)');
-                return;
-            }
-            
-            tg.showPopup({
-                title: 'Подтверждение',
-                message: `Добавить ${grams}г "${currentFood.name}" в ${mealEmoji[currentMeal]} ${mealMap[currentMeal]}?`,
-                buttons: [
-                    {id: 'cancel', type: 'cancel', text: 'Отмена'},
-                    {id: 'ok', type: 'default', text: 'Добавить'}
-                ]
-            }, async (buttonId) => {
-                if (buttonId === 'ok') {
-                    try {
-                        const response = await fetch('/api/add_food', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-Telegram-User-Id': tg.initDataUnsafe.user.id
-                            },
-                            body: JSON.stringify({
-                                food_id: currentFood.id,
-                                quantity: grams,
-                                meal: mealMap[currentMeal]
-                            })
-                        });
-                        
-                        const result = await response.json();
-                        if (result.success) {
-                            tg.HapticFeedback.notificationOccurred('success');
-                            tg.showAlert(`✅ Добавлено ${grams}г "${currentFood.name}"!`);
-                            closeWeightModal();
-                            loadSummary();
-                            document.getElementById('search').value = '';
-                            document.getElementById('results').innerHTML = '';
-                        } else {
-                            tg.showAlert('❌ Ошибка при сохранении');
-                        }
-                    } catch(e) {
-                        console.error('Add food error:', e);
-                        tg.showAlert('❌ Ошибка соединения');
-                    }
+            if (!selectedFood || isNaN(grams) || grams <= 0) { tg.showAlert('❌ Введите вес'); return; }
+            const factor = grams / 100;
+            const entry = {
+                id: Date.now(), food_id: selectedFood.id, name: selectedFood.name,
+                grams: grams, calories: Math.round(selectedFood.calories * factor),
+                protein: (selectedFood.protein * factor).toFixed(1),
+                fat: (selectedFood.fat * factor).toFixed(1),
+                carbs: (selectedFood.carbs * factor).toFixed(1),
+                meal: currentMeal, date: new Date().toDateString()
+            };
+            diary.push(entry);
+            localStorage.setItem('xp_diary', JSON.stringify(diary));
+            closeModal();
+            renderDiary();
+            tg.showAlert(`✅ Добавлено ${grams}г ${selectedFood.name}`);
+        }
+        
+        function deleteEntry(id) {
+            diary = diary.filter(e => e.id !== id);
+            localStorage.setItem('xp_diary', JSON.stringify(diary));
+            renderDiary();
+        }
+        
+        function renderDiary() {
+            const today = new Date().toDateString();
+            const todayEntries = diary.filter(e => e.date === today);
+            const total = todayEntries.reduce((acc,e) => {
+                acc.calories += e.calories;
+                acc.protein += parseFloat(e.protein);
+                acc.fat += parseFloat(e.fat);
+                acc.carbs += parseFloat(e.carbs);
+                return acc;
+            }, {calories:0, protein:0, fat:0, carbs:0});
+            const goal = 2000;
+            const percent = (total.calories / goal * 100).toFixed(1);
+            document.getElementById('summary').innerHTML = `
+                <div>📊 ${new Date().toLocaleDateString('ru-RU')}</div>
+                <div style="display:flex;justify-content:space-between;margin:10px 0"><span>🔥 Калории</span><span><b>${total.calories}</b> / ${goal} ккал</span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(percent,100)}%"></div></div>
+                <div class="macro-row">
+                    <div class="macro-item"><div>🥩 ${total.protein.toFixed(1)}г</div><div>Белки</div></div>
+                    <div class="macro-item"><div>🧈 ${total.fat.toFixed(1)}г</div><div>Жиры</div></div>
+                    <div class="macro-item"><div>🍚 ${total.carbs.toFixed(1)}г</div><div>Углеводы</div></div>
+                </div>
+            `;
+            const meals = ['breakfast','lunch','dinner','snack'];
+            let html = '';
+            for (const meal of meals) {
+                const mealEntries = todayEntries.filter(e => e.meal === meal);
+                if (mealEntries.length) {
+                    html += `<div class="card"><div><b>${mealNames[meal]}</b></div>`;
+                    html += mealEntries.map(e => `
+                        <div class="diary-item">
+                            <div><div><b>${e.name}</b></div><div style="font-size:12px">${e.grams}г | 🔥 ${e.calories} ккал</div></div>
+                            <button class="btn-danger" onclick="deleteEntry(${e.id})">✖️</button>
+                        </div>
+                    `).join('');
+                    html += `</div>`;
                 }
-            });
-        }
-        
-        function closeWeightModal() {
-            document.getElementById('weightModal').classList.remove('active');
-            currentFood = null;
-        }
-        
-        // Сканер штрихкодов
-        async function startScanner() {
-            document.getElementById('scannerContainer').classList.add('active');
-            
-            html5QrCode = new Html5Qrcode("qr-reader");
-            
-            try {
-                await html5QrCode.start(
-                    { facingMode: "environment" },
-                    {
-                        fps: 10,
-                        qrbox: { width: 250, height: 250 }
-                    },
-                    onScanSuccess,
-                    onScanError
-                );
-            } catch(err) {
-                console.error('Scanner error:', err);
-                tg.showAlert('❌ Не удалось запустить камеру');
-                stopScanner();
             }
+            if (!todayEntries.length) html = '<div class="empty-state">🍽️ Добавьте первый прием пищи!</div>';
+            document.getElementById('diaryList').innerHTML = html;
         }
         
-        async function onScanSuccess(decodedText, decodedResult) {
-            tg.HapticFeedback.impactOccurred('medium');
-            stopScanner();
-            tg.showAlert(`🔍 Найден штрихкод: ${decodedText}`);
-            await searchByBarcode(decodedText);
-        }
-        
-        function onScanError(errorMessage) {
-            // Игнорируем ошибки сканирования
-        }
-        
-        function stopScanner() {
-            if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop().then(() => {
-                    document.getElementById('scannerContainer').classList.remove('active');
-                }).catch(err => console.error('Stop scanner error:', err));
-            } else {
-                document.getElementById('scannerContainer').classList.remove('active');
-            }
-        }
-        
-        async function searchByBarcode(barcode) {
-            try {
-                const response = await fetch(`/api/search_by_barcode?barcode=${encodeURIComponent(barcode)}`, {
-                    headers: {
-                        'X-Telegram-User-Id': tg.initDataUnsafe.user.id
-                    }
-                });
-                const data = await response.json();
-                
-                if (data.food) {
-                    selectFood(data.food.id, data.food.name, data.food.calories, data.food.protein, data.food.fat, data.food.carbs);
-                } else {
-                    tg.showAlert(`❌ Продукт со штрихкодом ${barcode} не найден\n\nВы можете добавить его вручную через поиск`);
-                }
-            } catch(e) {
-                console.error('Barcode search error:', e);
-                tg.showAlert('❌ Ошибка поиска по штрихкоду');
-            }
-        }
-        
-        // История
-        async function showHistory() {
-            try {
-                const response = await fetch('/api/today_entries', {
-                    headers: {
-                        'X-Telegram-User-Id': tg.initDataUnsafe.user.id
-                    }
-                });
-                const entries = await response.json();
-                
-                if (entries.length === 0) {
-                    tg.showAlert('📭 Сегодня ещё нет записей');
-                    return;
-                }
-                
-                let message = '📋 *СЕГОДНЯШНИЕ ЗАПИСИ*\n\n';
-                for (const entry of entries) {
-                    const mealEmoji = {
-                        'завтрак': '🍳', 'обед': '🍲', 'ужин': '🍽️', 'перекус': '🍎'
-                    };
-                    message += `${mealEmoji[entry.meal]} *${entry.meal.toUpperCase()}*: ${entry.food_name} - ${entry.quantity}г (${entry.calories} ккал)\n`;
-                }
-                
-                tg.showPopup({
-                    title: 'История питания',
-                    message: message.replace(/\*/g, ''),
-                    buttons: [{id: 'ok', type: 'ok', text: 'OK'}]
-                });
-            } catch(e) {
-                console.error('History error:', e);
-            }
-        }
-        
-        // Обработка вкладок
-        document.querySelectorAll('.meal-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.meal-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                currentMeal = tab.dataset.meal;
-                tg.HapticFeedback.impactOccurred('light');
-            });
-        });
-        
-        // Поиск с debounce
-        document.getElementById('search').addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => searchFood(e.target.value), 300);
-        });
-        
-        // Закрытие модального окна по клику вне
-        document.getElementById('weightModal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('weightModal')) {
-                closeWeightModal();
-            }
-        });
-        
-        // Загрузка данных
-        loadSummary();
-        
-        // Настройка главной кнопки
-        tg.MainButton.setText('🔄 Обновить');
-        tg.MainButton.onClick(() => {
-            loadSummary();
-            tg.HapticFeedback.impactOccurred('light');
-        });
-        tg.MainButton.show();
-        
-        // Обработка закрытия
-        tg.onEvent('mainButtonClicked', () => {
-            loadSummary();
-        });
+        function closeModal() { document.getElementById('weightModal').classList.remove('active'); selectedFood = null; }
+        renderDiary();
     </script>
 </body>
-</html>>
+</html>
