@@ -15,7 +15,6 @@
             min-height:100vh;
         }
         
-        /* Вкладки приемов пищи */
         .meal-tabs{
             display:flex;
             gap:8px;
@@ -40,7 +39,6 @@
             color:white;
         }
         
-        /* Сводка */
         .summary{
             background:var(--tg-theme-secondary-bg-color,#f0f0f0);
             padding:16px;
@@ -56,7 +54,6 @@
         .macro-value{font-weight:bold;font-size:16px}
         .macro-label{font-size:12px;opacity:0.7}
         
-        /* Поиск */
         .search-container{
             background:var(--tg-theme-secondary-bg-color,#f0f0f0);
             border-radius:12px;
@@ -74,7 +71,6 @@
         }
         .search-box:focus{outline:none;border-color:var(--tg-theme-button-color,#2481cc)}
         
-        /* Результаты поиска */
         .food-list{
             max-height:300px;
             overflow-y:auto;
@@ -113,7 +109,6 @@
             color:white;
         }
         
-        /* Корзина */
         .cart{
             background:var(--tg-theme-secondary-bg-color,#f0f0f0);
             border-radius:12px;
@@ -180,7 +175,6 @@
             margin-top:12px;
         }
         
-        /* Дневник */
         .diary-list{
             margin-bottom:16px;
         }
@@ -206,7 +200,6 @@
         }
         .empty-state{text-align:center;padding:40px;opacity:0.5}
         
-        /* Модальное окно для количества (для бургеров/пиццы) */
         .modal{
             display:none;
             position:fixed;
@@ -250,7 +243,6 @@
     </style>
 </head>
 <body>
-    <!-- Вкладки приемов пищи -->
     <div class="meal-tabs">
         <div class="meal-tab active" data-meal="breakfast">🍳 Завтрак</div>
         <div class="meal-tab" data-meal="lunch">🍲 Обед</div>
@@ -258,16 +250,13 @@
         <div class="meal-tab" data-meal="snack">🍎 Перекус</div>
     </div>
 
-    <!-- Сводка КБЖУ -->
     <div class="summary" id="summary">📊 Загрузка...</div>
 
-    <!-- Поиск -->
     <div class="search-container">
         <input type="text" class="search-box" id="searchInput" placeholder="🔍 Поиск продуктов..." autocomplete="off">
         <div id="searchResults" class="food-list"></div>
     </div>
 
-    <!-- Корзина выбранных продуктов -->
     <div class="cart" id="cart" style="display:none">
         <div class="cart-header">
             <span>🛒 Выбранные продукты</span>
@@ -277,10 +266,8 @@
         <button class="save-btn" onclick="saveAllToDiary()">💾 Сохранить все в дневник</button>
     </div>
 
-    <!-- Дневник -->
     <div id="diaryList" class="diary-list"></div>
 
-    <!-- Модальное окно -->
     <div class="modal" id="quantityModal">
         <div class="modal-content">
             <div class="modal-title" id="modalTitle">Выберите количество</div>
@@ -292,20 +279,21 @@
         </div>
     </div>
 
+    <!-- ⭐ ПОДКЛЮЧАЕМ ПРОДУКТЫ ИЗ МАГНИТА (СПАРСЕННЫЕ ДАННЫЕ) ⭐ -->
+    <script src="magnit_products.js"></script>
+
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.MainButton.hide();
         
-        // База продуктов
-        const products = [
-            // Обычные продукты (в граммах)
+        // ========== ОСНОВНОЙ МАССИВ ПРОДУКТОВ ==========
+        // ВАШИ СУЩЕСТВУЮЩИЕ ПРОДУКТЫ (базовые)
+        let products = [
             {"id":1,"name":"Сыр Моя Цена","calories":327,"protein":24.5,"fat":25.5,"carbs":0,"unit":"g","default":100},
             {"id":2,"name":"Сыр Белебеевский","calories":347,"protein":27,"fat":26.5,"carbs":0,"unit":"g","default":100},
             {"id":3,"name":"Творог Мама Лама","calories":105,"protein":7.9,"fat":3.8,"carbs":9.7,"unit":"g","default":100},
             {"id":4,"name":"Йогурт Греческий","calories":63,"protein":7,"fat":2,"carbs":4.2,"unit":"g","default":140},
-            
-            // Бургеры (в штуках)
             {"id":32,"name":"🍔 Гамбургер","calories":251,"protein":13,"fat":8.8,"carbs":29,"unit":"pcs","options":[1,2,3,4,5]},
             {"id":33,"name":"🍔 Чизбургер","calories":302,"protein":16,"fat":13,"carbs":31,"unit":"pcs","options":[1,2,3,4,5]},
             {"id":34,"name":"🍔 Чикенбургер","calories":339,"protein":16,"fat":13,"carbs":31,"unit":"pcs","options":[1,2,3,4,5]},
@@ -313,35 +301,30 @@
             {"id":48,"name":"🍔 Биг Спешиал","calories":751,"protein":43,"fat":38,"carbs":59,"unit":"pcs","options":[1,2,3,4,5]},
             {"id":93,"name":"🍔 Гамбургер Вкусно и Точка","calories":251,"protein":13,"fat":8.8,"carbs":29,"unit":"pcs","options":[1,2,3,4,5]},
             {"id":94,"name":"🍔 Чизбургер Вкусно и Точка","calories":302,"protein":16,"fat":13,"carbs":31,"unit":"pcs","options":[1,2,3,4,5]},
-            
-            // Пицца (в штуках)
             {"id":11,"name":"🍕 Маргарита","calories":235,"protein":9.8,"fat":7.6,"carbs":30.5,"unit":"pcs","options":[1,2,3,4]},
             {"id":12,"name":"🍕 Пепперони","calories":283,"protein":11.5,"fat":11.4,"carbs":31.9,"unit":"pcs","options":[1,2,3,4]},
             {"id":13,"name":"🍕 Сырная","calories":292,"protein":10.8,"fat":10.6,"carbs":36.7,"unit":"pcs","options":[1,2,3,4]},
             {"id":14,"name":"🍕 Гавайская","calories":246,"protein":11.3,"fat":9.6,"carbs":29.7,"unit":"pcs","options":[1,2,3,4]},
             {"id":15,"name":"🍕 Мясная","calories":257,"protein":11.3,"fat":9.6,"carbs":29.7,"unit":"pcs","options":[1,2,3,4]},
-            
-            // Напитки (в штуках)
             {"id":37,"name":"🥤 Молочный коктейль","calories":126,"protein":3.3,"fat":7.1,"carbs":11.3,"unit":"pcs","options":[1,2,3]},
             {"id":38,"name":"☕ Капучино","calories":55,"protein":2.8,"fat":3,"carbs":4,"unit":"pcs","options":[1,2,3]},
-            
-            // Картошка (в граммах)
             {"id":31,"name":"🍟 Картофель Фри","calories":330,"protein":3.9,"fat":16,"carbs":41,"unit":"g","default":150},
             {"id":22,"name":"🥔 Картофель из печи","calories":221,"protein":3.8,"fat":6.8,"carbs":34.9,"unit":"g","default":150},
-            
-            // Соусы (в штуках)
             {"id":36,"name":"🥫 Сырный соус","calories":90,"protein":1,"fat":9,"carbs":2,"unit":"pcs","options":[1,2,3]},
-            {"id":37,"name":"🥫 Барбекю","calories":47,"protein":0,"fat":0,"carbs":11,"unit":"pcs","options":[1,2,3]},
         ];
         
+        // ПРОДУКТЫ ИЗ МАГНИТА БУДУТ ДОБАВЛЕНЫ АВТОМАТИЧЕСКИ ЧЕРЕЗ magnit_products.js
+        // Файл magnit_products.js должен содержать функцию addMagnitProducts()
+        // которая добавляет продукты в массив products
+        
         let currentMeal = 'breakfast';
-        let cart = []; // Корзина выбранных продуктов
-        let pendingProduct = null; // Продукт для модального окна
+        let cart = [];
+        let pendingProduct = null;
         
         const mealNames = {breakfast:'Завтрак', lunch:'Обед', dinner:'Ужин', snack:'Перекус'};
         let diary = JSON.parse(localStorage.getItem('xp_diary') || '[]');
         
-        // Переключение вкладки приема пищи
+        // Переключение вкладки
         document.querySelectorAll('.meal-tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('.meal-tab').forEach(t => t.classList.remove('active'));
@@ -383,7 +366,6 @@
                 </div>
             `).join('');
             
-            // Скрываем клавиатуру после поиска
             document.getElementById('searchInput').blur();
         }
         
@@ -391,7 +373,6 @@
             const product = products.find(p => p.id === productId);
             if (!product) return;
             
-            // Проверяем, есть ли уже в корзине
             const existing = cart.find(item => item.id === productId);
             if (existing) {
                 cart = cart.filter(item => item.id !== productId);
@@ -401,12 +382,10 @@
                 return;
             }
             
-            // Если продукт в штуках - показываем выбор количества
             if (product.unit === 'pcs') {
                 pendingProduct = product;
                 showQuantityModal(product);
             } else {
-                // Для продуктов в граммах - добавляем с дефолтным весом
                 cart.push({
                     id: product.id,
                     name: product.name,
@@ -529,13 +508,11 @@
                 let calories, protein, fat, carbs;
                 
                 if (item.unit === 'pcs') {
-                    // Для штук
                     calories = Math.round(item.calories * item.quantity);
                     protein = (item.protein * item.quantity).toFixed(1);
                     fat = (item.fat * item.quantity).toFixed(1);
                     carbs = (item.carbs * item.quantity).toFixed(1);
                 } else {
-                    // Для граммов
                     const factor = item.quantity / 100;
                     calories = Math.round(item.calories * factor);
                     protein = (item.protein * factor).toFixed(1);
@@ -581,7 +558,6 @@
             const todayEntries = diary.filter(e => e.date === today);
             const currentMealEntries = todayEntries.filter(e => e.meal === currentMeal);
             
-            // Общая статистика
             const total = todayEntries.reduce((acc, e) => {
                 acc.calories += e.calories;
                 acc.protein += e.protein;
@@ -627,7 +603,6 @@
             }
         }
         
-        // Закрытие модального окна по клику вне
         document.getElementById('quantityModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('quantityModal')) {
                 closeQuantityModal();
@@ -635,6 +610,11 @@
         });
         
         renderDiary();
+        
+        // Выводим статистику в консоль после загрузки всех продуктов
+        setTimeout(() => {
+            console.log(`📦 Всего продуктов в базе: ${products.length}`);
+        }, 100);
     </script>
 </body>
 </html>
