@@ -14,393 +14,132 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #fff;
+            background: var(--tg-theme-bg-color, #fff);
+            color: var(--tg-theme-text-color, #000);
             min-height: 100vh;
-            padding: 16px 12px 90px 12px;
         }
 
-        /* Анимированный градиентный фон */
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* Карточки */
-        .card {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        /* Основной контент */
+        .main-content {
+            padding: 12px;
+            padding-bottom: 80px;
         }
 
         /* Вкладки приёмов пищи */
         .meal-tabs {
             display: flex;
             gap: 8px;
-            margin-bottom: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 6px;
-            border-radius: 40px;
-            backdrop-filter: blur(10px);
+            margin-bottom: 16px;
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            padding: 8px;
+            border-radius: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         .meal-tab {
             flex: 1;
-            padding: 12px 8px;
+            padding: 10px;
             text-align: center;
-            border-radius: 32px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+            transition: all 0.2s;
         }
 
         .meal-tab.active {
-            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            background: var(--tg-theme-button-color, #2481cc);
             color: white;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
         }
 
         /* Сводка КБЖУ */
         .summary {
-            background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(33, 150, 243, 0.2));
-            border: 1px solid rgba(76, 175, 80, 0.3);
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
         }
 
         .summary-header {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 16px;
         }
 
         .calories-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 12px;
-            font-size: 16px;
-        }
-
-        .calories-row b {
-            font-size: 24px;
-            color: #4CAF50;
+            margin-bottom: 8px;
         }
 
         .progress-bar {
             height: 10px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
+            background: rgba(128, 128, 128, 0.3);
+            border-radius: 5px;
             overflow: hidden;
-            margin: 12px 0;
+            margin: 10px 0;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #4CAF50, #8BC34A);
-            border-radius: 10px;
-            transition: width 0.5s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 1.5s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+            background: var(--tg-theme-button-color, #2481cc);
+            transition: width 0.3s;
         }
 
         .macros-row {
             display: flex;
             justify-content: space-around;
-            margin-top: 16px;
+            margin-top: 12px;
             gap: 12px;
         }
 
         .macro-item {
             text-align: center;
             flex: 1;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
         }
 
         .macro-value {
-            font-weight: 700;
-            font-size: 18px;
+            font-weight: bold;
+            font-size: 16px;
         }
 
         .macro-label {
             font-size: 12px;
             opacity: 0.7;
-            margin-top: 4px;
         }
 
-        /* Поиск */
-        .search-container {
-            position: relative;
-        }
-
-        .search-box {
+        /* Кнопка поиска */
+        .search-btn {
             width: 100%;
-            padding: 14px 16px;
-            font-size: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 30px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            transition: all 0.3s;
-        }
-
-        .search-box:focus {
-            outline: none;
-            border-color: #4CAF50;
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
-        }
-
-        .search-box::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        /* Список продуктов */
-        .food-list {
-            max-height: 350px;
-            overflow-y: auto;
-            margin-top: 12px;
-        }
-
-        .food-list::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .food-list::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-        }
-
-        .food-list::-webkit-scrollbar-thumb {
-            background: #4CAF50;
-            border-radius: 4px;
-        }
-
-        .food-item {
-            background: rgba(255, 255, 255, 0.08);
             padding: 14px;
-            margin-bottom: 8px;
-            border-radius: 20px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.2s;
-            border: 1px solid transparent;
-        }
-
-        .food-item:hover {
-            background: rgba(255, 255, 255, 0.12);
-            transform: scale(1.01);
-        }
-
-        .food-item.selected {
-            background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(33, 150, 243, 0.2));
-            border-color: #4CAF50;
-        }
-
-        .food-info {
-            flex: 1;
-        }
-
-        .food-name {
-            font-weight: 700;
+            background: var(--tg-theme-button-color, #2481cc);
+            color: white;
+            border: none;
+            border-radius: 30px;
             font-size: 16px;
-            margin-bottom: 6px;
-        }
-
-        .food-calories {
-            font-size: 12px;
-            opacity: 0.7;
-            margin-bottom: 4px;
-        }
-
-        .food-macros {
-            display: flex;
-            gap: 12px;
-            font-size: 11px;
-            opacity: 0.6;
-        }
-
-        .select-indicator {
-            width: 32px;
-            height: 32px;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            font-weight: bold;
-            transition: all 0.2s;
-        }
-
-        .food-item.selected .select-indicator {
-            background: #4CAF50;
-            color: white;
-            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
-        }
-
-        /* Корзина */
-        .cart {
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6));
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid rgba(76, 175, 80, 0.3);
-            position: sticky;
-            bottom: 80px;
-        }
-
-        .cart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            font-weight: 700;
-            font-size: 16px;
-        }
-
-        .cart-badge {
-            background: #4CAF50;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-        }
-
-        .cart-items {
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .cart-item-info {
-            flex: 1;
-        }
-
-        .cart-item-name {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .cart-item-details {
-            font-size: 11px;
-            opacity: 0.6;
-            margin-top: 2px;
-        }
-
-        .quantity-control {
-            display: flex;
-            align-items: center;
             gap: 8px;
-            margin: 0 10px;
-        }
-
-        .quantity-btn {
-            width: 28px;
-            height: 28px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #4CAF50, #2196F3);
-            color: white;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-
-        .quantity-btn:active {
-            transform: scale(0.95);
-        }
-
-        .remove-item {
-            background: rgba(244, 67, 54, 0.8);
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-
-        .remove-item:active {
-            transform: scale(0.95);
-        }
-
-        .save-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #4CAF50, #2196F3);
-            color: white;
-            border: none;
-            border-radius: 30px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 12px;
-            transition: all 0.3s;
-        }
-
-        .save-btn:active {
-            transform: scale(0.98);
         }
 
         /* Дневник */
         .diary-list {
-            margin-top: 8px;
+            margin-bottom: 16px;
         }
 
         .diary-item {
-            background: rgba(255, 255, 255, 0.08);
-            padding: 14px;
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            padding: 12px;
             margin-bottom: 8px;
-            border-radius: 20px;
+            border-radius: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.2s;
-        }
-
-        .diary-item:hover {
-            background: rgba(255, 255, 255, 0.12);
         }
 
         .diary-info {
@@ -408,43 +147,200 @@
         }
 
         .diary-name {
-            font-weight: 600;
-            font-size: 15px;
+            font-weight: bold;
             margin-bottom: 4px;
         }
 
         .diary-details {
-            font-size: 11px;
-            opacity: 0.6;
+            font-size: 12px;
+            opacity: 0.7;
         }
 
         .delete-btn {
-            background: rgba(244, 67, 54, 0.8);
+            background: #f44336;
             color: white;
             border: none;
-            padding: 8px 14px;
-            border-radius: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .delete-btn:active {
-            transform: scale(0.95);
         }
 
         .empty-state {
             text-align: center;
             padding: 40px;
+            opacity: 0.5;
+        }
+
+        /* ========== ПОЛНОЭКРАННЫЙ ПОИСК ========== */
+        .fullscreen-search {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--tg-theme-bg-color, #fff);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .fullscreen-search.active {
+            display: flex;
+        }
+
+        .search-header {
+            padding: 12px;
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            position: sticky;
+            top: 0;
+        }
+
+        .search-header input {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            background: var(--tg-theme-bg-color, #fff);
+            color: var(--tg-theme-text-color, #000);
+        }
+
+        .close-search {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: #f44336;
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .search-results {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .search-result-item {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-result-item.selected {
+            background: rgba(36, 129, 204, 0.2);
+            border: 1px solid var(--tg-theme-button-color, #2481cc);
+        }
+
+        .result-info {
+            flex: 1;
+        }
+
+        .result-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .result-calories {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .result-macros {
+            display: flex;
+            gap: 12px;
+            font-size: 11px;
+            margin-top: 4px;
             opacity: 0.6;
         }
 
-        .empty-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-            display: block;
+        .check-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 14px;
+            background: rgba(128, 128, 128, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
         }
 
-        /* Модальное окно */
+        .search-result-item.selected .check-icon {
+            background: var(--tg-theme-button-color, #2481cc);
+            color: white;
+        }
+
+        .search-footer {
+            padding: 12px;
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            display: flex;
+            gap: 12px;
+            position: sticky;
+            bottom: 0;
+        }
+
+        .search-footer button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .save-selected {
+            background: var(--tg-theme-button-color, #2481cc);
+            color: white;
+        }
+
+        .cancel-search {
+            background: #f44336;
+            color: white;
+        }
+
+        /* Кнопка корзины */
+        .cart-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
+            background: var(--tg-theme-button-color, #2481cc);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #f44336;
+            color: white;
+            border-radius: 20px;
+            padding: 2px 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Модалка количества */
         .modal {
             display: none;
             position: fixed;
@@ -452,149 +348,111 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.5);
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 1100;
         }
 
         .modal.active {
             display: flex;
-            animation: fadeIn 0.2s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
         }
 
         .modal-content {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            border-radius: 32px;
-            padding: 24px;
+            background: var(--tg-theme-bg-color, #fff);
+            border-radius: 20px;
+            padding: 20px;
             width: 90%;
             max-width: 320px;
-            border: 1px solid rgba(76, 175, 80, 0.3);
         }
 
         .modal-title {
-            font-weight: 700;
-            font-size: 20px;
-            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 16px;
             text-align: center;
         }
 
         .quick-weights {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 16px;
         }
 
         .weight-btn {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
             padding: 12px;
             text-align: center;
-            border-radius: 16px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 600;
-        }
-
-        .weight-btn:hover {
-            background: rgba(76, 175, 80, 0.3);
         }
 
         .modal-buttons {
             display: flex;
-            gap: 12px;
-            margin-top: 20px;
+            gap: 10px;
         }
 
         .modal-btn {
             flex: 1;
             padding: 12px;
             border: none;
-            border-radius: 20px;
+            border-radius: 10px;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
+            font-weight: 500;
         }
 
         .modal-btn.confirm {
-            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            background: var(--tg-theme-button-color, #2481cc);
             color: white;
         }
 
         .modal-btn.cancel {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
         }
-
-        .modal-btn:active {
-            transform: scale(0.96);
-        }
-
-        /* Анимированное уведомление */
-        .toast {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #4CAF50, #2196F3);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 40px;
-            font-weight: 600;
-            z-index: 1000;
-            animation: slideUp 0.3s ease;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
-
-        /* Вспомогательные классы */
-        .text-success { color: #4CAF50; }
-        .text-warning { color: #FF9800; }
-        .text-danger { color: #f44336; }
     </style>
 </head>
 <body>
-    <div class="meal-tabs">
-        <div class="meal-tab active" data-meal="breakfast">🍳 Завтрак</div>
-        <div class="meal-tab" data-meal="lunch">🍲 Обед</div>
-        <div class="meal-tab" data-meal="dinner">🍽️ Ужин</div>
-        <div class="meal-tab" data-meal="snack">🍎 Перекус</div>
-    </div>
-
-    <div class="summary card" id="summary">📊 Загрузка...</div>
-
-    <div class="search-container card">
-        <input type="text" class="search-box" id="searchInput" placeholder="🔍 Поиск продуктов..." autocomplete="off">
-        <div id="searchResults" class="food-list"></div>
-    </div>
-
-    <div class="cart" id="cart" style="display:none">
-        <div class="cart-header">
-            <span>🛒 Выбранные продукты</span>
-            <span class="cart-badge" id="cartCount">0</span>
+    <!-- Основной контент -->
+    <div class="main-content">
+        <div class="meal-tabs">
+            <div class="meal-tab active" data-meal="breakfast">🍳 Завтрак</div>
+            <div class="meal-tab" data-meal="lunch">🍲 Обед</div>
+            <div class="meal-tab" data-meal="dinner">🍽️ Ужин</div>
+            <div class="meal-tab" data-meal="snack">🍎 Перекус</div>
         </div>
-        <div id="cartItems" class="cart-items"></div>
-        <button class="save-btn" onclick="saveAllToDiary()">💾 Сохранить в дневник</button>
+
+        <div class="summary" id="summary">📊 Загрузка...</div>
+
+        <button class="search-btn" id="openSearchBtn">
+            🔍 Добавить продукты
+        </button>
+
+        <div id="diaryList" class="diary-list"></div>
     </div>
 
-    <div id="diaryList" class="diary-list"></div>
+    <!-- Кнопка корзины -->
+    <button class="cart-btn" id="cartBtn" style="display:none">
+        🛒
+        <span class="cart-badge" id="cartBadge">0</span>
+    </button>
 
+    <!-- Полноэкранный поиск -->
+    <div class="fullscreen-search" id="fullscreenSearch">
+        <div class="search-header">
+            <input type="text" id="searchInput" placeholder="🔍 Поиск продуктов..." autocomplete="off">
+            <button class="close-search" id="closeSearchBtn">✖️</button>
+        </div>
+        <div class="search-results" id="searchResults">
+            <div class="empty-state">🔍 Начните вводить название продукта</div>
+        </div>
+        <div class="search-footer">
+            <button class="cancel-search" id="cancelSearchBtn">Отмена</button>
+            <button class="save-selected" id="saveSelectedBtn">✅ Добавить выбранные</button>
+        </div>
+    </div>
+
+    <!-- Модалка количества -->
     <div class="modal" id="quantityModal">
         <div class="modal-content">
             <div class="modal-title" id="modalTitle">Выберите количество</div>
@@ -606,57 +464,47 @@
         </div>
     </div>
 
+    <!-- ПОДКЛЮЧАЕМ ПРОДУКТЫ -->
+    <script src="all_products.js"></script>
+    
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.MainButton.hide();
         
-        // Показываем уведомление
-        function showToast(message, isSuccess = true) {
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerHTML = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 2000);
-            if(tg.HapticFeedback) {
-                if(isSuccess) tg.HapticFeedback.notificationOccurred('success');
-                else tg.HapticFeedback.impactOccurred('heavy');
+        // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
+        let currentMeal = 'breakfast';
+        let selectedProducts = []; // Выбранные продукты в поиске
+        let allProducts = []; // Все продукты из all_products.js
+        let pendingProduct = null;
+        let diary = JSON.parse(localStorage.getItem('xp_diary') || '[]');
+        
+        const mealNames = {breakfast:'Завтрак', lunch:'Обед', dinner:'Ужин', snack:'Перекус'};
+        
+        // ========== ЗАГРУЗКА ПРОДУКТОВ ==========
+        function loadProducts() {
+            // Проверяем, есть ли глобальная переменная от all_products.js
+            if (typeof window.allProducts !== 'undefined' && window.allProducts.length > 0) {
+                allProducts = window.allProducts;
+                console.log(`✅ Загружено ${allProducts.length} продуктов из all_products.js`);
+            } else {
+                // Фallback продукты
+                allProducts = [
+                    {"id":1,"name":"Сыр Моя Цена","calories":327,"protein":24.5,"fat":25.5,"carbs":0,"unit":"g","default":100},
+                    {"id":2,"name":"Сыр Белебеевский","calories":347,"protein":27,"fat":26.5,"carbs":0,"unit":"g","default":100},
+                    {"id":3,"name":"Творог Мама Лама","calories":105,"protein":7.9,"fat":3.8,"carbs":9.7,"unit":"g","default":100},
+                    {"id":4,"name":"Йогурт Греческий","calories":63,"protein":7,"fat":2,"carbs":4.2,"unit":"g","default":140},
+                    {"id":32,"name":"🍔 Гамбургер","calories":251,"protein":13,"fat":8.8,"carbs":29,"unit":"pcs","options":[1,2,3,4,5]},
+                    {"id":33,"name":"🍔 Чизбургер","calories":302,"protein":16,"fat":13,"carbs":31,"unit":"pcs","options":[1,2,3,4,5]},
+                    {"id":11,"name":"🍕 Маргарита","calories":235,"protein":9.8,"fat":7.6,"carbs":30.5,"unit":"pcs","options":[1,2,3,4]},
+                    {"id":12,"name":"🍕 Пепперони","calories":283,"protein":11.5,"fat":11.4,"carbs":31.9,"unit":"pcs","options":[1,2,3,4]},
+                    {"id":31,"name":"🍟 Картофель Фри","calories":330,"protein":3.9,"fat":16,"carbs":41,"unit":"g","default":150},
+                ];
+                console.log(`⚠️ all_products.js не найден, загружено ${allProducts.length} продуктов по умолчанию`);
             }
         }
         
-        // БАЗА ПРОДУКТОВ
-        let products = [
-            {"id":1,"name":"Сыр Моя Цена","calories":327,"protein":24.5,"fat":25.5,"carbs":0,"unit":"g","default":100},
-            {"id":2,"name":"Сыр Белебеевский","calories":347,"protein":27,"fat":26.5,"carbs":0,"unit":"g","default":100},
-            {"id":3,"name":"Творог Мама Лама","calories":105,"protein":7.9,"fat":3.8,"carbs":9.7,"unit":"g","default":100},
-            {"id":4,"name":"Йогурт Греческий","calories":63,"protein":7,"fat":2,"carbs":4.2,"unit":"g","default":140},
-            {"id":32,"name":"🍔 Гамбургер","calories":251,"protein":13,"fat":8.8,"carbs":29,"unit":"pcs","options":[1,2,3,4,5]},
-            {"id":33,"name":"🍔 Чизбургер","calories":302,"protein":16,"fat":13,"carbs":31,"unit":"pcs","options":[1,2,3,4,5]},
-            {"id":34,"name":"🍔 Чикенбургер","calories":339,"protein":16,"fat":13,"carbs":31,"unit":"pcs","options":[1,2,3,4,5]},
-            {"id":35,"name":"🍔 Гранд","calories":514,"protein":30,"fat":26,"carbs":38,"unit":"pcs","options":[1,2,3,4,5]},
-            {"id":48,"name":"🍔 Биг Спешиал","calories":751,"protein":43,"fat":38,"carbs":59,"unit":"pcs","options":[1,2,3,4,5]},
-            {"id":93,"name":"🍔 Гамбургер Вкусно и Точка","calories":251,"protein":13,"fat":8.8,"carbs":29,"unit":"pcs","options":[1,2,3,4,5]},
-            {"id":94,"name":"🍔 Чизбургер Вкусно и Точка","calories":302,"protein":16,"fat":13,"carbs":31,"unit":"pcs","options":[1,2,3,4,5]},
-            {"id":11,"name":"🍕 Маргарита","calories":235,"protein":9.8,"fat":7.6,"carbs":30.5,"unit":"pcs","options":[1,2,3,4]},
-            {"id":12,"name":"🍕 Пепперони","calories":283,"protein":11.5,"fat":11.4,"carbs":31.9,"unit":"pcs","options":[1,2,3,4]},
-            {"id":13,"name":"🍕 Сырная","calories":292,"protein":10.8,"fat":10.6,"carbs":36.7,"unit":"pcs","options":[1,2,3,4]},
-            {"id":14,"name":"🍕 Гавайская","calories":246,"protein":11.3,"fat":9.6,"carbs":29.7,"unit":"pcs","options":[1,2,3,4]},
-            {"id":15,"name":"🍕 Мясная","calories":257,"protein":11.3,"fat":9.6,"carbs":29.7,"unit":"pcs","options":[1,2,3,4]},
-            {"id":37,"name":"🥤 Молочный коктейль","calories":126,"protein":3.3,"fat":7.1,"carbs":11.3,"unit":"pcs","options":[1,2,3]},
-            {"id":38,"name":"☕ Капучино","calories":55,"protein":2.8,"fat":3,"carbs":4,"unit":"pcs","options":[1,2,3]},
-            {"id":31,"name":"🍟 Картофель Фри","calories":330,"protein":3.9,"fat":16,"carbs":41,"unit":"g","default":150},
-            {"id":22,"name":"🥔 Картофель из печи","calories":221,"protein":3.8,"fat":6.8,"carbs":34.9,"unit":"g","default":150},
-            {"id":36,"name":"🥫 Сырный соус","calories":90,"protein":1,"fat":9,"carbs":2,"unit":"pcs","options":[1,2,3]},
-        ];
-        
-        let currentMeal = 'breakfast';
-        let cart = [];
-        let pendingProduct = null;
-        
-        const mealNames = {breakfast:'Завтрак', lunch:'Обед', dinner:'Ужин', snack:'Перекус'};
-        let diary = JSON.parse(localStorage.getItem('xp_diary') || '[]');
-        
-        // Переключение вкладки
+        // ========== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ==========
         document.querySelectorAll('.meal-tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('.meal-tab').forEach(t => t.classList.remove('active'));
@@ -667,73 +515,155 @@
             });
         });
         
-        // Поиск
+        // ========== ОТКРЫТИЕ ПОИСКА ==========
+        document.getElementById('openSearchBtn').addEventListener('click', () => {
+            selectedProducts = [];
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchResults').innerHTML = '<div class="empty-state">🔍 Начните вводить название продукта</div>';
+            document.getElementById('fullscreenSearch').classList.add('active');
+            document.getElementById('searchInput').focus();
+        });
+        
+        // ========== ЗАКРЫТИЕ ПОИСКА ==========
+        function closeSearch() {
+            document.getElementById('fullscreenSearch').classList.remove('active');
+        }
+        
+        document.getElementById('closeSearchBtn').addEventListener('click', closeSearch);
+        document.getElementById('cancelSearchBtn').addEventListener('click', closeSearch);
+        
+        // ========== ПОИСК ПРОДУКТОВ ==========
         let searchTimeout;
         document.getElementById('searchInput').addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => searchFoods(e.target.value), 300);
+            searchTimeout = setTimeout(() => searchProducts(e.target.value), 300);
         });
         
-        function searchFoods(query) {
+        function searchProducts(query) {
             query = query.toLowerCase().trim();
+            
             if (query.length < 2) {
-                document.getElementById('searchResults').innerHTML = '';
+                document.getElementById('searchResults').innerHTML = '<div class="empty-state">🔍 Введите минимум 2 символа</div>';
                 return;
             }
-            const results = products.filter(p => p.name.toLowerCase().includes(query));
+            
+            const results = allProducts.filter(p => p.name.toLowerCase().includes(query));
+            
             if (results.length === 0) {
                 document.getElementById('searchResults').innerHTML = '<div class="empty-state">😕 Ничего не найдено</div>';
                 return;
             }
             
-            const cartIds = cart.map(item => item.id);
+            const selectedIds = selectedProducts.map(p => p.id);
+            
             document.getElementById('searchResults').innerHTML = results.map(p => `
-                <div class="food-item ${cartIds.includes(p.id) ? 'selected' : ''}" onclick="addToCart(${p.id})">
-                    <div class="food-info">
-                        <div class="food-name">${p.name}</div>
-                        <div class="food-calories">🔥 ${p.calories} ккал / ${p.unit === 'pcs' ? 'шт' : '100г'}</div>
-                        <div class="food-macros">🥩 ${p.protein}г | 🧈 ${p.fat}г | 🍚 ${p.carbs}г</div>
+                <div class="search-result-item ${selectedIds.includes(p.id) ? 'selected' : ''}" onclick="toggleProductSelection(${p.id})">
+                    <div class="result-info">
+                        <div class="result-name">${p.name}</div>
+                        <div class="result-calories">🔥 ${p.calories} ккал / ${p.unit === 'pcs' ? 'шт' : '100г'}</div>
+                        <div class="result-macros">🥩 ${p.protein}г | 🧈 ${p.fat}г | 🍚 ${p.carbs}г</div>
                     </div>
-                    <div class="select-indicator">${cartIds.includes(p.id) ? '✓' : '+'}</div>
+                    <div class="check-icon">${selectedIds.includes(p.id) ? '✓' : '+'}</div>
                 </div>
             `).join('');
         }
         
-        function addToCart(productId) {
-            const product = products.find(p => p.id === productId);
+        // ========== ВЫБОР ПРОДУКТА В ПОИСКЕ ==========
+        function toggleProductSelection(productId) {
+            const product = allProducts.find(p => p.id === productId);
             if (!product) return;
             
-            const existing = cart.find(item => item.id === productId);
-            if (existing) {
-                cart = cart.filter(item => item.id !== productId);
-                renderCart();
-                searchFoods(document.getElementById('searchInput').value);
-                if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            const existingIndex = selectedProducts.findIndex(p => p.id === productId);
+            
+            if (existingIndex !== -1) {
+                selectedProducts.splice(existingIndex, 1);
+            } else {
+                selectedProducts.push({...product, quantity: product.default || 100});
+            }
+            
+            // Обновляем отображение
+            searchProducts(document.getElementById('searchInput').value);
+            
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        }
+        
+        // ========== СОХРАНЕНИЕ ВЫБРАННЫХ ПРОДУКТОВ ==========
+        async function saveSelectedProducts() {
+            if (selectedProducts.length === 0) {
+                if(tg.showAlert) tg.showAlert('Выберите хотя бы один продукт');
                 return;
             }
             
-            if (product.unit === 'pcs') {
-                pendingProduct = product;
-                showQuantityModal(product);
-            } else {
-                cart.push({
-                    id: product.id,
-                    name: product.name,
-                    calories: product.calories,
-                    protein: product.protein,
-                    fat: product.fat,
-                    carbs: product.carbs,
-                    quantity: product.default || 100,
-                    unit: product.unit
-                });
-                renderCart();
-                searchFoods(document.getElementById('searchInput').value);
-                if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            closeSearch();
+            
+            // По очереди добавляем каждый продукт
+            for (const product of selectedProducts) {
+                await addProductToCart(product);
             }
+            
+            selectedProducts = [];
+            
+            if(tg.showAlert) tg.showAlert(`✅ Добавлено в ${mealNames[currentMeal]}`);
         }
         
-        function showQuantityModal(product) {
-            document.getElementById('modalTitle').innerHTML = `🍔 ${product.name}`;
+        document.getElementById('saveSelectedBtn').addEventListener('click', saveSelectedProducts);
+        
+        // ========== ДОБАВЛЕНИЕ ПРОДУКТА В КОРЗИНУ С ВЫБОРОМ КОЛИЧЕСТВА ==========
+        function addProductToCart(product) {
+            return new Promise((resolve) => {
+                if (product.unit === 'pcs') {
+                    pendingProduct = product;
+                    showQuantityModal(product, resolve);
+                } else {
+                    // Для весовых продуктов сразу добавляем
+                    addToDiary(product, product.quantity);
+                    resolve();
+                }
+            });
+        }
+        
+        function addToDiary(product, quantity) {
+            let calories, protein, fat, carbs;
+            
+            if (product.unit === 'pcs') {
+                calories = Math.round(product.calories * quantity);
+                protein = (product.protein * quantity).toFixed(1);
+                fat = (product.fat * quantity).toFixed(1);
+                carbs = (product.carbs * quantity).toFixed(1);
+            } else {
+                const factor = quantity / 100;
+                calories = Math.round(product.calories * factor);
+                protein = (product.protein * factor).toFixed(1);
+                fat = (product.fat * factor).toFixed(1);
+                carbs = (product.carbs * factor).toFixed(1);
+            }
+            
+            const entry = {
+                id: Date.now() + Math.random(),
+                name: product.name,
+                grams: quantity,
+                unit: product.unit,
+                calories: calories,
+                protein: parseFloat(protein),
+                fat: parseFloat(fat),
+                carbs: parseFloat(carbs),
+                meal: currentMeal,
+                date: new Date().toDateString()
+            };
+            
+            diary.push(entry);
+            localStorage.setItem('xp_diary', JSON.stringify(diary));
+            renderDiary();
+            
+            if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        }
+        
+        // ========== МОДАЛКА КОЛИЧЕСТВА ==========
+        let currentResolve = null;
+        
+        function showQuantityModal(product, resolve) {
+            currentResolve = resolve;
+            document.getElementById('modalTitle').innerHTML = `${product.name}`;
             const optionsHtml = product.options.map(opt => `
                 <div class="weight-btn" onclick="selectQuantity(${opt})">${opt} шт</div>
             `).join('');
@@ -746,8 +676,8 @@
             selectedQuantity = qty;
             document.querySelectorAll('.weight-btn').forEach(btn => {
                 if(btn.innerText === `${qty} шт`) {
-                    btn.style.background = 'rgba(76, 175, 80, 0.3)';
-                    btn.style.border = '1px solid #4CAF50';
+                    btn.style.background = 'rgba(36,129,204,0.2)';
+                    btn.style.border = '1px solid #2481cc';
                 } else {
                     btn.style.background = '';
                     btn.style.border = '';
@@ -757,20 +687,9 @@
         
         function confirmQuantity() {
             if (pendingProduct) {
-                cart.push({
-                    id: pendingProduct.id,
-                    name: pendingProduct.name,
-                    calories: pendingProduct.calories,
-                    protein: pendingProduct.protein,
-                    fat: pendingProduct.fat,
-                    carbs: pendingProduct.carbs,
-                    quantity: selectedQuantity,
-                    unit: 'pcs'
-                });
-                renderCart();
-                searchFoods(document.getElementById('searchInput').value);
+                addToDiary(pendingProduct, selectedQuantity);
+                if(currentResolve) currentResolve();
                 closeQuantityModal();
-                showToast(`✅ ${pendingProduct.name} ×${selectedQuantity} добавлен`, true);
             }
         }
         
@@ -778,117 +697,18 @@
             document.getElementById('quantityModal').classList.remove('active');
             pendingProduct = null;
             selectedQuantity = 1;
+            currentResolve = null;
         }
         
-        function updateCartItemQuantity(productId, delta) {
-            const item = cart.find(i => i.id === productId);
-            if (item) {
-                const newQty = item.quantity + delta;
-                if (newQty >= 1) {
-                    item.quantity = newQty;
-                    renderCart();
-                }
-            }
-        }
-        
-        function removeFromCart(productId) {
-            cart = cart.filter(item => item.id !== productId);
-            renderCart();
-            searchFoods(document.getElementById('searchInput').value);
-            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-        }
-        
-        function renderCart() {
-            const cartDiv = document.getElementById('cart');
-            const cartItemsDiv = document.getElementById('cartItems');
-            const cartCountSpan = document.getElementById('cartCount');
-            
-            if (cart.length === 0) {
-                cartDiv.style.display = 'none';
-                return;
-            }
-            
-            cartDiv.style.display = 'block';
-            cartCountSpan.innerText = cart.length;
-            
-            cartItemsDiv.innerHTML = cart.map(item => `
-                <div class="cart-item">
-                    <div class="cart-item-info">
-                        <div class="cart-item-name">${item.name}</div>
-                        <div class="cart-item-details">
-                            ${item.unit === 'pcs' ? `${item.quantity} шт` : `${item.quantity}г`} | 
-                            🔥 ${item.unit === 'pcs' ? Math.round(item.calories * item.quantity) : Math.round(item.calories * item.quantity / 100)} ккал
-                        </div>
-                    </div>
-                    ${item.unit === 'pcs' ? `
-                        <div class="quantity-control">
-                            <button class="quantity-btn" onclick="updateCartItemQuantity(${item.id}, -1)">-</button>
-                            <span>${item.quantity}</span>
-                            <button class="quantity-btn" onclick="updateCartItemQuantity(${item.id}, 1)">+</button>
-                        </div>
-                    ` : ''}
-                    <button class="remove-item" onclick="removeFromCart(${item.id})">✖️</button>
-                </div>
-            `).join('');
-        }
-        
-        function saveAllToDiary() {
-            if (cart.length === 0) {
-                showToast('Корзина пуста', false);
-                return;
-            }
-            
-            const today = new Date().toDateString();
-            
-            for (const item of cart) {
-                let calories, protein, fat, carbs;
-                
-                if (item.unit === 'pcs') {
-                    calories = Math.round(item.calories * item.quantity);
-                    protein = (item.protein * item.quantity).toFixed(1);
-                    fat = (item.fat * item.quantity).toFixed(1);
-                    carbs = (item.carbs * item.quantity).toFixed(1);
-                } else {
-                    const factor = item.quantity / 100;
-                    calories = Math.round(item.calories * factor);
-                    protein = (item.protein * factor).toFixed(1);
-                    fat = (item.fat * factor).toFixed(1);
-                    carbs = (item.carbs * factor).toFixed(1);
-                }
-                
-                const entry = {
-                    id: Date.now() + Math.random(),
-                    name: item.name,
-                    grams: item.unit === 'pcs' ? item.quantity : item.quantity,
-                    unit: item.unit,
-                    calories: calories,
-                    protein: parseFloat(protein),
-                    fat: parseFloat(fat),
-                    carbs: parseFloat(carbs),
-                    meal: currentMeal,
-                    date: today
-                };
-                diary.push(entry);
-            }
-            
-            localStorage.setItem('xp_diary', JSON.stringify(diary));
-            cart = [];
-            renderCart();
-            renderDiary();
-            document.getElementById('searchInput').value = '';
-            document.getElementById('searchResults').innerHTML = '';
-            
-            showToast(`✅ ${cart.length} продуктов добавлено в ${mealNames[currentMeal]}`, true);
-        }
-        
+        // ========== УДАЛЕНИЕ ЗАПИСИ ==========
         function deleteEntry(id) {
             diary = diary.filter(e => e.id !== id);
             localStorage.setItem('xp_diary', JSON.stringify(diary));
             renderDiary();
             if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-            showToast('🗑️ Запись удалена', false);
         }
         
+        // ========== ОТОБРАЖЕНИЕ ДНЕВНИКА ==========
         function renderDiary() {
             const today = new Date().toDateString();
             const todayEntries = diary.filter(e => e.date === today);
@@ -906,10 +726,7 @@
             const percent = Math.min((total.calories / goal * 100), 100);
             
             document.getElementById('summary').innerHTML = `
-                <div class="summary-header">
-                    <span>📅 ${new Date().toLocaleDateString('ru-RU', {day:'numeric', month:'long'})}</span>
-                    <span>🎯 ${goal} ккал</span>
-                </div>
+                <div class="summary-header">📅 ${new Date().toLocaleDateString('ru-RU')}</div>
                 <div class="calories-row">
                     <span>🔥 Калории</span>
                     <span><b>${total.calories}</b> / ${goal} ккал</span>
@@ -920,12 +737,11 @@
                     <div class="macro-item"><div class="macro-value">🧈 ${total.fat.toFixed(1)}г</div><div class="macro-label">Жиры</div></div>
                     <div class="macro-item"><div class="macro-value">🍚 ${total.carbs.toFixed(1)}г</div><div class="macro-label">Углеводы</div></div>
                 </div>
-                ${total.calories > goal ? '<div style="color:#f44336;text-align:center;margin-top:12px;font-size:13px">⚠️ Превышение нормы калорий!</div>' : ''}
-                ${total.calories < goal * 0.7 && total.calories > 0 ? '<div style="color:#FF9800;text-align:center;margin-top:12px;font-size:13px">📈 Можно добавить ещё!</div>' : ''}
+                ${total.calories > goal ? '<div style="color:#f44336;text-align:center;margin-top:8px">⚠️ Превышение нормы!</div>' : ''}
             `;
             
             if (currentMealEntries.length === 0) {
-                document.getElementById('diaryList').innerHTML = `<div class="empty-state"><span class="empty-icon">🍽️</span><div>Нет записей в ${mealNames[currentMeal]}</div><div style="font-size:12px;margin-top:8px">Добавь продукты через поиск</div></div>`;
+                document.getElementById('diaryList').innerHTML = `<div class="empty-state">🍽️ Нет записей в ${mealNames[currentMeal]}</div>`;
             } else {
                 document.getElementById('diaryList').innerHTML = currentMealEntries.map(e => `
                     <div class="diary-item">
@@ -943,15 +759,18 @@
             }
         }
         
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        loadProducts();
+        renderDiary();
+        
+        // Закрытие модалки по клику вне
         document.getElementById('quantityModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('quantityModal')) {
                 closeQuantityModal();
             }
         });
         
-        renderDiary();
-        
-        console.log(`🍽️ XP Питание загружено! Продуктов: ${products.length}`);
+        console.log(`🍽️ XP Питание загружено! Доступно продуктов: ${allProducts.length}`);
     </script>
 </body>
 </html>
