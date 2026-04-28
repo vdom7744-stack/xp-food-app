@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>XP Питание</title>
+    <title>XP Питание — Ваш дневник КБЖУ</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -14,117 +14,178 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: var(--tg-theme-bg-color, #fff);
-            color: var(--tg-theme-text-color, #000);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
             min-height: 100vh;
+            background-attachment: fixed;
+        }
+
+        /* Кастомные цвета для Telegram темы */
+        :root {
+            --tg-bg: rgba(26, 26, 46, 0.95);
+            --tg-card: rgba(255, 255, 255, 0.08);
+            --tg-accent: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            --tg-accent-color: #ff6b6b;
+            --tg-border: rgba(255, 255, 255, 0.1);
         }
 
         /* Основной контент */
         .main-content {
-            padding: 12px;
-            padding-bottom: 80px;
+            padding: 16px;
+            padding-bottom: 100px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Заголовок */
+        .app-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+        }
+
+        .app-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .app-header p {
+            font-size: 12px;
+            opacity: 0.6;
+            margin-top: 4px;
         }
 
         /* Вкладки приёмов пищи */
         .meal-tabs {
             display: flex;
             gap: 8px;
-            margin-bottom: 16px;
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
-            padding: 8px;
-            border-radius: 12px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px;
+            border-radius: 60px;
+            backdrop-filter: blur(10px);
         }
 
         .meal-tab {
             flex: 1;
-            padding: 10px;
+            padding: 12px 8px;
             text-align: center;
-            border-radius: 8px;
+            border-radius: 40px;
             cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: rgba(255, 255, 255, 0.7);
         }
 
         .meal-tab.active {
-            background: var(--tg-theme-button-color, #2481cc);
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
             color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            transform: scale(1.02);
         }
 
         /* Сводка КБЖУ */
         .summary {
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 16px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .summary:hover {
+            transform: translateY(-2px);
         }
 
         .summary-header {
-            font-weight: bold;
-            margin-bottom: 12px;
-            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            font-size: 14px;
+            opacity: 0.7;
+            letter-spacing: 0.5px;
         }
 
         .calories-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            font-size: 20px;
+            font-weight: 700;
         }
 
         .progress-bar {
-            height: 10px;
-            background: rgba(128, 128, 128, 0.3);
-            border-radius: 5px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
             overflow: hidden;
-            margin: 10px 0;
+            margin: 12px 0;
         }
 
         .progress-fill {
             height: 100%;
-            background: var(--tg-theme-button-color, #2481cc);
-            transition: width 0.3s;
+            background: linear-gradient(90deg, #ff6b6b, #ff8e53);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
         }
 
         .macros-row {
             display: flex;
             justify-content: space-around;
-            margin-top: 12px;
+            margin-top: 16px;
             gap: 12px;
         }
 
         .macro-item {
             text-align: center;
             flex: 1;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
         }
 
         .macro-value {
-            font-weight: bold;
-            font-size: 16px;
+            font-weight: 800;
+            font-size: 18px;
         }
 
         .macro-label {
-            font-size: 12px;
-            opacity: 0.7;
+            font-size: 11px;
+            opacity: 0.6;
+            margin-top: 4px;
         }
 
         /* Кнопка поиска */
         .search-btn {
             width: 100%;
-            padding: 14px;
-            background: var(--tg-theme-button-color, #2481cc);
+            padding: 16px;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
             color: white;
             border: none;
-            border-radius: 30px;
+            border-radius: 60px;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .search-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 10px rgba(255, 107, 107, 0.3);
         }
 
         /* Дневник */
@@ -133,13 +194,20 @@
         }
 
         .diary-item {
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
-            padding: 12px;
-            margin-bottom: 8px;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            padding: 14px;
+            margin-bottom: 10px;
+            border-radius: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s;
+        }
+
+        .diary-item:active {
+            transform: scale(0.98);
         }
 
         .diary-info {
@@ -147,38 +215,47 @@
         }
 
         .diary-name {
-            font-weight: bold;
-            margin-bottom: 4px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 15px;
         }
 
         .diary-details {
-            font-size: 12px;
-            opacity: 0.7;
+            font-size: 11px;
+            opacity: 0.6;
         }
 
         .delete-btn {
-            background: #f44336;
+            background: rgba(244, 67, 54, 0.9);
             color: white;
             border: none;
             padding: 8px 12px;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .delete-btn:active {
+            transform: scale(0.95);
+            background: #f44336;
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px;
-            opacity: 0.5;
+            padding: 50px 20px;
+            opacity: 0.6;
+            font-size: 14px;
         }
 
-        /* ========== ПОЛНОЭКРАННЫЙ ПОИСК ========== */
+        /* Полноэкранный поиск */
         .fullscreen-search {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: var(--tg-theme-bg-color, #fff);
+            background: #1a1a2e;
             z-index: 1000;
             display: none;
             flex-direction: column;
@@ -189,29 +266,33 @@
         }
 
         .search-header {
-            padding: 12px;
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
             display: flex;
-            gap: 8px;
+            gap: 12px;
             align-items: center;
-            position: sticky;
-            top: 0;
+            backdrop-filter: blur(10px);
         }
 
         .search-header input {
             flex: 1;
-            padding: 12px;
+            padding: 14px 18px;
             font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 25px;
-            background: var(--tg-theme-bg-color, #fff);
-            color: var(--tg-theme-text-color, #000);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+        }
+
+        .search-header input:focus {
+            border-color: #ff6b6b;
         }
 
         .close-search {
-            width: 40px;
-            height: 40px;
-            border-radius: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 22px;
             background: #f44336;
             color: white;
             border: none;
@@ -222,23 +303,25 @@
         .search-results {
             flex: 1;
             overflow-y: auto;
-            padding: 12px;
+            padding: 16px;
         }
 
         .search-result-item {
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
-            padding: 12px;
-            margin-bottom: 8px;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 14px;
+            margin-bottom: 10px;
+            border-radius: 20px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s;
         }
 
         .search-result-item.selected {
-            background: rgba(36, 129, 204, 0.2);
-            border: 1px solid var(--tg-theme-button-color, #2481cc);
+            background: rgba(255, 107, 107, 0.2);
+            border-color: #ff6b6b;
         }
 
         .result-info {
@@ -246,8 +329,8 @@
         }
 
         .result-name {
-            font-weight: bold;
-            margin-bottom: 4px;
+            font-weight: 700;
+            margin-bottom: 6px;
         }
 
         .result-calories {
@@ -258,86 +341,59 @@
         .result-macros {
             display: flex;
             gap: 12px;
-            font-size: 11px;
+            font-size: 10px;
             margin-top: 4px;
-            opacity: 0.6;
+            opacity: 0.5;
         }
 
         .check-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 14px;
-            background: rgba(128, 128, 128, 0.3);
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 18px;
+            transition: all 0.2s;
         }
 
         .search-result-item.selected .check-icon {
-            background: var(--tg-theme-button-color, #2481cc);
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
             color: white;
         }
 
         .search-footer {
-            padding: 12px;
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
             display: flex;
             gap: 12px;
-            position: sticky;
-            bottom: 0;
+            backdrop-filter: blur(10px);
         }
 
         .search-footer button {
             flex: 1;
             padding: 14px;
             border: none;
-            border-radius: 25px;
+            border-radius: 30px;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
+            transition: all 0.2s;
         }
 
         .save-selected {
-            background: var(--tg-theme-button-color, #2481cc);
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
             color: white;
         }
 
         .cancel-search {
-            background: #f44336;
+            background: rgba(255, 255, 255, 0.1);
             color: white;
         }
 
-        /* Кнопка корзины */
-        .cart-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 56px;
-            height: 56px;
-            border-radius: 28px;
-            background: var(--tg-theme-button-color, #2481cc);
-            color: white;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            z-index: 100;
-        }
-
-        .cart-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #f44336;
-            color: white;
-            border-radius: 20px;
-            padding: 2px 8px;
-            font-size: 12px;
-            font-weight: bold;
+        .search-footer button:active {
+            transform: scale(0.98);
         }
 
         /* Модалка количества */
@@ -348,10 +404,11 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.7);
             align-items: center;
             justify-content: center;
             z-index: 1100;
+            backdrop-filter: blur(5px);
         }
 
         .modal.active {
@@ -359,17 +416,18 @@
         }
 
         .modal-content {
-            background: var(--tg-theme-bg-color, #fff);
-            border-radius: 20px;
-            padding: 20px;
+            background: #1a1a2e;
+            border-radius: 28px;
+            padding: 24px;
             width: 90%;
-            max-width: 320px;
+            max-width: 340px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .modal-title {
-            font-weight: bold;
+            font-weight: 800;
             font-size: 18px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             text-align: center;
         }
 
@@ -377,44 +435,99 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .weight-btn {
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            background: rgba(255, 255, 255, 0.08);
             padding: 12px;
             text-align: center;
-            border-radius: 10px;
+            border-radius: 14px;
             cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .weight-btn:active {
+            transform: scale(0.95);
+            background: rgba(255, 107, 107, 0.3);
         }
 
         .modal-buttons {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
 
         .modal-btn {
             flex: 1;
-            padding: 12px;
+            padding: 14px;
             border: none;
-            border-radius: 10px;
+            border-radius: 16px;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 700;
+            transition: all 0.2s;
         }
 
         .modal-btn.confirm {
-            background: var(--tg-theme-button-color, #2481cc);
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
             color: white;
         }
 
         .modal-btn.cancel {
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        .modal-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Анимация появления */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .summary, .search-btn, .diary-item {
+            animation: fadeInUp 0.4s ease forwards;
+        }
+
+        .diary-item:nth-child(1) { animation-delay: 0.05s; }
+        .diary-item:nth-child(2) { animation-delay: 0.1s; }
+        .diary-item:nth-child(3) { animation-delay: 0.15s; }
+        .diary-item:nth-child(4) { animation-delay: 0.2s; }
+
+        /* Стили для скролла */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ff6b6b;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
-    <!-- Основной контент -->
     <div class="main-content">
+        <!-- Красивый заголовок -->
+        <div class="app-header">
+            <h1>🍽️ XP Питание</h1>
+            <p>Твой дневник калорий и КБЖУ</p>
+        </div>
+
+        <!-- Вкладки приёмов пищи -->
         <div class="meal-tabs">
             <div class="meal-tab active" data-meal="breakfast">🍳 Завтрак</div>
             <div class="meal-tab" data-meal="lunch">🍲 Обед</div>
@@ -422,26 +535,25 @@
             <div class="meal-tab" data-meal="snack">🍎 Перекус</div>
         </div>
 
-        <div class="summary" id="summary">📊 Загрузка...</div>
+        <!-- Сводка КБЖУ -->
+        <div class="summary" id="summary">
+            <div class="summary-header">📊 Загрузка...</div>
+        </div>
 
+        <!-- Кнопка добавления продуктов -->
         <button class="search-btn" id="openSearchBtn">
-            🔍 Добавить продукты
+            🔍 <span>Добавить продукты</span>
         </button>
 
+        <!-- Список дневника -->
         <div id="diaryList" class="diary-list"></div>
     </div>
-
-    <!-- Кнопка корзины -->
-    <button class="cart-btn" id="cartBtn" style="display:none">
-        🛒
-        <span class="cart-badge" id="cartBadge">0</span>
-    </button>
 
     <!-- Полноэкранный поиск -->
     <div class="fullscreen-search" id="fullscreenSearch">
         <div class="search-header">
             <input type="text" id="searchInput" placeholder="🔍 Поиск продуктов..." autocomplete="off">
-            <button class="close-search" id="closeSearchBtn">✖️</button>
+            <button class="close-search" id="closeSearchBtn">✖</button>
         </div>
         <div class="search-results" id="searchResults">
             <div class="empty-state">🔍 Начните вводить название продукта</div>
@@ -452,7 +564,7 @@
         </div>
     </div>
 
-    <!-- Модалка количества -->
+    <!-- Модалка выбора количества -->
     <div class="modal" id="quantityModal">
         <div class="modal-content">
             <div class="modal-title" id="modalTitle">Выберите количество</div>
@@ -464,9 +576,9 @@
         </div>
     </div>
 
-    <!-- ПОДКЛЮЧАЕМ ПРОДУКТЫ -->
+    <!-- База продуктов -->
     <script src="all_products.js"></script>
-    
+
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
@@ -474,8 +586,8 @@
         
         // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
         let currentMeal = 'breakfast';
-        let selectedProducts = []; // Выбранные продукты в поиске
-        let allProducts = []; // Все продукты из all_products.js
+        let selectedProducts = [];
+        let allProducts = [];
         let pendingProduct = null;
         let diary = JSON.parse(localStorage.getItem('xp_diary') || '[]');
         
@@ -483,24 +595,21 @@
         
         // ========== ЗАГРУЗКА ПРОДУКТОВ ==========
         function loadProducts() {
-            // Проверяем, есть ли глобальная переменная от all_products.js
             if (typeof window.allProducts !== 'undefined' && window.allProducts.length > 0) {
                 allProducts = window.allProducts;
-                console.log(`✅ Загружено ${allProducts.length} продуктов из all_products.js`);
+                console.log(`✅ Загружено ${allProducts.length} продуктов`);
             } else {
-                // Фallback продукты
                 allProducts = [
-                    {"id":1,"name":"Сыр Моя Цена","calories":327,"protein":24.5,"fat":25.5,"carbs":0,"unit":"g","default":100},
-                    {"id":2,"name":"Сыр Белебеевский","calories":347,"protein":27,"fat":26.5,"carbs":0,"unit":"g","default":100},
-                    {"id":3,"name":"Творог Мама Лама","calories":105,"protein":7.9,"fat":3.8,"carbs":9.7,"unit":"g","default":100},
-                    {"id":4,"name":"Йогурт Греческий","calories":63,"protein":7,"fat":2,"carbs":4.2,"unit":"g","default":140},
-                    {"id":32,"name":"🍔 Гамбургер","calories":251,"protein":13,"fat":8.8,"carbs":29,"unit":"pcs","options":[1,2,3,4,5]},
-                    {"id":33,"name":"🍔 Чизбургер","calories":302,"protein":16,"fat":13,"carbs":31,"unit":"pcs","options":[1,2,3,4,5]},
-                    {"id":11,"name":"🍕 Маргарита","calories":235,"protein":9.8,"fat":7.6,"carbs":30.5,"unit":"pcs","options":[1,2,3,4]},
-                    {"id":12,"name":"🍕 Пепперони","calories":283,"protein":11.5,"fat":11.4,"carbs":31.9,"unit":"pcs","options":[1,2,3,4]},
-                    {"id":31,"name":"🍟 Картофель Фри","calories":330,"protein":3.9,"fat":16,"carbs":41,"unit":"g","default":150},
+                    {"id":1,"name":"🍗 Куриная грудка","calories":165,"protein":31,"fat":3.6,"carbs":0,"unit":"g","default":100},
+                    {"id":2,"name":"🥚 Яйцо куриное","calories":155,"protein":13,"fat":11,"carbs":1.1,"unit":"g","default":100},
+                    {"id":3,"name":"🥛 Молоко 3.2%","calories":60,"protein":3.2,"fat":3.2,"carbs":4.7,"unit":"g","default":200},
+                    {"id":4,"name":"🍞 Хлеб белый","calories":265,"protein":9,"fat":3.2,"carbs":49,"unit":"g","default":100},
+                    {"id":5,"name":"🍚 Рис белый","calories":130,"protein":2.7,"fat":0.3,"carbs":28,"unit":"g","default":100},
+                    {"id":6,"name":"🥔 Картофель","calories":77,"protein":2,"fat":0.4,"carbs":17,"unit":"g","default":100},
+                    {"id":7,"name":"🍌 Банан","calories":89,"protein":1.1,"fat":0.3,"carbs":23,"unit":"g","default":100},
+                    {"id":8,"name":"🍎 Яблоко","calories":52,"protein":0.3,"fat":0.2,"carbs":14,"unit":"g","default":100},
                 ];
-                console.log(`⚠️ all_products.js не найден, загружено ${allProducts.length} продуктов по умолчанию`);
+                console.log(`⚠️ Загружено ${allProducts.length} продуктов по умолчанию`);
             }
         }
         
@@ -560,7 +669,7 @@
                 <div class="search-result-item ${selectedIds.includes(p.id) ? 'selected' : ''}" onclick="toggleProductSelection(${p.id})">
                     <div class="result-info">
                         <div class="result-name">${p.name}</div>
-                        <div class="result-calories">🔥 ${p.calories} ккал / ${p.unit === 'pcs' ? 'шт' : '100г'}</div>
+                        <div class="result-calories">🔥 ${p.calories} ккал / 100г</div>
                         <div class="result-macros">🥩 ${p.protein}г | 🧈 ${p.fat}г | 🍚 ${p.carbs}г</div>
                     </div>
                     <div class="check-icon">${selectedIds.includes(p.id) ? '✓' : '+'}</div>
@@ -568,7 +677,7 @@
             `).join('');
         }
         
-        // ========== ВЫБОР ПРОДУКТА В ПОИСКЕ ==========
+        // ========== ВЫБОР ПРОДУКТА ==========
         function toggleProductSelection(productId) {
             const product = allProducts.find(p => p.id === productId);
             if (!product) return;
@@ -581,9 +690,7 @@
                 selectedProducts.push({...product, quantity: product.default || 100});
             }
             
-            // Обновляем отображение
             searchProducts(document.getElementById('searchInput').value);
-            
             if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         }
         
@@ -596,53 +703,35 @@
             
             closeSearch();
             
-            // По очереди добавляем каждый продукт
             for (const product of selectedProducts) {
                 await addProductToCart(product);
             }
             
             selectedProducts = [];
-            
             if(tg.showAlert) tg.showAlert(`✅ Добавлено в ${mealNames[currentMeal]}`);
         }
         
         document.getElementById('saveSelectedBtn').addEventListener('click', saveSelectedProducts);
         
-        // ========== ДОБАВЛЕНИЕ ПРОДУКТА В КОРЗИНУ С ВЫБОРОМ КОЛИЧЕСТВА ==========
+        // ========== ДОБАВЛЕНИЕ ПРОДУКТА ==========
         function addProductToCart(product) {
             return new Promise((resolve) => {
-                if (product.unit === 'pcs') {
-                    pendingProduct = product;
-                    showQuantityModal(product, resolve);
-                } else {
-                    // Для весовых продуктов сразу добавляем
-                    addToDiary(product, product.quantity);
-                    resolve();
-                }
+                pendingProduct = product;
+                showQuantityModal(product, resolve);
             });
         }
         
         function addToDiary(product, quantity) {
-            let calories, protein, fat, carbs;
-            
-            if (product.unit === 'pcs') {
-                calories = Math.round(product.calories * quantity);
-                protein = (product.protein * quantity).toFixed(1);
-                fat = (product.fat * quantity).toFixed(1);
-                carbs = (product.carbs * quantity).toFixed(1);
-            } else {
-                const factor = quantity / 100;
-                calories = Math.round(product.calories * factor);
-                protein = (product.protein * factor).toFixed(1);
-                fat = (product.fat * factor).toFixed(1);
-                carbs = (product.carbs * factor).toFixed(1);
-            }
+            const factor = quantity / 100;
+            const calories = Math.round(product.calories * factor);
+            const protein = (product.protein * factor).toFixed(1);
+            const fat = (product.fat * factor).toFixed(1);
+            const carbs = (product.carbs * factor).toFixed(1);
             
             const entry = {
                 id: Date.now() + Math.random(),
                 name: product.name,
                 grams: quantity,
-                unit: product.unit,
                 calories: calories,
                 protein: parseFloat(protein),
                 fat: parseFloat(fat),
@@ -654,7 +743,6 @@
             diary.push(entry);
             localStorage.setItem('xp_diary', JSON.stringify(diary));
             renderDiary();
-            
             if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
         }
         
@@ -663,24 +751,26 @@
         
         function showQuantityModal(product, resolve) {
             currentResolve = resolve;
-            document.getElementById('modalTitle').innerHTML = `${product.name}`;
-            const optionsHtml = product.options.map(opt => `
-                <div class="weight-btn" onclick="selectQuantity(${opt})">${opt} шт</div>
-            `).join('');
-            document.getElementById('modalOptions').innerHTML = optionsHtml;
+            document.getElementById('modalTitle').innerHTML = `⚖️ ${product.name}`;
+            document.getElementById('modalOptions').innerHTML = `
+                <div class="weight-btn" onclick="selectQuantity(50)">50г</div>
+                <div class="weight-btn" onclick="selectQuantity(100)">100г</div>
+                <div class="weight-btn" onclick="selectQuantity(150)">150г</div>
+                <div class="weight-btn" onclick="selectQuantity(200)">200г</div>
+                <div class="weight-btn" onclick="selectQuantity(250)">250г</div>
+                <div class="weight-btn" onclick="selectQuantity(300)">300г</div>
+            `;
             document.getElementById('quantityModal').classList.add('active');
         }
         
-        let selectedQuantity = 1;
+        let selectedQuantity = 100;
         function selectQuantity(qty) {
             selectedQuantity = qty;
             document.querySelectorAll('.weight-btn').forEach(btn => {
-                if(btn.innerText === `${qty} шт`) {
-                    btn.style.background = 'rgba(36,129,204,0.2)';
-                    btn.style.border = '1px solid #2481cc';
+                if(btn.innerText === `${qty}г`) {
+                    btn.style.background = 'rgba(255, 107, 107, 0.3)';
                 } else {
                     btn.style.background = '';
-                    btn.style.border = '';
                 }
             });
         }
@@ -696,7 +786,7 @@
         function closeQuantityModal() {
             document.getElementById('quantityModal').classList.remove('active');
             pendingProduct = null;
-            selectedQuantity = 1;
+            selectedQuantity = 100;
             currentResolve = null;
         }
         
@@ -729,7 +819,7 @@
                 <div class="summary-header">📅 ${new Date().toLocaleDateString('ru-RU')}</div>
                 <div class="calories-row">
                     <span>🔥 Калории</span>
-                    <span><b>${total.calories}</b> / ${goal} ккал</span>
+                    <span><b style="color: #ff6b6b">${total.calories}</b> / ${goal} ккал</span>
                 </div>
                 <div class="progress-bar"><div class="progress-fill" style="width:${percent}%"></div></div>
                 <div class="macros-row">
@@ -737,7 +827,7 @@
                     <div class="macro-item"><div class="macro-value">🧈 ${total.fat.toFixed(1)}г</div><div class="macro-label">Жиры</div></div>
                     <div class="macro-item"><div class="macro-value">🍚 ${total.carbs.toFixed(1)}г</div><div class="macro-label">Углеводы</div></div>
                 </div>
-                ${total.calories > goal ? '<div style="color:#f44336;text-align:center;margin-top:8px">⚠️ Превышение нормы!</div>' : ''}
+                ${total.calories > goal ? '<div style="color:#f44336;text-align:center;margin-top:12px;font-size:12px;">⚠️ Превышение нормы калорий</div>' : '<div style="text-align:center;margin-top:12px;opacity:0.5;font-size:11px;">✅ Осталось ' + (goal - total.calories) + ' ккал</div>'}
             `;
             
             if (currentMealEntries.length === 0) {
@@ -748,12 +838,10 @@
                         <div class="diary-info">
                             <div class="diary-name">${e.name}</div>
                             <div class="diary-details">
-                                ${e.unit === 'pcs' ? `${e.grams} шт` : `${e.grams}г`} | 
-                                🔥 ${e.calories} ккал | 
-                                🥩${e.protein}г 🧈${e.fat}г 🍚${e.carbs}г
+                                ${e.grams}г | 🔥 ${e.calories} ккал | 🥩${e.protein}г 🧈${e.fat}г 🍚${e.carbs}г
                             </div>
                         </div>
-                        <button class="delete-btn" onclick="deleteEntry(${e.id})">✖️</button>
+                        <button class="delete-btn" onclick="deleteEntry(${e.id})">✖</button>
                     </div>
                 `).join('');
             }
@@ -763,14 +851,13 @@
         loadProducts();
         renderDiary();
         
-        // Закрытие модалки по клику вне
         document.getElementById('quantityModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('quantityModal')) {
                 closeQuantityModal();
             }
         });
         
-        console.log(`🍽️ XP Питание загружено! Доступно продуктов: ${allProducts.length}`);
+        console.log(`🍽️ XP Питание загружено! Продуктов: ${allProducts.length}`);
     </script>
 </body>
 </html>
