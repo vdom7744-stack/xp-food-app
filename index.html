@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>XP Питание — Ваш дневник КБЖУ</title>
+    <title>XP Питание — Дневник КБЖУ</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -14,248 +14,268 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            color: #ffffff;
+            background: #0a0a0f;
             min-height: 100vh;
-            background-attachment: fixed;
+            color: #e0e0e0;
+            position: relative;
         }
 
-        /* Кастомные цвета для Telegram темы */
-        :root {
-            --tg-bg: rgba(26, 26, 46, 0.95);
-            --tg-card: rgba(255, 255, 255, 0.08);
-            --tg-accent: linear-gradient(135deg, #ff6b6b, #ff8e53);
-            --tg-accent-color: #ff6b6b;
-            --tg-border: rgba(255, 255, 255, 0.1);
+        /* СТОРОННИЙ ФОН — градиент + наложение тёмного тона */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://images.unsplash.com/photo-1546483875-ad9014c88eba?q=80&w=1970&auto=format');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.25;
+            z-index: -2;
         }
 
-        /* Основной контент */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(145deg, #05050a 0%, #111118 60%, #0a0a12 100%);
+            opacity: 0.88;
+            z-index: -1;
+        }
+
+        /* Главный контейнер — строго, без лишних отступов */
         .main-content {
-            padding: 16px;
-            padding-bottom: 100px;
-            max-width: 500px;
+            padding: 20px 16px 100px;
+            max-width: 560px;
             margin: 0 auto;
+            position: relative;
+            z-index: 2;
         }
 
-        /* Заголовок */
+        /* Шапка — минимум декора */
         .app-header {
+            margin-bottom: 24px;
             text-align: center;
-            margin-bottom: 20px;
-            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 16px;
         }
 
         .app-header h1 {
-            font-size: 28px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.5px;
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            color: #ffffff;
+            background: none;
+            -webkit-text-fill-color: white;
         }
 
         .app-header p {
             font-size: 12px;
-            opacity: 0.6;
-            margin-top: 4px;
+            color: #7e8493;
+            margin-top: 6px;
         }
 
-        /* Вкладки приёмов пищи */
+        /* Вкладки — строгие, без размытия */
         .meal-tabs {
             display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            background: rgba(255, 255, 255, 0.05);
+            gap: 6px;
+            margin-bottom: 24px;
+            background: #13131c;
             padding: 6px;
-            border-radius: 60px;
-            backdrop-filter: blur(10px);
+            border-radius: 48px;
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
         }
 
         .meal-tab {
             flex: 1;
-            padding: 12px 8px;
+            padding: 10px 6px;
             text-align: center;
             border-radius: 40px;
             cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            color: #8a8f9e;
+            background: transparent;
         }
 
         .meal-tab.active {
-            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            background: #2c2c3a;
             color: white;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-            transform: scale(1.02);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
-        /* Сводка КБЖУ */
+        /* Карточка сводки — строгая, без градиентов */
         .summary {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
+            background: #12121c;
             border-radius: 24px;
             padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: transform 0.2s;
-        }
-
-        .summary:hover {
-            transform: translateY(-2px);
+            margin-bottom: 24px;
+            border: 0.5px solid #262633;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
         }
 
         .summary-header {
-            font-weight: 700;
+            font-size: 13px;
+            font-weight: 500;
+            color: #7e8493;
             margin-bottom: 16px;
-            font-size: 14px;
-            opacity: 0.7;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
 
         .calories-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 20px;
+            align-items: baseline;
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .calories-row span:first-child {
+            font-size: 14px;
+            font-weight: 400;
+            color: #9ea3b2;
+        }
+
+        .calories-row span:last-child {
+            font-size: 22px;
+            font-weight: 700;
+            color: #f5f5f5;
+        }
+
+        .calories-row b {
+            color: #ff6b6b;
             font-weight: 700;
         }
 
+        /* Прогресс-бар — строгий, без свечений */
         .progress-bar {
-            height: 12px;
-            background: rgba(255, 255, 255, 0.1);
+            height: 6px;
+            background: #23232e;
             border-radius: 10px;
+            margin: 14px 0 16px;
             overflow: hidden;
-            margin: 12px 0;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #ff6b6b, #ff8e53);
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #ff6b6b;
+            width: 0%;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
         }
 
+        /* Макросы — сетка без лишнего декора */
         .macros-row {
             display: flex;
-            justify-content: space-around;
-            margin-top: 16px;
             gap: 12px;
+            margin-top: 12px;
         }
 
         .macro-item {
-            text-align: center;
             flex: 1;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
+            background: #0e0e16;
+            border-radius: 18px;
+            padding: 12px 6px;
+            text-align: center;
+            border: 0.5px solid #282834;
         }
 
         .macro-value {
-            font-weight: 800;
+            font-weight: 700;
             font-size: 18px;
+            color: #e0e0e0;
         }
 
         .macro-label {
-            font-size: 11px;
-            opacity: 0.6;
-            margin-top: 4px;
+            font-size: 10px;
+            color: #6f7485;
+            margin-top: 5px;
+            letter-spacing: 0.3px;
         }
 
-        /* Кнопка поиска */
+        /* Кнопка поиска — тёмная, без иллюзий */
         .search-btn {
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
-            color: white;
-            border: none;
+            padding: 15px 16px;
+            background: #1e1e28;
+            border: 0.5px solid #323240;
             border-radius: 60px;
-            font-size: 16px;
-            font-weight: 700;
+            color: white;
+            font-size: 15px;
+            font-weight: 500;
             cursor: pointer;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            gap: 8px;
+            transition: 0.2s;
         }
 
         .search-btn:active {
+            background: #2a2a36;
             transform: scale(0.98);
-            box-shadow: 0 2px 10px rgba(255, 107, 107, 0.3);
         }
 
-        /* Дневник */
-        .diary-list {
-            margin-bottom: 16px;
-        }
-
+        /* Карточки еды */
         .diary-item {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
+            background: #111118;
+            border: 0.5px solid #282836;
+            border-radius: 20px;
             padding: 14px;
             margin-bottom: 10px;
-            border-radius: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.2s;
-        }
-
-        .diary-item:active {
-            transform: scale(0.98);
-        }
-
-        .diary-info {
-            flex: 1;
         }
 
         .diary-name {
-            font-weight: 700;
-            margin-bottom: 6px;
+            font-weight: 600;
             font-size: 15px;
+            margin-bottom: 6px;
         }
 
         .diary-details {
             font-size: 11px;
-            opacity: 0.6;
+            color: #858b9c;
         }
 
         .delete-btn {
-            background: rgba(244, 67, 54, 0.9);
-            color: white;
+            background: #2a2228;
             border: none;
-            padding: 8px 12px;
-            border-radius: 12px;
+            color: #ff8888;
+            padding: 8px 14px;
+            border-radius: 32px;
+            font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
         }
 
         .delete-btn:active {
-            transform: scale(0.95);
-            background: #f44336;
+            background: #3a2a2e;
         }
 
         .empty-state {
             text-align: center;
-            padding: 50px 20px;
-            opacity: 0.6;
-            font-size: 14px;
+            padding: 48px 20px;
+            color: #6a7080;
+            font-size: 13px;
         }
 
-        /* Полноэкранный поиск */
+        /* Поиск */
         .fullscreen-search {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: #1a1a2e;
+            background: #0c0c14;
             z-index: 1000;
             display: none;
             flex-direction: column;
@@ -267,20 +287,20 @@
 
         .search-header {
             padding: 16px;
-            background: rgba(255, 255, 255, 0.05);
+            background: #13131c;
             display: flex;
             gap: 12px;
             align-items: center;
-            backdrop-filter: blur(10px);
+            border-bottom: 0.5px solid #282834;
         }
 
         .search-header input {
             flex: 1;
             padding: 14px 18px;
             font-size: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 30px;
-            background: rgba(255, 255, 255, 0.1);
+            border: 0.5px solid #323240;
+            border-radius: 32px;
+            background: #1a1a24;
             color: white;
             outline: none;
         }
@@ -292,10 +312,10 @@
         .close-search {
             width: 44px;
             height: 44px;
-            border-radius: 22px;
-            background: #f44336;
-            color: white;
+            border-radius: 44px;
+            background: #2a2228;
             border: none;
+            color: #ff8888;
             font-size: 20px;
             cursor: pointer;
         }
@@ -307,7 +327,8 @@
         }
 
         .search-result-item {
-            background: rgba(255, 255, 255, 0.08);
+            background: #111118;
+            border: 0.5px solid #282836;
             padding: 14px;
             margin-bottom: 10px;
             border-radius: 20px;
@@ -315,88 +336,73 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.2s;
         }
 
         .search-result-item.selected {
-            background: rgba(255, 107, 107, 0.2);
             border-color: #ff6b6b;
-        }
-
-        .result-info {
-            flex: 1;
+            background: #1e1820;
         }
 
         .result-name {
-            font-weight: 700;
-            margin-bottom: 6px;
+            font-weight: 600;
         }
 
         .result-calories {
-            font-size: 12px;
-            opacity: 0.7;
+            font-size: 11px;
+            color: #b0b6c7;
+            margin-top: 4px;
         }
 
         .result-macros {
-            display: flex;
-            gap: 12px;
-            font-size: 10px;
+            font-size: 9px;
+            color: #6f7485;
             margin-top: 4px;
-            opacity: 0.5;
         }
 
         .check-icon {
             width: 32px;
             height: 32px;
             border-radius: 16px;
-            background: rgba(255, 255, 255, 0.1);
+            background: #1e1e28;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 18px;
-            transition: all 0.2s;
         }
 
         .search-result-item.selected .check-icon {
-            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
-            color: white;
+            background: #ff6b6b;
         }
 
         .search-footer {
             padding: 16px;
-            background: rgba(255, 255, 255, 0.05);
+            background: #13131c;
             display: flex;
             gap: 12px;
-            backdrop-filter: blur(10px);
+            border-top: 0.5px solid #282834;
         }
 
         .search-footer button {
             flex: 1;
             padding: 14px;
             border: none;
-            border-radius: 30px;
-            font-size: 16px;
-            font-weight: 700;
+            border-radius: 32px;
+            font-size: 15px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
         .save-selected {
-            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            background: #ff6b6b;
             color: white;
         }
 
         .cancel-search {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            background: #23222e;
+            color: #b0b6c7;
         }
 
-        .search-footer button:active {
-            transform: scale(0.98);
-        }
-
-        /* Модалка количества */
+        /* Модалка */
         .modal {
             display: none;
             position: fixed;
@@ -404,11 +410,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(5, 5, 8, 0.96);
             align-items: center;
             justify-content: center;
             z-index: 1100;
-            backdrop-filter: blur(5px);
         }
 
         .modal.active {
@@ -416,41 +421,36 @@
         }
 
         .modal-content {
-            background: #1a1a2e;
+            background: #12121c;
             border-radius: 28px;
             padding: 24px;
             width: 90%;
             max-width: 340px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 0.5px solid #323240;
         }
 
         .modal-title {
-            font-weight: 800;
-            font-size: 18px;
-            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 17px;
             text-align: center;
+            margin-bottom: 20px;
         }
 
         .quick-weights {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .weight-btn {
-            background: rgba(255, 255, 255, 0.08);
+            background: #1a1a24;
             padding: 12px;
             text-align: center;
-            border-radius: 14px;
+            border-radius: 40px;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .weight-btn:active {
-            transform: scale(0.95);
-            background: rgba(255, 107, 107, 0.3);
+            font-weight: 500;
+            border: 0.5px solid #2c2c38;
         }
 
         .modal-buttons {
@@ -462,72 +462,39 @@
             flex: 1;
             padding: 14px;
             border: none;
-            border-radius: 16px;
+            border-radius: 32px;
+            font-weight: 500;
             cursor: pointer;
-            font-weight: 700;
-            transition: all 0.2s;
         }
 
         .modal-btn.confirm {
-            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            background: #ff6b6b;
             color: white;
         }
 
         .modal-btn.cancel {
-            background: rgba(255, 255, 255, 0.08);
-            color: white;
+            background: #23222e;
+            color: #ccc;
         }
 
-        .modal-btn:active {
-            transform: scale(0.97);
-        }
-
-        /* Анимация появления */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .summary, .search-btn, .diary-item {
-            animation: fadeInUp 0.4s ease forwards;
-        }
-
-        .diary-item:nth-child(1) { animation-delay: 0.05s; }
-        .diary-item:nth-child(2) { animation-delay: 0.1s; }
-        .diary-item:nth-child(3) { animation-delay: 0.15s; }
-        .diary-item:nth-child(4) { animation-delay: 0.2s; }
-
-        /* Стили для скролла */
         ::-webkit-scrollbar {
-            width: 4px;
+            width: 3px;
         }
-
         ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
+            background: #1a1a24;
         }
-
         ::-webkit-scrollbar-thumb {
             background: #ff6b6b;
-            border-radius: 4px;
         }
     </style>
 </head>
 <body>
     <div class="main-content">
-        <!-- Красивый заголовок -->
         <div class="app-header">
-            <h1>🍽️ XP Питание</h1>
-            <p>Твой дневник калорий и КБЖУ</p>
+            <h1>XP Питание</h1>
+            <p>дневник КБЖУ</p>
         </div>
 
-        <!-- Вкладки приёмов пищи -->
         <div class="meal-tabs">
             <div class="meal-tab active" data-meal="breakfast">🍳 Завтрак</div>
             <div class="meal-tab" data-meal="lunch">🍲 Обед</div>
@@ -535,69 +502,61 @@
             <div class="meal-tab" data-meal="snack">🍎 Перекус</div>
         </div>
 
-        <!-- Сводка КБЖУ -->
         <div class="summary" id="summary">
-            <div class="summary-header">📊 Загрузка...</div>
+            <div class="summary-header">📅 Загрузка...</div>
         </div>
 
-        <!-- Кнопка добавления продуктов -->
         <button class="search-btn" id="openSearchBtn">
-            🔍 <span>Добавить продукты</span>
+            🔍 Добавить продукты
         </button>
 
-        <!-- Список дневника -->
         <div id="diaryList" class="diary-list"></div>
     </div>
 
-    <!-- Полноэкранный поиск -->
+    <!-- Поиск -->
     <div class="fullscreen-search" id="fullscreenSearch">
         <div class="search-header">
-            <input type="text" id="searchInput" placeholder="🔍 Поиск продуктов..." autocomplete="off">
+            <input type="text" id="searchInput" placeholder="Поиск продуктов..." autocomplete="off">
             <button class="close-search" id="closeSearchBtn">✖</button>
         </div>
         <div class="search-results" id="searchResults">
-            <div class="empty-state">🔍 Начните вводить название продукта</div>
+            <div class="empty-state">Начните вводить название</div>
         </div>
         <div class="search-footer">
             <button class="cancel-search" id="cancelSearchBtn">Отмена</button>
-            <button class="save-selected" id="saveSelectedBtn">✅ Добавить выбранные</button>
+            <button class="save-selected" id="saveSelectedBtn">Добавить</button>
         </div>
     </div>
 
-    <!-- Модалка выбора количества -->
+    <!-- Модалка граммовки -->
     <div class="modal" id="quantityModal">
         <div class="modal-content">
-            <div class="modal-title" id="modalTitle">Выберите количество</div>
+            <div class="modal-title" id="modalTitle">Выберите вес</div>
             <div id="modalOptions" class="quick-weights"></div>
             <div class="modal-buttons">
-                <button class="modal-btn confirm" onclick="confirmQuantity()">✅ Добавить</button>
-                <button class="modal-btn cancel" onclick="closeQuantityModal()">❌ Отмена</button>
+                <button class="modal-btn confirm" onclick="confirmQuantity()">Подтвердить</button>
+                <button class="modal-btn cancel" onclick="closeQuantityModal()">Отмена</button>
             </div>
         </div>
     </div>
 
-    <!-- База продуктов -->
     <script src="all_products.js"></script>
-
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.MainButton.hide();
         
-        // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
         let currentMeal = 'breakfast';
         let selectedProducts = [];
         let allProducts = [];
         let pendingProduct = null;
+        let currentResolve = null;
         let diary = JSON.parse(localStorage.getItem('xp_diary') || '[]');
         
         const mealNames = {breakfast:'Завтрак', lunch:'Обед', dinner:'Ужин', snack:'Перекус'};
         
-        // ========== ЗАГРУЗКА ПРОДУКТОВ ==========
         function loadProducts() {
-            if (typeof window.allProducts !== 'undefined' && window.allProducts.length > 0) {
+            if(window.allProducts?.length) {
                 allProducts = window.allProducts;
-                console.log(`✅ Загружено ${allProducts.length} продуктов`);
             } else {
                 allProducts = [
                     {"id":1,"name":"🍗 Куриная грудка","calories":165,"protein":31,"fat":3.6,"carbs":0,"unit":"g","default":100},
@@ -609,200 +568,13 @@
                     {"id":7,"name":"🍌 Банан","calories":89,"protein":1.1,"fat":0.3,"carbs":23,"unit":"g","default":100},
                     {"id":8,"name":"🍎 Яблоко","calories":52,"protein":0.3,"fat":0.2,"carbs":14,"unit":"g","default":100},
                 ];
-                console.log(`⚠️ Загружено ${allProducts.length} продуктов по умолчанию`);
             }
         }
-        
-        // ========== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ==========
-        document.querySelectorAll('.meal-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.meal-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                currentMeal = tab.dataset.meal;
-                renderDiary();
-                if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-            });
-        });
-        
-        // ========== ОТКРЫТИЕ ПОИСКА ==========
-        document.getElementById('openSearchBtn').addEventListener('click', () => {
-            selectedProducts = [];
-            document.getElementById('searchInput').value = '';
-            document.getElementById('searchResults').innerHTML = '<div class="empty-state">🔍 Начните вводить название продукта</div>';
-            document.getElementById('fullscreenSearch').classList.add('active');
-            document.getElementById('searchInput').focus();
-        });
-        
-        // ========== ЗАКРЫТИЕ ПОИСКА ==========
-        function closeSearch() {
-            document.getElementById('fullscreenSearch').classList.remove('active');
-        }
-        
-        document.getElementById('closeSearchBtn').addEventListener('click', closeSearch);
-        document.getElementById('cancelSearchBtn').addEventListener('click', closeSearch);
-        
-        // ========== ПОИСК ПРОДУКТОВ ==========
-        let searchTimeout;
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => searchProducts(e.target.value), 300);
-        });
-        
-        function searchProducts(query) {
-            query = query.toLowerCase().trim();
-            
-            if (query.length < 2) {
-                document.getElementById('searchResults').innerHTML = '<div class="empty-state">🔍 Введите минимум 2 символа</div>';
-                return;
-            }
-            
-            const results = allProducts.filter(p => p.name.toLowerCase().includes(query));
-            
-            if (results.length === 0) {
-                document.getElementById('searchResults').innerHTML = '<div class="empty-state">😕 Ничего не найдено</div>';
-                return;
-            }
-            
-            const selectedIds = selectedProducts.map(p => p.id);
-            
-            document.getElementById('searchResults').innerHTML = results.map(p => `
-                <div class="search-result-item ${selectedIds.includes(p.id) ? 'selected' : ''}" onclick="toggleProductSelection(${p.id})">
-                    <div class="result-info">
-                        <div class="result-name">${p.name}</div>
-                        <div class="result-calories">🔥 ${p.calories} ккал / 100г</div>
-                        <div class="result-macros">🥩 ${p.protein}г | 🧈 ${p.fat}г | 🍚 ${p.carbs}г</div>
-                    </div>
-                    <div class="check-icon">${selectedIds.includes(p.id) ? '✓' : '+'}</div>
-                </div>
-            `).join('');
-        }
-        
-        // ========== ВЫБОР ПРОДУКТА ==========
-        function toggleProductSelection(productId) {
-            const product = allProducts.find(p => p.id === productId);
-            if (!product) return;
-            
-            const existingIndex = selectedProducts.findIndex(p => p.id === productId);
-            
-            if (existingIndex !== -1) {
-                selectedProducts.splice(existingIndex, 1);
-            } else {
-                selectedProducts.push({...product, quantity: product.default || 100});
-            }
-            
-            searchProducts(document.getElementById('searchInput').value);
-            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-        }
-        
-        // ========== СОХРАНЕНИЕ ВЫБРАННЫХ ПРОДУКТОВ ==========
-        async function saveSelectedProducts() {
-            if (selectedProducts.length === 0) {
-                if(tg.showAlert) tg.showAlert('Выберите хотя бы один продукт');
-                return;
-            }
-            
-            closeSearch();
-            
-            for (const product of selectedProducts) {
-                await addProductToCart(product);
-            }
-            
-            selectedProducts = [];
-            if(tg.showAlert) tg.showAlert(`✅ Добавлено в ${mealNames[currentMeal]}`);
-        }
-        
-        document.getElementById('saveSelectedBtn').addEventListener('click', saveSelectedProducts);
-        
-        // ========== ДОБАВЛЕНИЕ ПРОДУКТА ==========
-        function addProductToCart(product) {
-            return new Promise((resolve) => {
-                pendingProduct = product;
-                showQuantityModal(product, resolve);
-            });
-        }
-        
-        function addToDiary(product, quantity) {
-            const factor = quantity / 100;
-            const calories = Math.round(product.calories * factor);
-            const protein = (product.protein * factor).toFixed(1);
-            const fat = (product.fat * factor).toFixed(1);
-            const carbs = (product.carbs * factor).toFixed(1);
-            
-            const entry = {
-                id: Date.now() + Math.random(),
-                name: product.name,
-                grams: quantity,
-                calories: calories,
-                protein: parseFloat(protein),
-                fat: parseFloat(fat),
-                carbs: parseFloat(carbs),
-                meal: currentMeal,
-                date: new Date().toDateString()
-            };
-            
-            diary.push(entry);
-            localStorage.setItem('xp_diary', JSON.stringify(diary));
-            renderDiary();
-            if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-        }
-        
-        // ========== МОДАЛКА КОЛИЧЕСТВА ==========
-        let currentResolve = null;
-        
-        function showQuantityModal(product, resolve) {
-            currentResolve = resolve;
-            document.getElementById('modalTitle').innerHTML = `⚖️ ${product.name}`;
-            document.getElementById('modalOptions').innerHTML = `
-                <div class="weight-btn" onclick="selectQuantity(50)">50г</div>
-                <div class="weight-btn" onclick="selectQuantity(100)">100г</div>
-                <div class="weight-btn" onclick="selectQuantity(150)">150г</div>
-                <div class="weight-btn" onclick="selectQuantity(200)">200г</div>
-                <div class="weight-btn" onclick="selectQuantity(250)">250г</div>
-                <div class="weight-btn" onclick="selectQuantity(300)">300г</div>
-            `;
-            document.getElementById('quantityModal').classList.add('active');
-        }
-        
-        let selectedQuantity = 100;
-        function selectQuantity(qty) {
-            selectedQuantity = qty;
-            document.querySelectorAll('.weight-btn').forEach(btn => {
-                if(btn.innerText === `${qty}г`) {
-                    btn.style.background = 'rgba(255, 107, 107, 0.3)';
-                } else {
-                    btn.style.background = '';
-                }
-            });
-        }
-        
-        function confirmQuantity() {
-            if (pendingProduct) {
-                addToDiary(pendingProduct, selectedQuantity);
-                if(currentResolve) currentResolve();
-                closeQuantityModal();
-            }
-        }
-        
-        function closeQuantityModal() {
-            document.getElementById('quantityModal').classList.remove('active');
-            pendingProduct = null;
-            selectedQuantity = 100;
-            currentResolve = null;
-        }
-        
-        // ========== УДАЛЕНИЕ ЗАПИСИ ==========
-        function deleteEntry(id) {
-            diary = diary.filter(e => e.id !== id);
-            localStorage.setItem('xp_diary', JSON.stringify(diary));
-            renderDiary();
-            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-        }
-        
-        // ========== ОТОБРАЖЕНИЕ ДНЕВНИКА ==========
+
         function renderDiary() {
             const today = new Date().toDateString();
             const todayEntries = diary.filter(e => e.date === today);
-            const currentMealEntries = todayEntries.filter(e => e.meal === currentMeal);
+            const currentEntries = todayEntries.filter(e => e.meal === currentMeal);
             
             const total = todayEntries.reduce((acc, e) => {
                 acc.calories += e.calories;
@@ -813,51 +585,162 @@
             }, {calories: 0, protein: 0, fat: 0, carbs: 0});
             
             const goal = 2000;
-            const percent = Math.min((total.calories / goal * 100), 100);
+            const percent = Math.min((total.calories / goal) * 100, 100);
             
             document.getElementById('summary').innerHTML = `
                 <div class="summary-header">📅 ${new Date().toLocaleDateString('ru-RU')}</div>
                 <div class="calories-row">
-                    <span>🔥 Калории</span>
-                    <span><b style="color: #ff6b6b">${total.calories}</b> / ${goal} ккал</span>
+                    <span>Калории</span>
+                    <span><b>${total.calories}</b> / ${goal} ккал</span>
                 </div>
                 <div class="progress-bar"><div class="progress-fill" style="width:${percent}%"></div></div>
                 <div class="macros-row">
-                    <div class="macro-item"><div class="macro-value">🥩 ${total.protein.toFixed(1)}г</div><div class="macro-label">Белки</div></div>
-                    <div class="macro-item"><div class="macro-value">🧈 ${total.fat.toFixed(1)}г</div><div class="macro-label">Жиры</div></div>
-                    <div class="macro-item"><div class="macro-value">🍚 ${total.carbs.toFixed(1)}г</div><div class="macro-label">Углеводы</div></div>
+                    <div class="macro-item"><div class="macro-value">${total.protein.toFixed(1)}г</div><div class="macro-label">Белки</div></div>
+                    <div class="macro-item"><div class="macro-value">${total.fat.toFixed(1)}г</div><div class="macro-label">Жиры</div></div>
+                    <div class="macro-item"><div class="macro-value">${total.carbs.toFixed(1)}г</div><div class="macro-label">Углеводы</div></div>
                 </div>
-                ${total.calories > goal ? '<div style="color:#f44336;text-align:center;margin-top:12px;font-size:12px;">⚠️ Превышение нормы калорий</div>' : '<div style="text-align:center;margin-top:12px;opacity:0.5;font-size:11px;">✅ Осталось ' + (goal - total.calories) + ' ккал</div>'}
+                ${total.calories > goal ? '<div style="color:#ff6b6b;text-align:center;margin-top:12px;font-size:12px;">⚠️ Превышение нормы</div>' : `<div style="color:#6f7485;text-align:center;margin-top:12px;font-size:11px;">✅ Осталось ${goal - total.calories} ккал</div>`}
             `;
             
-            if (currentMealEntries.length === 0) {
-                document.getElementById('diaryList').innerHTML = `<div class="empty-state">🍽️ Нет записей в ${mealNames[currentMeal]}</div>`;
-            } else {
-                document.getElementById('diaryList').innerHTML = currentMealEntries.map(e => `
-                    <div class="diary-item">
-                        <div class="diary-info">
-                            <div class="diary-name">${e.name}</div>
-                            <div class="diary-details">
-                                ${e.grams}г | 🔥 ${e.calories} ккал | 🥩${e.protein}г 🧈${e.fat}г 🍚${e.carbs}г
-                            </div>
-                        </div>
-                        <button class="delete-btn" onclick="deleteEntry(${e.id})">✖</button>
-                    </div>
-                `).join('');
+            const container = document.getElementById('diaryList');
+            if(!currentEntries.length) {
+                container.innerHTML = `<div class="empty-state">Нет записей в ${mealNames[currentMeal]}</div>`;
+                return;
             }
+            
+            container.innerHTML = currentEntries.map(e => `
+                <div class="diary-item">
+                    <div>
+                        <div class="diary-name">${e.name}</div>
+                        <div class="diary-details">${e.grams}г · 🔥 ${e.calories} ккал · 🥩${e.protein}г 🧈${e.fat}г 🍚${e.carbs}г</div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteEntry(${e.id})">Удалить</button>
+                </div>
+            `).join('');
         }
+
+        function deleteEntry(id) {
+            diary = diary.filter(e => e.id !== id);
+            localStorage.setItem('xp_diary', JSON.stringify(diary));
+            renderDiary();
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        }
+
+        function addToDiary(product, quantity) {
+            const factor = quantity / 100;
+            const entry = {
+                id: Date.now() + Math.random(),
+                name: product.name,
+                grams: quantity,
+                calories: Math.round(product.calories * factor),
+                protein: +(product.protein * factor).toFixed(1),
+                fat: +(product.fat * factor).toFixed(1),
+                carbs: +(product.carbs * factor).toFixed(1),
+                meal: currentMeal,
+                date: new Date().toDateString()
+            };
+            diary.push(entry);
+            localStorage.setItem('xp_diary', JSON.stringify(diary));
+            renderDiary();
+        }
+
+        function closeSearch() { document.getElementById('fullscreenSearch').classList.remove('active'); }
+        function openSearch() { 
+            selectedProducts = [];
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchResults').innerHTML = '<div class="empty-state">Начните вводить название</div>';
+            document.getElementById('fullscreenSearch').classList.add('active');
+            document.getElementById('searchInput').focus();
+        }
+
+        function searchProducts(query) {
+            query = query.toLowerCase().trim();
+            if(query.length < 2) {
+                document.getElementById('searchResults').innerHTML = '<div class="empty-state">Минимум 2 символа</div>';
+                return;
+            }
+            const results = allProducts.filter(p => p.name.toLowerCase().includes(query));
+            if(!results.length) {
+                document.getElementById('searchResults').innerHTML = '<div class="empty-state">Ничего не найдено</div>';
+                return;
+            }
+            const selectedIds = selectedProducts.map(p => p.id);
+            document.getElementById('searchResults').innerHTML = results.map(p => `
+                <div class="search-result-item ${selectedIds.includes(p.id) ? 'selected' : ''}" onclick="toggleProductSelection(${p.id})">
+                    <div><div class="result-name">${p.name}</div><div class="result-calories">🔥 ${p.calories} ккал / 100г</div><div class="result-macros">🥩${p.protein}г 🧈${p.fat}г 🍚${p.carbs}г</div></div>
+                    <div class="check-icon">${selectedIds.includes(p.id) ? '✓' : '+'}</div>
+                </div>
+            `).join('');
+        }
+
+        function toggleProductSelection(id) {
+            const product = allProducts.find(p => p.id === id);
+            if(!product) return;
+            const idx = selectedProducts.findIndex(p => p.id === id);
+            if(idx !== -1) selectedProducts.splice(idx,1);
+            else selectedProducts.push({...product, quantity: product.default || 100});
+            searchProducts(document.getElementById('searchInput').value);
+        }
+
+        function saveSelectedProducts() {
+            if(!selectedProducts.length) return;
+            closeSearch();
+            (async () => {
+                for(let p of selectedProducts) {
+                    await new Promise(resolve => { pendingProduct = p; currentResolve = resolve; showQuantityModal(p); });
+                }
+                selectedProducts = [];
+            })();
+        }
+
+        function showQuantityModal(product) {
+            document.getElementById('modalTitle').innerHTML = `⚖️ ${product.name}`;
+            document.getElementById('modalOptions').innerHTML = [50,100,150,200,250,300].map(w => `<div class="weight-btn" onclick="selectQuantity(${w})">${w}г</div>`).join('');
+            document.getElementById('quantityModal').classList.add('active');
+        }
+
+        let selectedQuantity = 100;
+        function selectQuantity(q) {
+            selectedQuantity = q;
+            document.querySelectorAll('.weight-btn').forEach(btn => btn.style.background = btn.innerText === `${q}г` ? '#2a2a36' : '');
+        }
+
+        function confirmQuantity() {
+            if(pendingProduct) addToDiary(pendingProduct, selectedQuantity);
+            closeQuantityModal();
+            if(currentResolve) currentResolve();
+        }
+
+        function closeQuantityModal() {
+            document.getElementById('quantityModal').classList.remove('active');
+            pendingProduct = null;
+            selectedQuantity = 100;
+            currentResolve = null;
+        }
+
+        document.querySelectorAll('.meal-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.meal-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentMeal = tab.dataset.meal;
+                renderDiary();
+                if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            });
+        });
+
+        document.getElementById('openSearchBtn').addEventListener('click', openSearch);
+        document.getElementById('closeSearchBtn').addEventListener('click', closeSearch);
+        document.getElementById('cancelSearchBtn').addEventListener('click', closeSearch);
+        document.getElementById('saveSelectedBtn').addEventListener('click', saveSelectedProducts);
         
-        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => searchProducts(e.target.value), 300);
+        });
+
         loadProducts();
         renderDiary();
-        
-        document.getElementById('quantityModal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('quantityModal')) {
-                closeQuantityModal();
-            }
-        });
-        
-        console.log(`🍽️ XP Питание загружено! Продуктов: ${allProducts.length}`);
     </script>
 </body>
 </html>
