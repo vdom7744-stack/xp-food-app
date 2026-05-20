@@ -337,6 +337,18 @@
             font-weight: 600;
         }
 
+        .result-brand {
+            font-size: 10px;
+            color: #ff9800;
+            margin-top: 2px;
+        }
+
+        .result-category {
+            font-size: 10px;
+            color: #4caf50;
+            margin-top: 2px;
+        }
+
         .result-calories {
             font-size: 11px;
             color: #b0b6c7;
@@ -491,6 +503,16 @@
             margin-left: 8px;
             color: #b0b6c7;
         }
+
+        .search-stats {
+            background: #1a1a24;
+            padding: 8px 12px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            font-size: 11px;
+            color: #8a8f9e;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -521,11 +543,11 @@
     <!-- Поиск -->
     <div class="fullscreen-search" id="fullscreenSearch">
         <div class="search-header">
-            <input type="text" id="searchInput" placeholder="Поиск продуктов..." autocomplete="off">
+            <input type="text" id="searchInput" placeholder="🔍 Поиск по названию, бренду или категории..." autocomplete="off">
             <button class="close-search" id="closeSearchBtn">✖</button>
         </div>
         <div class="search-results" id="searchResults">
-            <div class="empty-state">Начните вводить название</div>
+            <div class="empty-state">Начните вводить название, бренд или категорию</div>
         </div>
         <div class="search-footer">
             <button class="cancel-search" id="cancelSearchBtn">Отмена</button>
@@ -533,7 +555,7 @@
         </div>
     </div>
 
-    <!-- Модалка выбора количества (граммы или штуки) -->
+    <!-- Модалка выбора количества -->
     <div class="modal" id="quantityModal">
         <div class="modal-content">
             <div class="modal-title" id="modalTitle">Выберите количество</div>
@@ -559,29 +581,72 @@
         
         const mealNames = {breakfast:'Завтрак', lunch:'Обед', dinner:'Ужин', snack:'Перекус'};
         
+        // ========== ЗАГРУЗКА ПРОДУКТОВ ==========
         function loadProducts() {
-            if(window.allProducts?.length) {
+            if(window.allProducts && window.allProducts.length) {
                 allProducts = window.allProducts;
+                console.log(`✅ Загружено продуктов: ${allProducts.length}`);
             } else {
-                // Обычные продукты (граммы)
+                // Фоллбэк продукты
+                console.log('⚠️ Файл all_products.js не найден, использую базовые продукты');
                 allProducts = [
-                    {"id":1,"name":"🍗 Куриная грудка","calories":165,"protein":31,"fat":3.6,"carbs":0,"unit":"grams","unit_name":"г","default":100},
-                    {"id":2,"name":"🥛 Молоко 3.2%","calories":60,"protein":3.2,"fat":3.2,"carbs":4.7,"unit":"grams","unit_name":"г","default":200},
-                    {"id":3,"name":"🍞 Хлеб белый","calories":265,"protein":9,"fat":3.2,"carbs":49,"unit":"grams","unit_name":"г","default":100},
-                    {"id":4,"name":"🍚 Рис белый","calories":130,"protein":2.7,"fat":0.3,"carbs":28,"unit":"grams","unit_name":"г","default":100},
-                    // ШТУЧНЫЕ ПРОДУКТЫ
-                    {"id":5,"name":"🥚 Яйцо куриное","calories":155,"protein":13,"fat":11,"carbs":1.1,"unit":"pieces","unit_name":"шт","piece_weight":50,"default":1},
-                    {"id":6,"name":"🍌 Банан","calories":89,"protein":1.1,"fat":0.3,"carbs":23,"unit":"pieces","unit_name":"шт","piece_weight":120,"default":1},
-                    {"id":7,"name":"🍎 Яблоко","calories":52,"protein":0.3,"fat":0.2,"carbs":14,"unit":"pieces","unit_name":"шт","piece_weight":150,"default":1},
-                    {"id":8,"name":"🍊 Апельсин","calories":47,"protein":0.9,"fat":0.1,"carbs":12,"unit":"pieces","unit_name":"шт","piece_weight":130,"default":1},
-                    {"id":9,"name":"🥚 Яйцо перепелиное","calories":158,"protein":13,"fat":11,"carbs":0.6,"unit":"pieces","unit_name":"шт","piece_weight":9,"default":5},
-                    {"id":10,"name":"🧀 Сыр в пачке","calories":350,"protein":25,"fat":28,"carbs":0,"unit":"pieces","unit_name":"уп","piece_weight":200,"default":1},
-                    {"id":11,"name":"🥛 Йогурт","calories":120,"protein":4,"fat":3,"carbs":16,"unit":"pieces","unit_name":"шт","piece_weight":125,"default":1},
-                    {"id":12,"name":"🍫 Шоколад (долька)","calories":50,"protein":0.5,"fat":3,"carbs":5,"unit":"pieces","unit_name":"долька","piece_weight":10,"default":2},
+                    {"id":1,"name":"🍗 Куриная грудка","calories":165,"protein":31,"fat":3.6,"carbs":0,"brand":"Стандарт","category":"Мясо","unit":"g","unit_name":"г","default":100},
+                    {"id":2,"name":"🥛 Молоко 3.2%","calories":60,"protein":3.2,"fat":3.2,"carbs":4.7,"brand":"Простоквашино","category":"Молочка","unit":"g","unit_name":"г","default":200},
+                    {"id":3,"name":"🍞 Хлеб белый","calories":265,"protein":9,"fat":3.2,"carbs":49,"brand":"Дарницкий","category":"Хлеб","unit":"g","unit_name":"г","default":100},
+                    {"id":4,"name":"🍌 Банан","calories":89,"protein":1.1,"fat":0.3,"carbs":23,"brand":"Эквадор","category":"Фрукты","unit":"pieces","unit_name":"шт","piece_weight":120,"default":1},
+                    {"id":5,"name":"🍎 Яблоко","calories":52,"protein":0.3,"fat":0.2,"carbs":14,"brand":"Российское","category":"Фрукты","unit":"pieces","unit_name":"шт","piece_weight":150,"default":1},
                 ];
             }
         }
 
+        // ========== РАСШИРЕННЫЙ ПОИСК (по названию, бренду, категории) ==========
+        function searchProducts(query) {
+            query = query.toLowerCase().trim();
+            
+            if(query.length < 2) {
+                document.getElementById('searchResults').innerHTML = '<div class="empty-state">🔍 Введите минимум 2 символа</div>';
+                return;
+            }
+            
+            // Поиск по названию, бренду и категории
+            const results = allProducts.filter(p => {
+                const matchName = p.name && p.name.toLowerCase().includes(query);
+                const matchBrand = p.brand && p.brand.toLowerCase().includes(query);
+                const matchCategory = p.category && p.category.toLowerCase().includes(query);
+                return matchName || matchBrand || matchCategory;
+            });
+            
+            if(!results.length) {
+                document.getElementById('searchResults').innerHTML = '<div class="empty-state">❌ Ничего не найдено</div>';
+                return;
+            }
+            
+            // Статистика поиска
+            const byNameCount = results.filter(p => p.name && p.name.toLowerCase().includes(query)).length;
+            const byBrandCount = results.filter(p => p.brand && p.brand.toLowerCase().includes(query)).length;
+            const byCategoryCount = results.filter(p => p.category && p.category.toLowerCase().includes(query)).length;
+            
+            const statsHtml = `<div class="search-stats">🔍 Найдено: ${results.length} продуктов | 🏷️ по брендам: ${byBrandCount} | 📁 по категориям: ${byCategoryCount}</div>`;
+            
+            const selectedIds = selectedProducts.map(p => p.id);
+            
+            document.getElementById('searchResults').innerHTML = statsHtml + results.map(p => {
+                const unitText = p.unit === 'pieces' ? p.unit_name || 'шт' : 'г';
+                return `
+                <div class="search-result-item ${selectedIds.includes(p.id) ? 'selected' : ''}" onclick="toggleProductSelection(${p.id})">
+                    <div>
+                        <div class="result-name">${p.name} <span class="unit-badge">${unitText}</span></div>
+                        ${p.brand ? `<div class="result-brand">🏷️ ${p.brand}</div>` : ''}
+                        ${p.category ? `<div class="result-category">📁 ${p.category}</div>` : ''}
+                        <div class="result-calories">🔥 ${p.calories} ккал / ${p.unit === 'pieces' ? '1 ' + (p.unit_name || 'шт') : '100г'}</div>
+                        <div class="result-macros">🥩${p.protein}г 🧈${p.fat}г 🍚${p.carbs}г</div>
+                    </div>
+                    <div class="check-icon">${selectedIds.includes(p.id) ? '✓' : '+'}</div>
+                </div>
+            `}).join('');
+        }
+
+        // ========== ОСТАЛЬНЫЕ ФУНКЦИИ ==========
         function renderDiary() {
             const today = new Date().toDateString();
             const todayEntries = diary.filter(e => e.date === today);
@@ -637,29 +702,24 @@
             if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         }
 
-        // РАСЧЕТ НУТРИЕНТОВ В ЗАВИСИМОСТИ ОТ ТИПА ПРОДУКТА
         function calculateNutrition(product, quantity) {
             let calories, protein, fat, carbs;
             
             if (product.unit === 'pieces') {
-                // ШТУЧНЫЙ ПРОДУКТ: quantity - это количество штук
                 const pieceWeight = product.piece_weight || 100;
                 const totalWeight = quantity * pieceWeight;
                 const factor = totalWeight / 100;
-                
                 calories = Math.round(product.calories * factor);
                 protein = +(product.protein * factor).toFixed(1);
                 fat = +(product.fat * factor).toFixed(1);
                 carbs = +(product.carbs * factor).toFixed(1);
             } else {
-                // ГРАММОВЫЙ ПРОДУКТ: quantity - это вес в граммах
                 const factor = quantity / 100;
                 calories = Math.round(product.calories * factor);
                 protein = +(product.protein * factor).toFixed(1);
                 fat = +(product.fat * factor).toFixed(1);
                 carbs = +(product.carbs * factor).toFixed(1);
             }
-            
             return { calories, protein, fat, carbs };
         }
 
@@ -691,35 +751,9 @@
         function openSearch() { 
             selectedProducts = [];
             document.getElementById('searchInput').value = '';
-            document.getElementById('searchResults').innerHTML = '<div class="empty-state">Начните вводить название</div>';
+            document.getElementById('searchResults').innerHTML = '<div class="empty-state">Начните вводить название, бренд или категорию</div>';
             document.getElementById('fullscreenSearch').classList.add('active');
             document.getElementById('searchInput').focus();
-        }
-
-        function searchProducts(query) {
-            query = query.toLowerCase().trim();
-            if(query.length < 2) {
-                document.getElementById('searchResults').innerHTML = '<div class="empty-state">Минимум 2 символа</div>';
-                return;
-            }
-            const results = allProducts.filter(p => p.name.toLowerCase().includes(query));
-            if(!results.length) {
-                document.getElementById('searchResults').innerHTML = '<div class="empty-state">Ничего не найдено</div>';
-                return;
-            }
-            const selectedIds = selectedProducts.map(p => p.id);
-            document.getElementById('searchResults').innerHTML = results.map(p => {
-                const unitText = p.unit === 'pieces' ? `${p.unit_name}` : 'г';
-                return `
-                <div class="search-result-item ${selectedIds.includes(p.id) ? 'selected' : ''}" onclick="toggleProductSelection(${p.id})">
-                    <div>
-                        <div class="result-name">${p.name} <span class="unit-badge">${unitText}</span></div>
-                        <div class="result-calories">🔥 ${p.calories} ккал / ${p.unit === 'pieces' ? '1 ' + (p.unit_name || 'шт') : '100г'}</div>
-                        <div class="result-macros">🥩${p.protein}г 🧈${p.fat}г 🍚${p.carbs}г</div>
-                    </div>
-                    <div class="check-icon">${selectedIds.includes(p.id) ? '✓' : '+'}</div>
-                </div>
-            `}).join('');
         }
 
         function toggleProductSelection(id) {
@@ -750,10 +784,8 @@
             
             let options;
             if (isPieces) {
-                // Для штучных продуктов: 1, 2, 3, 5, 10 штук
                 options = [1, 2, 3, 5, 10];
             } else {
-                // Для граммов: 50, 100, 150, 200, 250, 300 грамм
                 options = [50, 100, 150, 200, 250, 300];
             }
             
@@ -762,7 +794,6 @@
             ).join('');
             
             selectedQuantity = product.default || (isPieces ? 1 : 100);
-            // Подсветим активную кнопку
             document.querySelectorAll('.weight-btn').forEach(btn => {
                 if(btn.innerText === `${selectedQuantity} ${unitText}`) {
                     btn.classList.add('active');
@@ -792,6 +823,7 @@
             currentResolve = null;
         }
 
+        // ========== НАСТРОЙКА СОБЫТИЙ ==========
         document.querySelectorAll('.meal-tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('.meal-tab').forEach(t => t.classList.remove('active'));
