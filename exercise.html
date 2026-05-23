@@ -18,7 +18,6 @@
             padding-bottom: 70px;
         }
 
-        /* Шапка */
         .header {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             padding: 20px 16px;
@@ -35,10 +34,6 @@
             gap: 8px;
         }
 
-        .search-box {
-            position: relative;
-        }
-
         .search-box input {
             width: 100%;
             padding: 12px 16px;
@@ -53,7 +48,6 @@
             color: rgba(255,255,255,0.5);
         }
 
-        /* Категории */
         .categories {
             padding: 12px 16px;
             display: flex;
@@ -80,7 +74,6 @@
             color: white;
         }
 
-        /* Счётчик */
         .stats-bar {
             padding: 12px 16px;
             background: #0f0f1a;
@@ -91,7 +84,6 @@
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* Список упражнений */
         .exercises-list {
             padding: 16px;
             display: flex;
@@ -166,7 +158,6 @@
         .difficulty.intermediate { background: #ed6c02; }
         .difficulty.advanced { background: #d32f2f; }
 
-        /* Нижняя навигация */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -194,7 +185,6 @@
             opacity: 1;
         }
 
-        /* Модальное окно */
         .modal {
             display: none;
             position: fixed;
@@ -253,8 +243,7 @@
             justify-content: center;
         }
 
-        .media-container video,
-        .media-container .telegram-video {
+        .media-container video {
             width: 100%;
             max-height: 280px;
             object-fit: contain;
@@ -359,6 +348,7 @@
             <button class="category" data-category="Трицепс">💪 Трицепс</button>
             <button class="category" data-category="Пресс">🔥 Пресс</button>
             <button class="category" data-category="Ягодицы">🍑 Ягодицы</button>
+            <button class="category" data-category="Ноги и ягодицы">🦵 Ноги/Ягодицы</button>
         </div>
 
         <div class="stats-bar" id="statsBar">
@@ -406,7 +396,6 @@
         if (tg) {
             tg.expand();
             tg.enableClosingConfirmation();
-            tg.MainButton.hide();
         }
 
         let exercises = [];
@@ -416,35 +405,34 @@
         let currentTab = 'exercises';
         let currentExercise = null;
 
-        // Загрузка упражнений из JSON
+        // ========== ИМПОРТ ФАЙЛА exercises_data.json ==========
         async function loadExercises() {
             try {
-                // Пробуем загрузить ваш JSON файл
                 const response = await fetch('exercises_data.json');
-                if (!response.ok) throw new Error('Файл не найден');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status} - файл не найден`);
+                }
                 const data = await response.json();
                 exercises = data.exercises || data;
-                console.log(`✅ Загружено ${exercises.length} упражнений`);
+                console.log(`✅ Загружено ${exercises.length} упражнений из exercises_data.json`);
                 renderExercises();
                 updateStats();
             } catch (error) {
-                console.error('Ошибка загрузки:', error);
+                console.error('❌ Ошибка загрузки:', error);
                 document.getElementById('exercisesList').innerHTML = `
                     <div class="loading">
                         ❌ Ошибка загрузки упражнений<br>
-                        <small>Проверьте файл exercises_data.json</small>
+                        <small>Файл exercises_data.json не найден в той же папке</small>
                     </div>
                 `;
             }
         }
 
-        // Обновление статистики
         function updateStats() {
             document.getElementById('totalCount').innerText = exercises.length;
             document.getElementById('favoritesCount').innerText = favorites.length;
         }
 
-        // Фильтрация упражнений
         function getFilteredExercises() {
             let filtered = exercises;
             
@@ -455,9 +443,9 @@
             if (searchQuery) {
                 const query = searchQuery.toLowerCase();
                 filtered = filtered.filter(ex => 
-                    ex.name_ru?.toLowerCase().includes(query) || 
-                    ex.name?.toLowerCase().includes(query) ||
-                    ex.muscles?.some(m => m.toLowerCase().includes(query))
+                    (ex.name_ru && ex.name_ru.toLowerCase().includes(query)) || 
+                    (ex.name && ex.name.toLowerCase().includes(query)) ||
+                    (ex.muscles && ex.muscles.some(m => m.toLowerCase().includes(query)))
                 );
             }
             
@@ -466,32 +454,6 @@
             }
             
             return filtered;
-        }
-
-        // Рендер списка упражнений
-        function renderExercises() {
-            const container = document.getElementById('exercisesList');
-            const filtered = getFilteredExercises();
-            
-            if (filtered.length === 0) {
-                container.innerHTML = '<div class="loading">😔 Упражнения не найдены</div>';
-                return;
-            }
-            
-            container.innerHTML = filtered.map(ex => `
-                <div class="exercise-card" onclick="openExercise('${escapeHtml(JSON.stringify(ex))}')">
-                    <div class="exercise-icon">${getCategoryIcon(ex.category)}</div>
-                    <div class="exercise-info">
-                        <div class="exercise-name">${ex.name_ru || ex.name}</div>
-                        <div class="exercise-muscles">${ex.muscles?.slice(0, 2).join(', ') || ''}</div>
-                        <div class="exercise-tags">
-                            ${ex.equipment ? `<span class="tag">${ex.equipment[0]}</span>` : ''}
-                            <span class="difficulty ${ex.difficulty || 'intermediate'}">${getDifficultyText(ex.difficulty)}</span>
-                            ${favorites.includes(ex.id || ex.name_ru) ? '<span class="tag">⭐</span>' : ''}
-                        </div>
-                    </div>
-                </div>
-            `).join('');
         }
 
         function getCategoryIcon(category) {
@@ -508,9 +470,32 @@
             return texts[difficulty] || 'Средний';
         }
 
-        // Открыть упражнение
-        function openExercise(exJson) {
-            const ex = typeof exJson === 'string' ? JSON.parse(exJson) : exJson;
+        function renderExercises() {
+            const container = document.getElementById('exercisesList');
+            const filtered = getFilteredExercises();
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="loading">😔 Упражнения не найдены</div>';
+                return;
+            }
+            
+            container.innerHTML = filtered.map(ex => `
+                <div class="exercise-card" onclick="openExercise(${JSON.stringify(ex).replace(/</g, '\\u003c')})">
+                    <div class="exercise-icon">${getCategoryIcon(ex.category)}</div>
+                    <div class="exercise-info">
+                        <div class="exercise-name">${escapeHtml(ex.name_ru || ex.name)}</div>
+                        <div class="exercise-muscles">${ex.muscles?.slice(0, 2).join(', ') || ''}</div>
+                        <div class="exercise-tags">
+                            ${ex.equipment ? `<span class="tag">${escapeHtml(ex.equipment[0])}</span>` : ''}
+                            <span class="difficulty ${ex.difficulty || 'intermediate'}">${getDifficultyText(ex.difficulty)}</span>
+                            ${favorites.includes(ex.id || ex.name_ru) ? '<span class="tag">⭐</span>' : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openExercise(ex) {
             currentExercise = ex;
             
             document.getElementById('modalTitle').innerText = ex.name_ru || ex.name;
@@ -523,21 +508,27 @@
             document.getElementById('favoriteBtn').innerHTML = isFav ? '❤️ В избранном' : '⭐ В избранное';
             document.getElementById('favoriteBtn').onclick = () => toggleFavorite(ex);
             
-            // Видео
             const mediaContainer = document.getElementById('mediaContainer');
-            if (ex.file_id) {
+            if (ex.video_file_id || ex.file_id) {
+                const fileId = ex.video_file_id || ex.file_id;
                 const videoHtml = `
                     <video controls autoplay playsinline>
-                        <source src="https://t.me/file/${ex.file_id}" type="video/mp4">
+                        <source src="https://telegra.ph/file/${fileId}" type="video/mp4">
+                        <p>Видео не загрузилось</p>
                     </video>
                 `;
                 mediaContainer.innerHTML = videoHtml;
+                const video = mediaContainer.querySelector('video');
+                if (video) {
+                    video.onerror = () => {
+                        mediaContainer.innerHTML = `<div style="padding:40px;text-align:center;">🎬 Видео временно недоступно<br><small>File ID: ${fileId.substring(0,20)}...</small></div>`;
+                    };
+                }
             } else {
-                mediaContainer.innerHTML = `<div style="padding:40px;text-align:center;">🎬 Видео временно недоступно</div>`;
+                mediaContainer.innerHTML = `<div style="padding:40px;text-align:center;">🎬 Видео для этого упражнения пока нет</div>`;
             }
             
             document.getElementById('exerciseModal').classList.add('active');
-            if (tg) tg.MainButton.hide();
         }
 
         function toggleFavorite(ex) {
@@ -572,7 +563,7 @@
             });
         }
 
-        // Обработчики событий
+        // Обработчики
         document.getElementById('searchInput').addEventListener('input', (e) => {
             searchQuery = e.target.value;
             renderExercises();
