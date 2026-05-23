@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <title>XP Fitness — Упражнения</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            padding-bottom: 70px;
+        }
+
+        /* Шапка */
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 20px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 16px;
+        }
+
+        .search-box input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Категории */
+        .categories {
+            padding: 12px 16px;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+            background: #0f0f1a;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .category {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category.active {
+            background: #e07a2c;
+            color: white;
+        }
+
+        /* Счётчик */
+        .stats-bar {
+            padding: 12px 16px;
+            background: #0f0f1a;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #888;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Список упражнений */
+        .exercises-list {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .exercise-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+            border-radius: 16px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border: 1px solid rgba(224,122,44,0.2);
+        }
+
+        .exercise-card:hover {
+            transform: translateY(-2px);
+            border-color: #e07a2c;
+        }
+
+        .exercise-icon {
+            width: 55px;
+            height: 55px;
+            background: rgba(224,122,44,0.15);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .exercise-info {
+            flex: 1;
+        }
+
+        .exercise-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 6px;
+        }
+
+        .exercise-muscles {
+            font-size: 11px;
+            color: #e07a2c;
+            margin-bottom: 6px;
+        }
+
+        .exercise-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .difficulty {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .difficulty.beginner { background: #2e7d32; }
+        .difficulty.intermediate { background: #ed6c02; }
+        .difficulty.advanced { background: #d32f2f; }
+
+        /* Нижняя навигация */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #0f0f1a;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 16px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+        .nav-btn.active {
+            opacity: 1;
+        }
+
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #0f0f1a;
+            width: 95%;
+            max-width: 500px;
+            max-height: 85vh;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(224,122,44,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .media-container {
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .media-container video,
+        .media-container .telegram-video {
+            width: 100%;
+            max-height: 280px;
+            object-fit: contain;
+        }
+
+        .exercise-detail-info {
+            margin-bottom: 16px;
+        }
+
+        .detail-muscles {
+            color: #e07a2c;
+            margin-bottom: 8px;
+        }
+
+        .detail-equipment {
+            margin-bottom: 8px;
+        }
+
+        .detail-description {
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .instructions {
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            line-height: 1.5;
+        }
+
+        .modal-footer {
+            padding: 16px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            gap: 12px;
+        }
+
+        .favorite-btn, .close-detail-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .favorite-btn {
+            background: #e07a2c;
+            color: white;
+        }
+
+        .close-detail-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: white;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        @media (max-width: 480px) {
+            .exercise-name { font-size: 14px; }
+            .exercise-icon { width: 45px; height: 45px; font-size: 22px; }
+        }
+    </style>
+    <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <h1>🏋️‍♂️ Упражнения</h1>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Поиск упражнений...">
+            </div>
+        </div>
+
+        <div class="categories" id="categories">
+            <button class="category active" data-category="all">Все</button>
+            <button class="category" data-category="Грудные">🏋️‍♂️ Грудь</button>
+            <button class="category" data-category="Спина">💪 Спина</button>
+            <button class="category" data-category="Ноги">🦵 Ноги</button>
+            <button class="category" data-category="Плечи">🎯 Плечи</button>
+            <button class="category" data-category="Бицепс">💪 Бицепс</button>
+            <button class="category" data-category="Трицепс">💪 Трицепс</button>
+            <button class="category" data-category="Пресс">🔥 Пресс</button>
+            <button class="category" data-category="Ягодицы">🍑 Ягодицы</button>
+        </div>
+
+        <div class="stats-bar" id="statsBar">
+            <span>📊 Загружено: <span id="totalCount">0</span> упражнений</span>
+            <span>⭐ Избранное: <span id="favoritesCount">0</span></span>
+        </div>
+
+        <div class="exercises-list" id="exercisesList">
+            <div class="loading">⏳ Загрузка упражнений...</div>
+        </div>
+
+        <div class="bottom-nav">
+            <button class="nav-btn active" data-tab="exercises">🏋️‍♂️</button>
+            <button class="nav-btn" data-tab="favorites">⭐</button>
+        </div>
+    </div>
+
+    <div class="modal" id="exerciseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Упражнение</h2>
+                <button class="close-btn" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="media-container" id="mediaContainer">
+                    <div style="color:#888; text-align:center;">🎬 Загрузка видео...</div>
+                </div>
+                <div class="exercise-detail-info">
+                    <div class="detail-muscles" id="modalMuscles"></div>
+                    <div class="detail-equipment" id="modalEquipment"></div>
+                    <div class="detail-description" id="modalDescription"></div>
+                    <div class="instructions" id="modalInstructions"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="favorite-btn" id="favoriteBtn">⭐ В избранное</button>
+                <button class="close-detail-btn" onclick="closeModal()">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        if (tg) {
+            tg.expand();
+            tg.enableClosingConfirmation();
+            tg.MainButton.hide();
+        }
+
+        let exercises = [];
+        let favorites = JSON.parse(localStorage.getItem('xp_favorites') || '[]');
+        let currentCategory = 'all';
+        let searchQuery = '';
+        let currentTab = 'exercises';
+        let currentExercise = null;
+
+        // Загрузка упражнений из JSON
+        async function loadExercises() {
+            try {
+                // Пробуем загрузить ваш JSON файл
+                const response = await fetch('exercises_data.json');
+                if (!response.ok) throw new Error('Файл не найден');
+                const data = await response.json();
+                exercises = data.exercises || data;
+                console.log(`✅ Загружено ${exercises.length} упражнений`);
+                renderExercises();
+                updateStats();
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                document.getElementById('exercisesList').innerHTML = `
+                    <div class="loading">
+                        ❌ Ошибка загрузки упражнений<br>
+                        <small>Проверьте файл exercises_data.json</small>
+                    </div>
+                `;
+            }
+        }
+
+        // Обновление статистики
+        function updateStats() {
+            document.getElementById('totalCount').innerText = exercises.length;
+            document.getElementById('favoritesCount').innerText = favorites.length;
+        }
+
+        // Фильтрация упражнений
+        function getFilteredExercises() {
+            let filtered = exercises;
+            
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(ex => ex.category === currentCategory);
+            }
+            
+            if (searchQuery) {
+                const query = searchQuery.toLowerCase();
+                filtered = filtered.filter(ex => 
+                    ex.name_ru?.toLowerCase().includes(query) || 
+                    ex.name?.toLowerCase().includes(query) ||
+                    ex.muscles?.some(m => m.toLowerCase().includes(query))
+                );
+            }
+            
+            if (currentTab === 'favorites') {
+                filtered = filtered.filter(ex => favorites.includes(ex.id || ex.name_ru));
+            }
+            
+            return filtered;
+        }
+
+        // Рендер списка упражнений
+        function renderExercises() {
+            const container = document.getElementById('exercisesList');
+            const filtered = getFilteredExercises();
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="loading">😔 Упражнения не найдены</div>';
+                return;
+            }
+            
+            container.innerHTML = filtered.map(ex => `
+                <div class="exercise-card" onclick="openExercise('${escapeHtml(JSON.stringify(ex))}')">
+                    <div class="exercise-icon">${getCategoryIcon(ex.category)}</div>
+                    <div class="exercise-info">
+                        <div class="exercise-name">${ex.name_ru || ex.name}</div>
+                        <div class="exercise-muscles">${ex.muscles?.slice(0, 2).join(', ') || ''}</div>
+                        <div class="exercise-tags">
+                            ${ex.equipment ? `<span class="tag">${ex.equipment[0]}</span>` : ''}
+                            <span class="difficulty ${ex.difficulty || 'intermediate'}">${getDifficultyText(ex.difficulty)}</span>
+                            ${favorites.includes(ex.id || ex.name_ru) ? '<span class="tag">⭐</span>' : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'Грудные': '🏋️‍♂️', 'Спина': '💪', 'Ноги': '🦵', 'Плечи': '🎯',
+                'Бицепс': '💪', 'Трицепс': '💪', 'Пресс': '🔥', 'Ягодицы': '🍑',
+                'Ноги и ягодицы': '🦵'
+            };
+            return icons[category] || '💪';
+        }
+
+        function getDifficultyText(difficulty) {
+            const texts = { 'beginner': 'Начинающий', 'intermediate': 'Средний', 'advanced': 'Продвинутый' };
+            return texts[difficulty] || 'Средний';
+        }
+
+        // Открыть упражнение
+        function openExercise(exJson) {
+            const ex = typeof exJson === 'string' ? JSON.parse(exJson) : exJson;
+            currentExercise = ex;
+            
+            document.getElementById('modalTitle').innerText = ex.name_ru || ex.name;
+            document.getElementById('modalMuscles').innerHTML = `💪 Мышцы: ${ex.muscles?.join(', ') || ''}`;
+            document.getElementById('modalEquipment').innerHTML = `🏋️‍♂️ Оборудование: ${ex.equipment?.join(', ') || 'Свой вес'}`;
+            document.getElementById('modalDescription').innerHTML = ex.description || '';
+            document.getElementById('modalInstructions').innerHTML = `<strong>📖 Как делать:</strong><br><br>${ex.instructions || ex.description || ''}`;
+            
+            const isFav = favorites.includes(ex.id || ex.name_ru);
+            document.getElementById('favoriteBtn').innerHTML = isFav ? '❤️ В избранном' : '⭐ В избранное';
+            document.getElementById('favoriteBtn').onclick = () => toggleFavorite(ex);
+            
+            // Видео
+            const mediaContainer = document.getElementById('mediaContainer');
+            if (ex.file_id) {
+                const videoHtml = `
+                    <video controls autoplay playsinline>
+                        <source src="https://t.me/file/${ex.file_id}" type="video/mp4">
+                    </video>
+                `;
+                mediaContainer.innerHTML = videoHtml;
+            } else {
+                mediaContainer.innerHTML = `<div style="padding:40px;text-align:center;">🎬 Видео временно недоступно</div>`;
+            }
+            
+            document.getElementById('exerciseModal').classList.add('active');
+            if (tg) tg.MainButton.hide();
+        }
+
+        function toggleFavorite(ex) {
+            const id = ex.id || ex.name_ru;
+            if (favorites.includes(id)) {
+                favorites = favorites.filter(f => f !== id);
+            } else {
+                favorites.push(id);
+            }
+            localStorage.setItem('xp_favorites', JSON.stringify(favorites));
+            updateStats();
+            renderExercises();
+            
+            if (currentExercise && (currentExercise.id === id || currentExercise.name_ru === id)) {
+                document.getElementById('favoriteBtn').innerHTML = favorites.includes(id) ? '❤️ В избранном' : '⭐ В избранное';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('exerciseModal').classList.remove('active');
+            const video = document.querySelector('#mediaContainer video');
+            if (video) video.pause();
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // Обработчики событий
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderExercises();
+        });
+
+        document.querySelectorAll('.category').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.dataset.category;
+                renderExercises();
+            });
+        });
+
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTab = btn.dataset.tab;
+                renderExercises();
+            });
+        });
+
+        // Запуск
+        loadExercises();
+    </script>
+</body>
+</html>
