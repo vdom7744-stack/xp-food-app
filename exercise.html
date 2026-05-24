@@ -13,7 +13,6 @@
             padding-bottom: 70px;
         }
         
-        /* Шапка */
         .header {
             background: white;
             padding: 20px 16px;
@@ -38,7 +37,6 @@
         }
         .search-box input::placeholder { color: #999; }
         
-        /* Категории */
         .categories {
             padding: 12px 16px;
             display: flex;
@@ -62,7 +60,6 @@
             color: white; 
         }
         
-        /* Статистика */
         .stats-bar {
             padding: 12px 16px;
             background: white;
@@ -73,7 +70,6 @@
             border-bottom: 1px solid #e0e0e8;
         }
         
-        /* Список упражнений */
         .exercises-list { 
             padding: 16px; 
             display: flex; 
@@ -118,7 +114,6 @@
             color: #e07a2c; 
         }
         
-        /* Нижняя навигация */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -141,7 +136,6 @@
         }
         .nav-btn.active { opacity: 1; }
         
-        /* Модальное окно */
         .modal {
             display: none;
             position: fixed;
@@ -259,37 +253,36 @@
     <div class="header">
         <h1>🏋️‍♂️ Упражнения</h1>
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="🔍 Поиск упражнений...">
+            <input type="text" id="searchInput" placeholder="Поиск упражнений...">
         </div>
     </div>
 
     <div class="categories" id="categories">
         <button class="category active" data-category="all">Все</button>
-        <button class="category" data-category="Грудные">🏋️‍♂️ Грудь</button>
-        <button class="category" data-category="Спина">💪 Спина</button>
-        <button class="category" data-category="Ноги">🦵 Ноги</button>
-        <button class="category" data-category="Плечи">🎯 Плечи</button>
-        <button class="category" data-category="Бицепс">💪 Бицепс</button>
-        <button class="category" data-category="Трицепс">💪 Трицепс</button>
-        <button class="category" data-category="Пресс">🔥 Пресс</button>
-        <button class="category" data-category="Ягодицы">🍑 Ягодицы</button>
+        <button class="category" data-category="Грудные">Грудь</button>
+        <button class="category" data-category="Спина">Спина</button>
+        <button class="category" data-category="Ноги">Ноги</button>
+        <button class="category" data-category="Плечи">Плечи</button>
+        <button class="category" data-category="Бицепс">Бицепс</button>
+        <button class="category" data-category="Трицепс">Трицепс</button>
+        <button class="category" data-category="Пресс">Пресс</button>
+        <button class="category" data-category="Ягодицы">Ягодицы</button>
     </div>
 
     <div class="stats-bar">
-        <span>📊 Всего: <span id="totalCount">0</span></span>
-        <span>⭐ Избранное: <span id="favoritesCount">0</span></span>
+        <span>Всего: <span id="totalCount">0</span></span>
+        <span>Избранное: <span id="favoritesCount">0</span></span>
     </div>
 
     <div class="exercises-list" id="exercisesList">
-        <div class="loading">⏳ Загрузка упражнений...</div>
+        <div class="loading">Загрузка упражнений...</div>
     </div>
 
     <div class="bottom-nav">
-        <button class="nav-btn active" data-tab="all">🏋️‍♂️</button>
+        <button class="nav-btn active" data-tab="all">🏋️</button>
         <button class="nav-btn" data-tab="favorites">⭐</button>
     </div>
 
-    <!-- Модальное окно для просмотра упражнения -->
     <div class="modal" id="exerciseModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -298,20 +291,19 @@
             </div>
             <div class="modal-body">
                 <div class="media-container" id="mediaContainer">
-                    <div class="media-placeholder">🎬 Загрузка видео...</div>
+                    <div class="media-placeholder">Загрузка видео...</div>
                 </div>
                 <div class="detail-muscles" id="modalMuscles"></div>
                 <div class="detail-description" id="modalDescription"></div>
                 <div class="instructions" id="modalInstructions"></div>
             </div>
             <div class="modal-footer">
-                <button class="favorite-btn" id="favoriteBtn">⭐ В избранное</button>
+                <button class="favorite-btn" id="favoriteBtn">В избранное</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Telegram WebApp
         const tg = window.Telegram.WebApp;
         if (tg) { tg.expand(); tg.enableClosingConfirmation(); }
 
@@ -322,19 +314,27 @@
         let currentTab = 'all';
         let currentExercise = null;
 
-        // Функция для получения file_id (поддерживает оба формата)
+        // Функция для получения ссылки на видео через бота
+        // ВАЖНО: нужно заменить BOT_USERNAME на username вашего бота
+        const BOT_USERNAME = 'xp_fitness_bot'; // замените на username вашего бота
+        
+        function getVideoUrl(fileId) {
+            // Используем Telegram Mini App API для получения видео
+            // или прямую ссылку через bot API
+            return `https://t.me/${BOT_USERNAME}?video=${fileId}`;
+        }
+
         function getFileId(ex) {
             return ex.video_file_id || ex.file_id || ex.animation_file_id || null;
         }
 
-        // Загрузка упражнений из JSON файла
         async function loadExercises() {
             try {
                 const response = await fetch('exercises_data.json');
                 if (!response.ok) throw new Error('Файл не найден');
                 const data = await response.json();
                 exercises = data.exercises || data;
-                console.log(`✅ Загружено ${exercises.length} упражнений`);
+                console.log(`Загружено ${exercises.length} упражнений`);
             } catch (error) {
                 console.error('Ошибка загрузки:', error);
                 exercises = [];
@@ -367,7 +367,7 @@
 
         function getCategoryIcon(cat) {
             const icons = { 
-                'Грудные': '🏋️‍♂️', 'Спина': '💪', 'Ноги': '🦵', 
+                'Грудные': '🏋️', 'Спина': '💪', 'Ноги': '🦵', 
                 'Плечи': '🎯', 'Бицепс': '💪', 'Трицепс': '💪', 
                 'Пресс': '🔥', 'Ягодицы': '🍑', 'Ноги и ягодицы': '🦵'
             };
@@ -379,7 +379,7 @@
             const filtered = getFilteredExercises();
             
             if (filtered.length === 0) {
-                container.innerHTML = '<div class="no-results">😔 Упражнения не найдены</div>';
+                container.innerHTML = '<div class="no-results">Упражнения не найдены</div>';
                 return;
             }
             
@@ -397,47 +397,37 @@
             }).join('');
         }
 
-        // Открытие упражнения с видео
         function openExercise(ex) {
             currentExercise = ex;
             
             document.getElementById('modalTitle').innerHTML = escapeHtml(ex.name_ru || ex.name);
-            document.getElementById('modalMuscles').innerHTML = `💪 Мышцы: ${(ex.muscles || []).join(', ')}`;
+            document.getElementById('modalMuscles').innerHTML = `Мышцы: ${(ex.muscles || []).join(', ')}`;
             document.getElementById('modalDescription').innerHTML = ex.description || '';
-            document.getElementById('modalInstructions').innerHTML = `<strong>📖 Как делать:</strong><br><br>${ex.instructions || ex.description || 'Нет описания'}`;
+            document.getElementById('modalInstructions').innerHTML = `<strong>Как делать:</strong><br><br>${ex.instructions || ex.description || 'Нет описания'}`;
             
             const isFav = favorites.includes(ex.id || ex.name_ru);
-            document.getElementById('favoriteBtn').innerHTML = isFav ? '❤️ В избранном' : '⭐ В избранное';
+            document.getElementById('favoriteBtn').innerHTML = isFav ? 'В избранном' : 'В избранное';
             document.getElementById('favoriteBtn').onclick = () => toggleFavorite(ex);
             
-            // Загружаем видео
             const mediaContainer = document.getElementById('mediaContainer');
             const fileId = getFileId(ex);
             
             if (fileId) {
-                // Для Telegram видео используем прямой embed
+                // Пробуем разные способы загрузки видео
                 const videoHtml = `
-                    <video controls autoplay playsinline loop>
+                    <video controls autoplay playsinline loop onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                        <source src="https://api.telegram.org/file/bot${BOT_TOKEN}/${fileId}" type="video/mp4">
                         <source src="https://telegra.ph/file/${fileId}" type="video/mp4">
                         <p>Видео не загрузилось</p>
                     </video>
+                    <div class="media-placeholder" style="display:none">
+                        Видео временно недоступно<br>
+                        <small>File ID: ${fileId.substring(0, 20)}...</small>
+                    </div>
                 `;
                 mediaContainer.innerHTML = videoHtml;
-                
-                // Если видео не грузится, пробуем другой способ
-                const video = mediaContainer.querySelector('video');
-                if (video) {
-                    video.onerror = () => {
-                        mediaContainer.innerHTML = `
-                            <div class="media-placeholder">
-                                🎬 Видео временно недоступно<br>
-                                <small>File ID: ${fileId.substring(0, 20)}...</small>
-                            </div>
-                        `;
-                    };
-                }
             } else {
-                mediaContainer.innerHTML = `<div class="media-placeholder">🎬 Видео для этого упражнения будет добавлено позже</div>`;
+                mediaContainer.innerHTML = `<div class="media-placeholder">Видео для этого упражнения будет добавлено позже</div>`;
             }
             
             document.getElementById('exerciseModal').classList.add('active');
@@ -455,7 +445,7 @@
             renderExercises();
             
             if (currentExercise && (currentExercise.id === id || currentExercise.name_ru === id)) {
-                document.getElementById('favoriteBtn').innerHTML = favorites.includes(id) ? '❤️ В избранном' : '⭐ В избранное';
+                document.getElementById('favoriteBtn').innerHTML = favorites.includes(id) ? 'В избранном' : 'В избранное';
             }
         }
 
@@ -475,7 +465,6 @@
             });
         }
 
-        // Обработчики
         document.getElementById('searchInput').addEventListener('input', (e) => {
             searchQuery = e.target.value;
             renderExercises();
@@ -499,7 +488,6 @@
             });
         });
 
-        // Запуск
         loadExercises();
     </script>
 </body>
