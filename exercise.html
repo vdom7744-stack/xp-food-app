@@ -2,189 +2,146 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>XP Fitness — Упражнения</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #0a0a0a;
-            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f7;
+            color: #1a1a2e;
             padding-bottom: 70px;
         }
-
+        
+        /* Шапка */
         .header {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: white;
             padding: 20px 16px;
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-
-        .header h1 {
-            font-size: 24px;
+        .header h1 { 
+            font-size: 24px; 
             margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            color: #1a1a2e;
         }
-
         .search-box input {
             width: 100%;
             padding: 12px 16px;
             border: none;
             border-radius: 30px;
-            background: rgba(255,255,255,0.1);
-            color: white;
+            background: #f0f0f5;
+            color: #1a1a2e;
             font-size: 16px;
         }
-
-        .search-box input::placeholder {
-            color: rgba(255,255,255,0.5);
-        }
-
+        .search-box input::placeholder { color: #999; }
+        
+        /* Категории */
         .categories {
             padding: 12px 16px;
             display: flex;
             gap: 10px;
             overflow-x: auto;
-            white-space: nowrap;
-            background: #0f0f1a;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: white;
+            border-bottom: 1px solid #e0e0e8;
         }
-
         .category {
             padding: 8px 18px;
             border: none;
             border-radius: 30px;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            font-size: 14px;
+            background: #f0f0f5;
+            color: #1a1a2e;
             cursor: pointer;
-            transition: all 0.2s;
+            font-size: 14px;
+            white-space: nowrap;
         }
-
-        .category.active {
-            background: #e07a2c;
-            color: white;
+        .category.active { 
+            background: #e07a2c; 
+            color: white; 
         }
-
+        
+        /* Статистика */
         .stats-bar {
             padding: 12px 16px;
-            background: #0f0f1a;
+            background: white;
             display: flex;
             justify-content: space-between;
-            font-size: 12px;
-            color: #888;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 13px;
+            color: #666;
+            border-bottom: 1px solid #e0e0e8;
         }
-
-        .exercises-list {
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        
+        /* Список упражнений */
+        .exercises-list { 
+            padding: 16px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
         }
-
         .exercise-card {
-            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+            background: white;
             border-radius: 16px;
             padding: 16px;
             cursor: pointer;
-            transition: all 0.2s;
             display: flex;
             align-items: center;
             gap: 14px;
-            border: 1px solid rgba(224,122,44,0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+            border: 1px solid #e0e0e8;
         }
-
         .exercise-card:hover {
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(224,122,44,0.15);
             border-color: #e07a2c;
         }
-
         .exercise-icon {
             width: 55px;
             height: 55px;
-            background: rgba(224,122,44,0.15);
+            background: rgba(224,122,44,0.1);
             border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 28px;
         }
-
-        .exercise-info {
-            flex: 1;
-        }
-
-        .exercise-name {
-            font-weight: 600;
-            font-size: 16px;
+        .exercise-name { 
+            font-weight: 600; 
+            font-size: 16px; 
             margin-bottom: 6px;
+            color: #1a1a2e;
         }
-
-        .exercise-muscles {
-            font-size: 11px;
-            color: #e07a2c;
-            margin-bottom: 6px;
+        .exercise-muscles { 
+            font-size: 12px; 
+            color: #e07a2c; 
         }
-
-        .exercise-tags {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .tag {
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 20px;
-            background: rgba(255,255,255,0.1);
-        }
-
-        .difficulty {
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 20px;
-        }
-
-        .difficulty.beginner { background: #2e7d32; }
-        .difficulty.intermediate { background: #ed6c02; }
-        .difficulty.advanced { background: #d32f2f; }
-
+        
+        /* Нижняя навигация */
         .bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: #0f0f1a;
+            background: white;
             display: flex;
             justify-content: space-around;
-            padding: 12px 16px;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 12px;
+            border-top: 1px solid #e0e0e8;
             z-index: 100;
         }
-
-        .nav-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 8px;
-            opacity: 0.5;
-            transition: opacity 0.2s;
+        .nav-btn { 
+            background: none; 
+            border: none; 
+            font-size: 24px; 
+            cursor: pointer; 
+            opacity: 0.5; 
+            color: #1a1a2e;
         }
-
-        .nav-btn.active {
-            opacity: 1;
-        }
-
+        .nav-btn.active { opacity: 1; }
+        
+        /* Модальное окно */
         .modal {
             display: none;
             position: fixed;
@@ -192,18 +149,14 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.95);
+            background: rgba(0,0,0,0.8);
             z-index: 1000;
             align-items: center;
             justify-content: center;
         }
-
-        .modal.active {
-            display: flex;
-        }
-
+        .modal.active { display: flex; }
         .modal-content {
-            background: #0f0f1a;
+            background: white;
             width: 95%;
             max-width: 500px;
             max-height: 85vh;
@@ -211,161 +164,132 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            border: 1px solid rgba(224,122,44,0.3);
         }
-
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid #e0e0e8;
         }
-
-        .modal-header h2 {
-            font-size: 18px;
+        .modal-header h2 { font-size: 18px; color: #1a1a2e; }
+        .modal-body { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 16px; 
         }
-
-        .modal-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-        }
-
         .media-container {
-            background: #000;
+            background: #0a0a0a;
             border-radius: 16px;
-            overflow: hidden;
             margin-bottom: 16px;
-            min-height: 200px;
+            min-height: 220px;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
         }
-
         .media-container video {
             width: 100%;
             max-height: 280px;
             object-fit: contain;
         }
-
-        .exercise-detail-info {
-            margin-bottom: 16px;
+        .media-container .media-placeholder {
+            color: #888;
+            text-align: center;
+            padding: 20px;
         }
-
-        .detail-muscles {
-            color: #e07a2c;
+        .detail-muscles { 
+            color: #e07a2c; 
             margin-bottom: 8px;
+            font-size: 14px;
         }
-
-        .detail-equipment {
-            margin-bottom: 8px;
-        }
-
-        .detail-description {
-            margin-bottom: 16px;
+        .detail-description { 
+            margin-bottom: 16px; 
             line-height: 1.5;
+            color: #444;
+            font-size: 14px;
         }
-
-        .instructions {
-            padding: 12px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
+        .instructions { 
+            padding: 12px; 
+            background: #f5f5f7; 
+            border-radius: 12px; 
             line-height: 1.5;
+            color: #444;
+            font-size: 14px;
         }
-
-        .modal-footer {
-            padding: 16px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            gap: 12px;
+        .modal-footer { 
+            padding: 16px; 
+            border-top: 1px solid #e0e0e8; 
         }
-
-        .favorite-btn, .close-detail-btn {
-            flex: 1;
+        .favorite-btn {
+            width: 100%;
             padding: 12px;
+            background: #e07a2c;
             border: none;
             border-radius: 30px;
-            font-size: 14px;
+            color: white;
             font-weight: 600;
             cursor: pointer;
+            font-size: 16px;
         }
-
-        .favorite-btn {
-            background: #e07a2c;
-            color: white;
-        }
-
-        .close-detail-btn {
-            background: rgba(255,255,255,0.1);
-            color: white;
-        }
-
         .close-btn {
-            background: none;
+            background: #f0f0f5;
             border: none;
-            font-size: 28px;
+            font-size: 20px;
             cursor: pointer;
-            color: white;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            color: #333;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.1);
         }
-
-        .loading {
+        .loading { 
+            text-align: center; 
+            padding: 40px; 
+            color: #888; 
+        }
+        .no-results {
             text-align: center;
             padding: 40px;
             color: #888;
-        }
-
-        @media (max-width: 480px) {
-            .exercise-name { font-size: 14px; }
-            .exercise-icon { width: 45px; height: 45px; font-size: 22px; }
         }
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
 </head>
 <body>
-    <div class="app">
-        <div class="header">
-            <h1>🏋️‍♂️ Упражнения</h1>
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="🔍 Поиск упражнений...">
-            </div>
-        </div>
-
-        <div class="categories" id="categories">
-            <button class="category active" data-category="all">Все</button>
-            <button class="category" data-category="Грудные">🏋️‍♂️ Грудь</button>
-            <button class="category" data-category="Спина">💪 Спина</button>
-            <button class="category" data-category="Ноги">🦵 Ноги</button>
-            <button class="category" data-category="Плечи">🎯 Плечи</button>
-            <button class="category" data-category="Бицепс">💪 Бицепс</button>
-            <button class="category" data-category="Трицепс">💪 Трицепс</button>
-            <button class="category" data-category="Пресс">🔥 Пресс</button>
-            <button class="category" data-category="Ягодицы">🍑 Ягодицы</button>
-            <button class="category" data-category="Ноги и ягодицы">🦵 Ноги/Ягодицы</button>
-        </div>
-
-        <div class="stats-bar" id="statsBar">
-            <span>📊 Загружено: <span id="totalCount">0</span> упражнений</span>
-            <span>⭐ Избранное: <span id="favoritesCount">0</span></span>
-        </div>
-
-        <div class="exercises-list" id="exercisesList">
-            <div class="loading">⏳ Загрузка упражнений...</div>
-        </div>
-
-        <div class="bottom-nav">
-            <button class="nav-btn active" data-tab="exercises">🏋️‍♂️</button>
-            <button class="nav-btn" data-tab="favorites">⭐</button>
+    <div class="header">
+        <h1>🏋️‍♂️ Упражнения</h1>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Поиск упражнений...">
         </div>
     </div>
 
+    <div class="categories" id="categories">
+        <button class="category active" data-category="all">Все</button>
+        <button class="category" data-category="Грудные">🏋️‍♂️ Грудь</button>
+        <button class="category" data-category="Спина">💪 Спина</button>
+        <button class="category" data-category="Ноги">🦵 Ноги</button>
+        <button class="category" data-category="Плечи">🎯 Плечи</button>
+        <button class="category" data-category="Бицепс">💪 Бицепс</button>
+        <button class="category" data-category="Трицепс">💪 Трицепс</button>
+        <button class="category" data-category="Пресс">🔥 Пресс</button>
+        <button class="category" data-category="Ягодицы">🍑 Ягодицы</button>
+    </div>
+
+    <div class="stats-bar">
+        <span>📊 Всего: <span id="totalCount">0</span></span>
+        <span>⭐ Избранное: <span id="favoritesCount">0</span></span>
+    </div>
+
+    <div class="exercises-list" id="exercisesList">
+        <div class="loading">⏳ Загрузка упражнений...</div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-btn active" data-tab="all">🏋️‍♂️</button>
+        <button class="nav-btn" data-tab="favorites">⭐</button>
+    </div>
+
+    <!-- Модальное окно для просмотра упражнения -->
     <div class="modal" id="exerciseModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -374,58 +298,49 @@
             </div>
             <div class="modal-body">
                 <div class="media-container" id="mediaContainer">
-                    <div style="color:#888; text-align:center;">🎬 Загрузка видео...</div>
+                    <div class="media-placeholder">🎬 Загрузка видео...</div>
                 </div>
-                <div class="exercise-detail-info">
-                    <div class="detail-muscles" id="modalMuscles"></div>
-                    <div class="detail-equipment" id="modalEquipment"></div>
-                    <div class="detail-description" id="modalDescription"></div>
-                    <div class="instructions" id="modalInstructions"></div>
-                </div>
+                <div class="detail-muscles" id="modalMuscles"></div>
+                <div class="detail-description" id="modalDescription"></div>
+                <div class="instructions" id="modalInstructions"></div>
             </div>
             <div class="modal-footer">
                 <button class="favorite-btn" id="favoriteBtn">⭐ В избранное</button>
-                <button class="close-detail-btn" onclick="closeModal()">Закрыть</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Инициализация Telegram WebApp
+        // Telegram WebApp
         const tg = window.Telegram.WebApp;
-        if (tg) {
-            tg.expand();
-            tg.enableClosingConfirmation();
-        }
+        if (tg) { tg.expand(); tg.enableClosingConfirmation(); }
 
         let exercises = [];
         let favorites = JSON.parse(localStorage.getItem('xp_favorites') || '[]');
         let currentCategory = 'all';
         let searchQuery = '';
-        let currentTab = 'exercises';
+        let currentTab = 'all';
         let currentExercise = null;
 
-        // ========== ИМПОРТ ФАЙЛА exercises_data.json ==========
+        // Функция для получения file_id (поддерживает оба формата)
+        function getFileId(ex) {
+            return ex.video_file_id || ex.file_id || ex.animation_file_id || null;
+        }
+
+        // Загрузка упражнений из JSON файла
         async function loadExercises() {
             try {
                 const response = await fetch('exercises_data.json');
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status} - файл не найден`);
-                }
+                if (!response.ok) throw new Error('Файл не найден');
                 const data = await response.json();
                 exercises = data.exercises || data;
-                console.log(`✅ Загружено ${exercises.length} упражнений из exercises_data.json`);
-                renderExercises();
-                updateStats();
+                console.log(`✅ Загружено ${exercises.length} упражнений`);
             } catch (error) {
-                console.error('❌ Ошибка загрузки:', error);
-                document.getElementById('exercisesList').innerHTML = `
-                    <div class="loading">
-                        ❌ Ошибка загрузки упражнений<br>
-                        <small>Файл exercises_data.json не найден в той же папке</small>
-                    </div>
-                `;
+                console.error('Ошибка загрузки:', error);
+                exercises = [];
             }
+            renderExercises();
+            updateStats();
         }
 
         function updateStats() {
@@ -435,39 +350,28 @@
 
         function getFilteredExercises() {
             let filtered = exercises;
-            
             if (currentCategory !== 'all') {
                 filtered = filtered.filter(ex => ex.category === currentCategory);
             }
-            
             if (searchQuery) {
-                const query = searchQuery.toLowerCase();
+                const q = searchQuery.toLowerCase();
                 filtered = filtered.filter(ex => 
-                    (ex.name_ru && ex.name_ru.toLowerCase().includes(query)) || 
-                    (ex.name && ex.name.toLowerCase().includes(query)) ||
-                    (ex.muscles && ex.muscles.some(m => m.toLowerCase().includes(query)))
+                    (ex.name_ru || ex.name || '').toLowerCase().includes(q)
                 );
             }
-            
             if (currentTab === 'favorites') {
                 filtered = filtered.filter(ex => favorites.includes(ex.id || ex.name_ru));
             }
-            
             return filtered;
         }
 
-        function getCategoryIcon(category) {
-            const icons = {
-                'Грудные': '🏋️‍♂️', 'Спина': '💪', 'Ноги': '🦵', 'Плечи': '🎯',
-                'Бицепс': '💪', 'Трицепс': '💪', 'Пресс': '🔥', 'Ягодицы': '🍑',
-                'Ноги и ягодицы': '🦵'
+        function getCategoryIcon(cat) {
+            const icons = { 
+                'Грудные': '🏋️‍♂️', 'Спина': '💪', 'Ноги': '🦵', 
+                'Плечи': '🎯', 'Бицепс': '💪', 'Трицепс': '💪', 
+                'Пресс': '🔥', 'Ягодицы': '🍑', 'Ноги и ягодицы': '🦵'
             };
-            return icons[category] || '💪';
-        }
-
-        function getDifficultyText(difficulty) {
-            const texts = { 'beginner': 'Начинающий', 'intermediate': 'Средний', 'advanced': 'Продвинутый' };
-            return texts[difficulty] || 'Средний';
+            return icons[cat] || '💪';
         }
 
         function renderExercises() {
@@ -475,57 +379,65 @@
             const filtered = getFilteredExercises();
             
             if (filtered.length === 0) {
-                container.innerHTML = '<div class="loading">😔 Упражнения не найдены</div>';
+                container.innerHTML = '<div class="no-results">😔 Упражнения не найдены</div>';
                 return;
             }
             
-            container.innerHTML = filtered.map(ex => `
-                <div class="exercise-card" onclick="openExercise(${JSON.stringify(ex).replace(/</g, '\\u003c')})">
-                    <div class="exercise-icon">${getCategoryIcon(ex.category)}</div>
-                    <div class="exercise-info">
-                        <div class="exercise-name">${escapeHtml(ex.name_ru || ex.name)}</div>
-                        <div class="exercise-muscles">${ex.muscles?.slice(0, 2).join(', ') || ''}</div>
-                        <div class="exercise-tags">
-                            ${ex.equipment ? `<span class="tag">${escapeHtml(ex.equipment[0])}</span>` : ''}
-                            <span class="difficulty ${ex.difficulty || 'intermediate'}">${getDifficultyText(ex.difficulty)}</span>
-                            ${favorites.includes(ex.id || ex.name_ru) ? '<span class="tag">⭐</span>' : ''}
+            container.innerHTML = filtered.map(ex => {
+                const exJson = JSON.stringify(ex).replace(/'/g, "&#39;");
+                return `
+                    <div class="exercise-card" onclick='openExercise(${exJson})'>
+                        <div class="exercise-icon">${getCategoryIcon(ex.category)}</div>
+                        <div class="exercise-info">
+                            <div class="exercise-name">${escapeHtml(ex.name_ru || ex.name)}</div>
+                            <div class="exercise-muscles">${(ex.muscles || []).slice(0, 2).join(', ')}</div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
+        // Открытие упражнения с видео
         function openExercise(ex) {
             currentExercise = ex;
             
-            document.getElementById('modalTitle').innerText = ex.name_ru || ex.name;
-            document.getElementById('modalMuscles').innerHTML = `💪 Мышцы: ${ex.muscles?.join(', ') || ''}`;
-            document.getElementById('modalEquipment').innerHTML = `🏋️‍♂️ Оборудование: ${ex.equipment?.join(', ') || 'Свой вес'}`;
+            document.getElementById('modalTitle').innerHTML = escapeHtml(ex.name_ru || ex.name);
+            document.getElementById('modalMuscles').innerHTML = `💪 Мышцы: ${(ex.muscles || []).join(', ')}`;
             document.getElementById('modalDescription').innerHTML = ex.description || '';
-            document.getElementById('modalInstructions').innerHTML = `<strong>📖 Как делать:</strong><br><br>${ex.instructions || ex.description || ''}`;
+            document.getElementById('modalInstructions').innerHTML = `<strong>📖 Как делать:</strong><br><br>${ex.instructions || ex.description || 'Нет описания'}`;
             
             const isFav = favorites.includes(ex.id || ex.name_ru);
             document.getElementById('favoriteBtn').innerHTML = isFav ? '❤️ В избранном' : '⭐ В избранное';
             document.getElementById('favoriteBtn').onclick = () => toggleFavorite(ex);
             
+            // Загружаем видео
             const mediaContainer = document.getElementById('mediaContainer');
-            if (ex.video_file_id || ex.file_id) {
-                const fileId = ex.video_file_id || ex.file_id;
+            const fileId = getFileId(ex);
+            
+            if (fileId) {
+                // Для Telegram видео используем прямой embed
                 const videoHtml = `
-                    <video controls autoplay playsinline>
+                    <video controls autoplay playsinline loop>
                         <source src="https://telegra.ph/file/${fileId}" type="video/mp4">
                         <p>Видео не загрузилось</p>
                     </video>
                 `;
                 mediaContainer.innerHTML = videoHtml;
+                
+                // Если видео не грузится, пробуем другой способ
                 const video = mediaContainer.querySelector('video');
                 if (video) {
                     video.onerror = () => {
-                        mediaContainer.innerHTML = `<div style="padding:40px;text-align:center;">🎬 Видео временно недоступно<br><small>File ID: ${fileId.substring(0,20)}...</small></div>`;
+                        mediaContainer.innerHTML = `
+                            <div class="media-placeholder">
+                                🎬 Видео временно недоступно<br>
+                                <small>File ID: ${fileId.substring(0, 20)}...</small>
+                            </div>
+                        `;
                     };
                 }
             } else {
-                mediaContainer.innerHTML = `<div style="padding:40px;text-align:center;">🎬 Видео для этого упражнения пока нет</div>`;
+                mediaContainer.innerHTML = `<div class="media-placeholder">🎬 Видео для этого упражнения будет добавлено позже</div>`;
             }
             
             document.getElementById('exerciseModal').classList.add('active');
