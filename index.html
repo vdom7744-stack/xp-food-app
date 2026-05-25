@@ -567,7 +567,9 @@
         </div>
     </div>
 
-    <script src="all_products.js"></script>
+    <!-- ========== ПОДКЛЮЧЕНИЕ БАЗЫ ПРОДУКТОВ ========== -->
+    <script src="products.js"></script>
+    
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
@@ -586,9 +588,11 @@
             if(window.allProducts && window.allProducts.length) {
                 allProducts = window.allProducts;
                 console.log(`✅ Загружено продуктов: ${allProducts.length}`);
+                console.log(`📊 Категорий: ${[...new Set(allProducts.map(p => p.category))].length}`);
+                console.log(`🏪 Магазинов: ${[...new Set(allProducts.map(p => p.shop))].length}`);
             } else {
-                // Фоллбэк продукты
-                console.log('⚠️ Файл all_products.js не найден, использую базовые продукты');
+                // Фоллбэк продукты (если файл products.js не загрузился)
+                console.log('⚠️ Файл products.js не найден, использую базовые продукты');
                 allProducts = [
                     {"id":1,"name":"🍗 Куриная грудка","calories":165,"protein":31,"fat":3.6,"carbs":0,"brand":"Стандарт","category":"Мясо","unit":"g","unit_name":"г","default":100},
                     {"id":2,"name":"🥛 Молоко 3.2%","calories":60,"protein":3.2,"fat":3.2,"carbs":4.7,"brand":"Простоквашино","category":"Молочка","unit":"g","unit_name":"г","default":200},
@@ -599,7 +603,7 @@
             }
         }
 
-        // ========== РАСШИРЕННЫЙ ПОИСК (по названию, бренду, категории) ==========
+        // ========== РАСШИРЕННЫЙ ПОИСК (по названию, бренду, категории, магазину) ==========
         function searchProducts(query) {
             query = query.toLowerCase().trim();
             
@@ -608,12 +612,13 @@
                 return;
             }
             
-            // Поиск по названию, бренду и категории
+            // Поиск по названию, бренду, категории и магазину
             const results = allProducts.filter(p => {
                 const matchName = p.name && p.name.toLowerCase().includes(query);
                 const matchBrand = p.brand && p.brand.toLowerCase().includes(query);
                 const matchCategory = p.category && p.category.toLowerCase().includes(query);
-                return matchName || matchBrand || matchCategory;
+                const matchShop = p.shop && p.shop.toLowerCase().includes(query);
+                return matchName || matchBrand || matchCategory || matchShop;
             });
             
             if(!results.length) {
@@ -625,20 +630,28 @@
             const byNameCount = results.filter(p => p.name && p.name.toLowerCase().includes(query)).length;
             const byBrandCount = results.filter(p => p.brand && p.brand.toLowerCase().includes(query)).length;
             const byCategoryCount = results.filter(p => p.category && p.category.toLowerCase().includes(query)).length;
+            const byShopCount = results.filter(p => p.shop && p.shop.toLowerCase().includes(query)).length;
             
-            const statsHtml = `<div class="search-stats">🔍 Найдено: ${results.length} продуктов | 🏷️ по брендам: ${byBrandCount} | 📁 по категориям: ${byCategoryCount}</div>`;
+            let statsText = `🔍 Найдено: ${results.length} продуктов`;
+            if(byBrandCount > 0) statsText += ` | 🏷️ по брендам: ${byBrandCount}`;
+            if(byCategoryCount > 0) statsText += ` | 📁 по категориям: ${byCategoryCount}`;
+            if(byShopCount > 0) statsText += ` | 🏪 по магазинам: ${byShopCount}`;
+            
+            const statsHtml = `<div class="search-stats">${statsText}</div>`;
             
             const selectedIds = selectedProducts.map(p => p.id);
             
             document.getElementById('searchResults').innerHTML = statsHtml + results.map(p => {
                 const unitText = p.unit === 'pieces' ? p.unit_name || 'шт' : 'г';
+                const defaultText = p.unit === 'pieces' ? ` / 1${unitText}` : ` / 100${unitText}`;
                 return `
                 <div class="search-result-item ${selectedIds.includes(p.id) ? 'selected' : ''}" onclick="toggleProductSelection(${p.id})">
                     <div>
                         <div class="result-name">${p.name} <span class="unit-badge">${unitText}</span></div>
                         ${p.brand ? `<div class="result-brand">🏷️ ${p.brand}</div>` : ''}
                         ${p.category ? `<div class="result-category">📁 ${p.category}</div>` : ''}
-                        <div class="result-calories">🔥 ${p.calories} ккал / ${p.unit === 'pieces' ? '1 ' + (p.unit_name || 'шт') : '100г'}</div>
+                        ${p.shop ? `<div class="result-category" style="color:#ff9800">🏪 ${p.shop}</div>` : ''}
+                        <div class="result-calories">🔥 ${p.calories} ккал${defaultText}</div>
                         <div class="result-macros">🥩${p.protein}г 🧈${p.fat}г 🍚${p.carbs}г</div>
                     </div>
                     <div class="check-icon">${selectedIds.includes(p.id) ? '✓' : '+'}</div>
@@ -725,7 +738,7 @@
 
         function addToDiary(product, quantity) {
             const nutrition = calculateNutrition(product, quantity);
-            const unitName = product.unit === 'pieces' ? product.unit_name : 'г';
+            const unitName = product.unit === 'pieces' ? (product.unit_name || 'шт') : 'г';
             const amountText = product.unit === 'pieces' ? quantity : quantity;
             
             const entry = {
