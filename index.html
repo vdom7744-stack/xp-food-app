@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>XP Питание — Дневник КБЖУ</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Подключаем библиотеку для сканирования штрихкода -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -75,6 +77,39 @@
             font-size: 12px;
             color: #7e8493;
             margin-top: 6px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-btn, .scan-btn {
+            flex: 1;
+            padding: 15px 16px;
+            background: #1e1e28;
+            border: 0.5px solid #323240;
+            border-radius: 60px;
+            color: white;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .search-btn:active, .scan-btn:active {
+            background: #2a2a36;
+            transform: scale(0.98);
+        }
+
+        .scan-btn {
+            background: #2a2a36;
+            border-color: #ff6b6b;
         }
 
         .meal-tabs {
@@ -190,29 +225,6 @@
             color: #6f7485;
             margin-top: 5px;
             letter-spacing: 0.3px;
-        }
-
-        .search-btn {
-            width: 100%;
-            padding: 15px 16px;
-            background: #1e1e28;
-            border: 0.5px solid #323240;
-            border-radius: 60px;
-            color: white;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: 0.2s;
-        }
-
-        .search-btn:active {
-            background: #2a2a36;
-            transform: scale(0.98);
         }
 
         .diary-item {
@@ -513,6 +525,63 @@
             color: #8a8f9e;
             text-align: center;
         }
+
+        /* Стили для сканера */
+        .scanner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #000;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .scanner-overlay.active {
+            display: flex;
+        }
+
+        .scanner-header {
+            padding: 16px;
+            background: #13131c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 0.5px solid #282834;
+        }
+
+        .scanner-header h3 {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .close-scanner {
+            width: 40px;
+            height: 40px;
+            border-radius: 40px;
+            background: #2a2228;
+            border: none;
+            color: #ff8888;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        #reader {
+            width: 100%;
+            flex: 1;
+            background: #000;
+        }
+
+        .scanner-info {
+            padding: 16px;
+            background: #13131c;
+            text-align: center;
+            font-size: 12px;
+            color: #8a8f9e;
+            border-top: 0.5px solid #282834;
+        }
     </style>
 </head>
 <body>
@@ -520,6 +589,15 @@
         <div class="app-header">
             <h1>XP Питание</h1>
             <p>дневник КБЖУ</p>
+        </div>
+
+        <div class="action-buttons">
+            <button class="search-btn" id="openSearchBtn">
+                🔍 Поиск
+            </button>
+            <button class="scan-btn" id="openScannerBtn">
+                📷 Сканер
+            </button>
         </div>
 
         <div class="meal-tabs">
@@ -532,10 +610,6 @@
         <div class="summary" id="summary">
             <div class="summary-header">📅 Загрузка...</div>
         </div>
-
-        <button class="search-btn" id="openSearchBtn">
-            🔍 Добавить продукты
-        </button>
 
         <div id="diaryList" class="diary-list"></div>
     </div>
@@ -555,6 +629,18 @@
         </div>
     </div>
 
+    <!-- Сканер штрихкода -->
+    <div class="scanner-overlay" id="scannerOverlay">
+        <div class="scanner-header">
+            <h3>📷 Наведите камеру на штрихкод</h3>
+            <button class="close-scanner" id="closeScannerBtn">✖</button>
+        </div>
+        <div id="reader"></div>
+        <div class="scanner-info">
+            📱 Поднесите штрихкод к камере. Продукт будет найден автоматически.
+        </div>
+    </div>
+
     <!-- Модалка выбора количества -->
     <div class="modal" id="quantityModal">
         <div class="modal-content">
@@ -567,7 +653,8 @@
         </div>
     </div>
 
-    <!-- ========== ПОДКЛЮЧЕНИЕ БАЗЫ ПРОДУКТОВ ========== -->
+    <!-- ========== ПОДКЛЮЧЕНИЕ БАЗЫ ПРОДУКТОВ (ДВА ИМПОРТА) ========== -->
+    <script src="all_products.js"></script>
     <script src="products.js"></script>
     
     <script>
@@ -580,30 +667,177 @@
         let pendingProduct = null;
         let currentResolve = null;
         let diary = JSON.parse(localStorage.getItem('xp_diary') || '[]');
+        let html5QrCode = null;
         
         const mealNames = {breakfast:'Завтрак', lunch:'Обед', dinner:'Ужин', snack:'Перекус'};
         
-        // ========== ЗАГРУЗКА ПРОДУКТОВ ==========
+        // ========== БАЗА ШТРИХКОДОВ (пример) ==========
+        // В реальности можно расширить или загружать из JSON
+        const barcodeDatabase = {
+            // Продукты по штрихкодам (EAN-13)
+            "460000000001": {"name":"🍗 Куриная грудка","calories":165,"protein":31,"fat":3.6,"carbs":0,"brand":"Стандарт","category":"Мясо","unit":"g","unit_name":"г","default":100},
+            "460000000002": {"name":"🥛 Молоко 3.2%","calories":60,"protein":3.2,"fat":3.2,"carbs":4.7,"brand":"Простоквашино","category":"Молочка","unit":"g","unit_name":"г","default":200},
+            "460000000003": {"name":"🍞 Хлеб белый","calories":265,"protein":9,"fat":3.2,"carbs":49,"brand":"Дарницкий","category":"Хлеб","unit":"g","unit_name":"г","default":100},
+            "460000000004": {"name":"🍌 Банан","calories":89,"protein":1.1,"fat":0.3,"carbs":23,"brand":"Эквадор","category":"Фрукты","unit":"pieces","unit_name":"шт","piece_weight":120,"default":1},
+            "460000000005": {"name":"🍎 Яблоко","calories":52,"protein":0.3,"fat":0.2,"carbs":14,"brand":"Российское","category":"Фрукты","unit":"pieces","unit_name":"шт","piece_weight":150,"default":1},
+            "460000000006": {"name":"🥚 Яйцо куриное","calories":157,"protein":12.7,"fat":11.5,"carbs":0.7,"brand":"Окское","category":"Яйца","unit":"pieces","unit_name":"шт","piece_weight":50,"default":2},
+            "460000000007": {"name":"🥩 Говядина вырезка","calories":250,"protein":25,"fat":16,"carbs":0,"brand":"Мираторг","category":"Мясо","unit":"g","unit_name":"г","default":100},
+            "460000000008": {"name":"🐟 Семга слабосоленая","calories":208,"protein":20,"fat":13,"carbs":0,"brand":"Русское море","category":"Рыба","unit":"g","unit_name":"г","default":100},
+        };
+        
+        // ========== ЗАГРУЗКА ПРОДУКТОВ ИЗ ДВУХ ФАЙЛОВ ==========
         function loadProducts() {
+            // Сначала пытаемся загрузить из all_products.js
             if(window.allProducts && window.allProducts.length) {
                 allProducts = window.allProducts;
-                console.log(`✅ Загружено продуктов: ${allProducts.length}`);
-                console.log(`📊 Категорий: ${[...new Set(allProducts.map(p => p.category))].length}`);
-                console.log(`🏪 Магазинов: ${[...new Set(allProducts.map(p => p.shop))].length}`);
+                console.log(`✅ Загружено из all_products.js: ${allProducts.length} продуктов`);
+            } else if(window.products && window.products.length) {
+                allProducts = window.products;
+                console.log(`✅ Загружено из products.js: ${allProducts.length} продуктов`);
             } else {
-                // Фоллбэк продукты (если файл products.js не загрузился)
-                console.log('⚠️ Файл products.js не найден, использую базовые продукты');
+                // Фоллбэк продукты
+                console.log('⚠️ Файлы all_products.js и products.js не найдены, использую базовые продукты');
                 allProducts = [
                     {"id":1,"name":"🍗 Куриная грудка","calories":165,"protein":31,"fat":3.6,"carbs":0,"brand":"Стандарт","category":"Мясо","unit":"g","unit_name":"г","default":100},
                     {"id":2,"name":"🥛 Молоко 3.2%","calories":60,"protein":3.2,"fat":3.2,"carbs":4.7,"brand":"Простоквашино","category":"Молочка","unit":"g","unit_name":"г","default":200},
                     {"id":3,"name":"🍞 Хлеб белый","calories":265,"protein":9,"fat":3.2,"carbs":49,"brand":"Дарницкий","category":"Хлеб","unit":"g","unit_name":"г","default":100},
                     {"id":4,"name":"🍌 Банан","calories":89,"protein":1.1,"fat":0.3,"carbs":23,"brand":"Эквадор","category":"Фрукты","unit":"pieces","unit_name":"шт","piece_weight":120,"default":1},
                     {"id":5,"name":"🍎 Яблоко","calories":52,"protein":0.3,"fat":0.2,"carbs":14,"brand":"Российское","category":"Фрукты","unit":"pieces","unit_name":"шт","piece_weight":150,"default":1},
+                    {"id":6,"name":"🥚 Яйцо куриное","calories":157,"protein":12.7,"fat":11.5,"carbs":0.7,"brand":"Окское","category":"Яйца","unit":"pieces","unit_name":"шт","piece_weight":50,"default":2},
                 ];
+            }
+            
+            console.log(`📊 Всего загружено: ${allProducts.length} продуктов`);
+            console.log(`📁 Категорий: ${[...new Set(allProducts.map(p => p.category).filter(Boolean))].length}`);
+            console.log(`🏷️ Брендов: ${[...new Set(allProducts.map(p => p.brand).filter(Boolean))].length}`);
+            if(allProducts[0] && allProducts[0].shop) {
+                console.log(`🏪 Магазинов: ${[...new Set(allProducts.map(p => p.shop).filter(Boolean))].length}`);
             }
         }
 
-        // ========== РАСШИРЕННЫЙ ПОИСК (по названию, бренду, категории, магазину) ==========
+        // ========== ПОИСК ПО ШТРИХКОДУ ==========
+        function findProductByBarcode(barcode) {
+            // 1. Сначала ищем в специальной базе штрихкодов
+            if(barcodeDatabase[barcode]) {
+                return barcodeDatabase[barcode];
+            }
+            
+            // 2. Ищем среди загруженных продуктов (если у них есть поле barcode)
+            const product = allProducts.find(p => p.barcode === barcode);
+            if(product) return product;
+            
+            // 3. Пытаемся найти по части названия или бренду (последние цифры штрихкода)
+            const lastDigits = barcode.slice(-6);
+            const partialMatch = allProducts.find(p => 
+                (p.brand && p.brand.toLowerCase().includes(lastDigits)) ||
+                (p.name && p.name.toLowerCase().includes(lastDigits))
+            );
+            if(partialMatch) return partialMatch;
+            
+            return null;
+        }
+
+        // ========== ИНИЦИАЛИЗАЦИЯ СКАНЕРА ==========
+        async function initScanner() {
+            const scannerOverlay = document.getElementById('scannerOverlay');
+            const readerElement = document.getElementById('reader');
+            
+            if (html5QrCode) {
+                try {
+                    await html5QrCode.stop();
+                } catch(e) {}
+            }
+            
+            readerElement.innerHTML = '';
+            
+            html5QrCode = new Html5Qrcode("reader");
+            
+            const config = {
+                fps: 10,
+                qrbox: { width: 250, height: 200 },
+                rememberLastUsedCamera: true,
+                aspectRatio: 1.0
+            };
+            
+            const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+                console.log(`📷 Отсканировано: ${decodedText}`);
+                handleBarcodeScanned(decodedText);
+            };
+            
+            const qrCodeErrorCallback = (errorMessage) => {
+                // Ошибки игнорируем, просто продолжаем сканирование
+                console.log(`[DEBUG] Ошибка сканирования: ${errorMessage}`);
+            };
+            
+            try {
+                await html5QrCode.start(
+                    { facingMode: "environment" },  // Используем заднюю камеру
+                    config,
+                    qrCodeSuccessCallback,
+                    qrCodeErrorCallback
+                );
+                console.log("✅ Сканер запущен");
+            } catch (err) {
+                console.error("❌ Ошибка запуска сканера:", err);
+                alert("Не удалось получить доступ к камере. Проверьте разрешения.");
+                closeScanner();
+            }
+        }
+
+        async function stopScanner() {
+            if (html5QrCode) {
+                try {
+                    await html5QrCode.stop();
+                } catch(e) {
+                    console.log("Ошибка остановки сканера:", e);
+                }
+                html5QrCode = null;
+            }
+        }
+
+        function openScanner() {
+            document.getElementById('scannerOverlay').classList.add('active');
+            setTimeout(() => {
+                initScanner();
+            }, 100);
+        }
+
+        function closeScanner() {
+            stopScanner();
+            document.getElementById('scannerOverlay').classList.remove('active');
+        }
+
+        async function handleBarcodeScanned(barcode) {
+            // Останавливаем сканер
+            await stopScanner();
+            closeScanner();
+            
+            // Ищем продукт по штрихкоду
+            const product = findProductByBarcode(barcode);
+            
+            if(product) {
+                // Нашли продукт — добавляем в дневник
+                tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success');
+                addToDiary(product, product.default || 100);
+            } else {
+                // Не нашли — показываем сообщение
+                tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('error');
+                const found = await showNotFoundDialog(barcode);
+                if(found) {
+                    // Пользователь согласился создать продукт
+                    alert(`Продукт со штрихкодом ${barcode} будет добавлен в базу позже.`);
+                }
+            }
+        }
+        
+        async function showNotFoundDialog(barcode) {
+            return new Promise((resolve) => {
+                const result = confirm(`❌ Продукт со штрихкодом ${barcode} не найден.\n\nХотите добавить его в базу?`);
+                resolve(result);
+            });
+        }
+
+        // ========== РАСШИРЕННЫЙ ПОИСК ==========
         function searchProducts(query) {
             query = query.toLowerCase().trim();
             
@@ -612,7 +846,6 @@
                 return;
             }
             
-            // Поиск по названию, бренду, категории и магазину
             const results = allProducts.filter(p => {
                 const matchName = p.name && p.name.toLowerCase().includes(query);
                 const matchBrand = p.brand && p.brand.toLowerCase().includes(query);
@@ -626,7 +859,6 @@
                 return;
             }
             
-            // Статистика поиска
             const byNameCount = results.filter(p => p.name && p.name.toLowerCase().includes(query)).length;
             const byBrandCount = results.filter(p => p.brand && p.brand.toLowerCase().includes(query)).length;
             const byCategoryCount = results.filter(p => p.category && p.category.toLowerCase().includes(query)).length;
@@ -638,7 +870,6 @@
             if(byShopCount > 0) statsText += ` | 🏪 по магазинам: ${byShopCount}`;
             
             const statsHtml = `<div class="search-stats">${statsText}</div>`;
-            
             const selectedIds = selectedProducts.map(p => p.id);
             
             document.getElementById('searchResults').innerHTML = statsHtml + results.map(p => {
@@ -758,6 +989,8 @@
             diary.push(entry);
             localStorage.setItem('xp_diary', JSON.stringify(diary));
             renderDiary();
+            
+            if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
         }
 
         function closeSearch() { document.getElementById('fullscreenSearch').classList.remove('active'); }
@@ -851,6 +1084,8 @@
         document.getElementById('closeSearchBtn').addEventListener('click', closeSearch);
         document.getElementById('cancelSearchBtn').addEventListener('click', closeSearch);
         document.getElementById('saveSelectedBtn').addEventListener('click', saveSelectedProducts);
+        document.getElementById('openScannerBtn').addEventListener('click', openScanner);
+        document.getElementById('closeScannerBtn').addEventListener('click', closeScanner);
         
         let searchTimeout;
         document.getElementById('searchInput').addEventListener('input', (e) => {
