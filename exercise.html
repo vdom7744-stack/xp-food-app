@@ -44,6 +44,7 @@
             overflow-x: auto;
             background: white;
             border-bottom: 1px solid #e0e0e8;
+            scrollbar-width: thin;
         }
         .category {
             padding: 8px 18px;
@@ -325,8 +326,8 @@
         }
 
         // ========== НАСТРОЙКИ ==========
-        // ⚠️ ВАЖНО: замените URL на адрес вашего video_server.py
-        const VIDEO_SERVER_URL = 'http://45.132.187.28:8081'; // ← твой видео сервер
+        // ⚠️ ВАЖНО: замените на URL вашего видео сервера (Timeweb или другой)
+        const VIDEO_SERVER_URL = 'http://45.132.187.28:8081'; // ← ЗАМЕНИТЕ НА ВАШ АДРЕС
         
         // Категории упражнений
         const CATEGORIES = [
@@ -366,12 +367,8 @@
             container.innerHTML = '<div class="loading">📥 Загрузка упражнений...</div>';
             
             try {
-                // Пробуем загрузить с сервера
-                let response = await fetch('/exercises_data.json');
-                if (!response.ok) {
-                    // Если не работает, пробуем относительный путь
-                    response = await fetch('exercises_data.json');
-                }
+                // Загружаем JSON с GitHub Pages (относительный путь)
+                const response = await fetch('exercises_data.json');
                 if (!response.ok) throw new Error('Файл не найден');
                 
                 const data = await response.json();
@@ -382,6 +379,7 @@
                 container.innerHTML = `
                     <div class="no-results">
                         ❌ Ошибка загрузки упражнений<br>
+                        <small>${error.message}</small><br>
                         <button class="retry-btn" onclick="loadExercises()">🔄 Повторить</button>
                     </div>
                 `;
@@ -401,7 +399,6 @@
                 </button>
             `).join('');
             
-            // Добавляем обработчики
             document.querySelectorAll('.category').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.category').forEach(b => b.classList.remove('active'));
@@ -505,7 +502,7 @@
                         mediaContainer.innerHTML = `
                             <div class="media-placeholder">
                                 🎬 Видео временно недоступно<br>
-                                <small>ID: ${fileId.substring(0, 20)}...</small><br>
+                                <small>Проверьте работу video_server.py на ${VIDEO_SERVER_URL}</small><br>
                                 <button class="retry-btn" onclick="retryVideo('${fileId}')">🔄 Повторить</button>
                             </div>
                         `;
@@ -594,7 +591,6 @@
             });
         });
 
-        // Закрытие модального окна по клику на фон
         document.getElementById('exerciseModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('exerciseModal')) {
                 closeModal();
@@ -604,7 +600,6 @@
         // Загрузка
         loadExercises();
         
-        // Настройка главной кнопки Telegram
         if (tg) {
             tg.MainButton.setText('🔄 Обновить');
             tg.MainButton.onClick(() => {
