@@ -54,6 +54,7 @@
             cursor: pointer;
             font-size: 14px;
             white-space: nowrap;
+            transition: all 0.2s;
         }
         .category.active { 
             background: #e07a2c; 
@@ -88,10 +89,8 @@
             transition: all 0.2s;
             border: 1px solid #e0e0e8;
         }
-        .exercise-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(224,122,44,0.15);
-            border-color: #e07a2c;
+        .exercise-card:active {
+            transform: scale(0.98);
         }
         .exercise-icon {
             width: 55px;
@@ -133,8 +132,14 @@
             cursor: pointer; 
             opacity: 0.5; 
             color: #1a1a2e;
+            padding: 8px 20px;
+            border-radius: 30px;
+            transition: all 0.2s;
         }
-        .nav-btn.active { opacity: 1; }
+        .nav-btn.active { 
+            opacity: 1; 
+            background: rgba(224,122,44,0.1);
+        }
         
         .modal {
             display: none;
@@ -143,7 +148,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.9);
             z-index: 1000;
             align-items: center;
             justify-content: center;
@@ -153,7 +158,7 @@
             background: white;
             width: 95%;
             max-width: 500px;
-            max-height: 85vh;
+            max-height: 90vh;
             border-radius: 24px;
             overflow: hidden;
             display: flex;
@@ -181,6 +186,7 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            position: relative;
         }
         .media-container video {
             width: 100%;
@@ -190,7 +196,7 @@
         .media-container .media-placeholder {
             color: #888;
             text-align: center;
-            padding: 20px;
+            padding: 40px 20px;
         }
         .detail-muscles { 
             color: #e07a2c; 
@@ -225,6 +231,10 @@
             font-weight: 600;
             cursor: pointer;
             font-size: 16px;
+            transition: all 0.2s;
+        }
+        .favorite-btn:active {
+            transform: scale(0.97);
         }
         .close-btn {
             background: #f0f0f5;
@@ -235,6 +245,10 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
+            transition: all 0.2s;
+        }
+        .close-btn:active {
+            transform: scale(0.95);
         }
         .loading { 
             text-align: center; 
@@ -245,6 +259,15 @@
             text-align: center;
             padding: 40px;
             color: #888;
+        }
+        .retry-btn {
+            background: #e07a2c;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            margin-top: 10px;
+            cursor: pointer;
         }
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
@@ -257,21 +280,11 @@
         </div>
     </div>
 
-    <div class="categories" id="categories">
-        <button class="category active" data-category="all">Все</button>
-        <button class="category" data-category="Грудные">Грудь</button>
-        <button class="category" data-category="Спина">Спина</button>
-        <button class="category" data-category="Ноги">Ноги</button>
-        <button class="category" data-category="Плечи">Плечи</button>
-        <button class="category" data-category="Бицепс">Бицепс</button>
-        <button class="category" data-category="Трицепс">Трицепс</button>
-        <button class="category" data-category="Пресс">Пресс</button>
-        <button class="category" data-category="Ягодицы">Ягодицы</button>
-    </div>
+    <div class="categories" id="categories"></div>
 
     <div class="stats-bar">
-        <span>Всего: <span id="totalCount">0</span></span>
-        <span>Избранное: <span id="favoritesCount">0</span></span>
+        <span>📋 Всего: <span id="totalCount">0</span></span>
+        <span>⭐ Избранное: <span id="favoritesCount">0</span></span>
     </div>
 
     <div class="exercises-list" id="exercisesList">
@@ -279,8 +292,8 @@
     </div>
 
     <div class="bottom-nav">
-        <button class="nav-btn active" data-tab="all">🏋️</button>
-        <button class="nav-btn" data-tab="favorites">⭐</button>
+        <button class="nav-btn active" data-tab="all">🏋️ Все</button>
+        <button class="nav-btn" data-tab="favorites">⭐ Избранное</button>
     </div>
 
     <div class="modal" id="exerciseModal">
@@ -298,15 +311,38 @@
                 <div class="instructions" id="modalInstructions"></div>
             </div>
             <div class="modal-footer">
-                <button class="favorite-btn" id="favoriteBtn">В избранное</button>
+                <button class="favorite-btn" id="favoriteBtn">⭐ В избранное</button>
             </div>
         </div>
     </div>
 
     <script>
+        // Telegram WebApp
         const tg = window.Telegram.WebApp;
-        if (tg) { tg.expand(); tg.enableClosingConfirmation(); }
+        if (tg) { 
+            tg.expand(); 
+            tg.enableClosingConfirmation();
+        }
 
+        // ========== НАСТРОЙКИ ==========
+        // ⚠️ ВАЖНО: замените URL на адрес вашего video_server.py
+        const VIDEO_SERVER_URL = 'http://45.132.187.28:8081'; // ← твой видео сервер
+        
+        // Категории упражнений
+        const CATEGORIES = [
+            { id: 'all', name: 'Все', icon: '🏋️' },
+            { id: 'Грудные', name: 'Грудь', icon: '🏋️' },
+            { id: 'Спина', name: 'Спина', icon: '💪' },
+            { id: 'Ноги', name: 'Ноги', icon: '🦵' },
+            { id: 'Плечи', name: 'Плечи', icon: '🎯' },
+            { id: 'Бицепс', name: 'Бицепс', icon: '💪' },
+            { id: 'Трицепс', name: 'Трицепс', icon: '💪' },
+            { id: 'Пресс', name: 'Пресс', icon: '🔥' },
+            { id: 'Ягодицы', name: 'Ягодицы', icon: '🍑' },
+            { id: 'Кардио', name: 'Кардио', icon: '🏃' }
+        ];
+
+        // Данные
         let exercises = [];
         let favorites = JSON.parse(localStorage.getItem('xp_favorites') || '[]');
         let currentCategory = 'all';
@@ -314,14 +350,11 @@
         let currentTab = 'all';
         let currentExercise = null;
 
-        // Функция для получения ссылки на видео через бота
-        // ВАЖНО: нужно заменить BOT_USERNAME на username вашего бота
-        const BOT_USERNAME = 'xp_fitness_bot'; // замените на username вашего бота
+        // ========== ФУНКЦИИ ==========
         
         function getVideoUrl(fileId) {
-            // Используем Telegram Mini App API для получения видео
-            // или прямую ссылку через bot API
-            return `https://t.me/${BOT_USERNAME}?video=${fileId}`;
+            if (!fileId) return null;
+            return `${VIDEO_SERVER_URL}/video/${fileId}`;
         }
 
         function getFileId(ex) {
@@ -329,18 +362,55 @@
         }
 
         async function loadExercises() {
+            const container = document.getElementById('exercisesList');
+            container.innerHTML = '<div class="loading">📥 Загрузка упражнений...</div>';
+            
             try {
-                const response = await fetch('exercises_data.json');
+                // Пробуем загрузить с сервера
+                let response = await fetch('/exercises_data.json');
+                if (!response.ok) {
+                    // Если не работает, пробуем относительный путь
+                    response = await fetch('exercises_data.json');
+                }
                 if (!response.ok) throw new Error('Файл не найден');
+                
                 const data = await response.json();
                 exercises = data.exercises || data;
-                console.log(`Загружено ${exercises.length} упражнений`);
+                console.log(`✅ Загружено ${exercises.length} упражнений`);
             } catch (error) {
                 console.error('Ошибка загрузки:', error);
-                exercises = [];
+                container.innerHTML = `
+                    <div class="no-results">
+                        ❌ Ошибка загрузки упражнений<br>
+                        <button class="retry-btn" onclick="loadExercises()">🔄 Повторить</button>
+                    </div>
+                `;
+                return;
             }
+            
+            renderCategories();
             renderExercises();
             updateStats();
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('categories');
+            container.innerHTML = CATEGORIES.map(cat => `
+                <button class="category ${currentCategory === cat.id ? 'active' : ''}" data-category="${cat.id}">
+                    ${cat.icon} ${cat.name}
+                </button>
+            `).join('');
+            
+            // Добавляем обработчики
+            document.querySelectorAll('.category').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.category').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCategory = btn.dataset.category;
+                    renderExercises();
+                    if (tg) tg.HapticFeedback.impactOccurred('light');
+                });
+            });
         }
 
         function updateStats() {
@@ -350,18 +420,23 @@
 
         function getFilteredExercises() {
             let filtered = exercises;
+            
             if (currentCategory !== 'all') {
                 filtered = filtered.filter(ex => ex.category === currentCategory);
             }
+            
             if (searchQuery) {
                 const q = searchQuery.toLowerCase();
                 filtered = filtered.filter(ex => 
-                    (ex.name_ru || ex.name || '').toLowerCase().includes(q)
+                    (ex.name_ru || ex.name || '').toLowerCase().includes(q) ||
+                    (ex.muscles || []).some(m => m.toLowerCase().includes(q))
                 );
             }
+            
             if (currentTab === 'favorites') {
                 filtered = filtered.filter(ex => favorites.includes(ex.id || ex.name_ru));
             }
+            
             return filtered;
         }
 
@@ -369,7 +444,7 @@
             const icons = { 
                 'Грудные': '🏋️', 'Спина': '💪', 'Ноги': '🦵', 
                 'Плечи': '🎯', 'Бицепс': '💪', 'Трицепс': '💪', 
-                'Пресс': '🔥', 'Ягодицы': '🍑', 'Ноги и ягодицы': '🦵'
+                'Пресс': '🔥', 'Ягодицы': '🍑', 'Кардио': '🏃'
             };
             return icons[cat] || '💪';
         }
@@ -379,12 +454,13 @@
             const filtered = getFilteredExercises();
             
             if (filtered.length === 0) {
-                container.innerHTML = '<div class="no-results">Упражнения не найдены</div>';
+                container.innerHTML = '<div class="no-results">😕 Упражнения не найдены</div>';
                 return;
             }
             
             container.innerHTML = filtered.map(ex => {
                 const exJson = JSON.stringify(ex).replace(/'/g, "&#39;");
+                const isFav = favorites.includes(ex.id || ex.name_ru);
                 return `
                     <div class="exercise-card" onclick='openExercise(${exJson})'>
                         <div class="exercise-icon">${getCategoryIcon(ex.category)}</div>
@@ -392,6 +468,7 @@
                             <div class="exercise-name">${escapeHtml(ex.name_ru || ex.name)}</div>
                             <div class="exercise-muscles">${(ex.muscles || []).slice(0, 2).join(', ')}</div>
                         </div>
+                        <div style="margin-left: auto; font-size: 20px;">${isFav ? '⭐' : '☆'}</div>
                     </div>
                 `;
             }).join('');
@@ -401,51 +478,86 @@
             currentExercise = ex;
             
             document.getElementById('modalTitle').innerHTML = escapeHtml(ex.name_ru || ex.name);
-            document.getElementById('modalMuscles').innerHTML = `Мышцы: ${(ex.muscles || []).join(', ')}`;
-            document.getElementById('modalDescription').innerHTML = ex.description || '';
-            document.getElementById('modalInstructions').innerHTML = `<strong>Как делать:</strong><br><br>${ex.instructions || ex.description || 'Нет описания'}`;
+            document.getElementById('modalMuscles').innerHTML = `🎯 Мышцы: ${(ex.muscles || []).join(', ')}`;
+            document.getElementById('modalDescription').innerHTML = ex.description || 'Описание отсутствует';
+            document.getElementById('modalInstructions').innerHTML = `<strong>📖 Как делать:</strong><br><br>${ex.instructions || ex.description || 'Нет описания'}`;
             
             const isFav = favorites.includes(ex.id || ex.name_ru);
-            document.getElementById('favoriteBtn').innerHTML = isFav ? 'В избранном' : 'В избранное';
-            document.getElementById('favoriteBtn').onclick = () => toggleFavorite(ex);
+            const favBtn = document.getElementById('favoriteBtn');
+            favBtn.innerHTML = isFav ? '⭐ В избранном' : '☆ В избранное';
+            favBtn.onclick = () => toggleFavorite(ex);
             
             const mediaContainer = document.getElementById('mediaContainer');
             const fileId = getFileId(ex);
             
             if (fileId) {
-                // Пробуем разные способы загрузки видео
-                const videoHtml = `
-                    <video controls autoplay playsinline loop onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
-                        <source src="https://api.telegram.org/file/bot${BOT_TOKEN}/${fileId}" type="video/mp4">
-                        <source src="https://telegra.ph/file/${fileId}" type="video/mp4">
+                const videoUrl = getVideoUrl(fileId);
+                mediaContainer.innerHTML = `
+                    <video controls autoplay playsinline loop>
+                        <source src="${videoUrl}" type="video/mp4">
                         <p>Видео не загрузилось</p>
                     </video>
-                    <div class="media-placeholder" style="display:none">
-                        Видео временно недоступно<br>
-                        <small>File ID: ${fileId.substring(0, 20)}...</small>
-                    </div>
                 `;
-                mediaContainer.innerHTML = videoHtml;
+                
+                const video = mediaContainer.querySelector('video');
+                if (video) {
+                    video.onerror = () => {
+                        mediaContainer.innerHTML = `
+                            <div class="media-placeholder">
+                                🎬 Видео временно недоступно<br>
+                                <small>ID: ${fileId.substring(0, 20)}...</small><br>
+                                <button class="retry-btn" onclick="retryVideo('${fileId}')">🔄 Повторить</button>
+                            </div>
+                        `;
+                    };
+                }
             } else {
-                mediaContainer.innerHTML = `<div class="media-placeholder">Видео для этого упражнения будет добавлено позже</div>`;
+                mediaContainer.innerHTML = '<div class="media-placeholder">🎬 Видео для этого упражнения будет добавлено позже</div>';
             }
             
             document.getElementById('exerciseModal').classList.add('active');
+            if (tg) tg.HapticFeedback.impactOccurred('medium');
+        }
+
+        function retryVideo(fileId) {
+            const mediaContainer = document.getElementById('mediaContainer');
+            const videoUrl = getVideoUrl(fileId);
+            mediaContainer.innerHTML = `
+                <video controls autoplay playsinline loop>
+                    <source src="${videoUrl}" type="video/mp4">
+                    <p>Видео не загрузилось</p>
+                </video>
+            `;
+            
+            const video = mediaContainer.querySelector('video');
+            if (video) {
+                video.onerror = () => {
+                    mediaContainer.innerHTML = `
+                        <div class="media-placeholder">
+                            🎬 Видео не загрузилось<br>
+                            <small>Проверьте работу video_server.py</small>
+                        </div>
+                    `;
+                };
+            }
         }
 
         function toggleFavorite(ex) {
             const id = ex.id || ex.name_ru;
             if (favorites.includes(id)) {
                 favorites = favorites.filter(f => f !== id);
+                if (tg) tg.HapticFeedback.notificationOccurred('warning');
             } else {
                 favorites.push(id);
+                if (tg) tg.HapticFeedback.notificationOccurred('success');
             }
             localStorage.setItem('xp_favorites', JSON.stringify(favorites));
             updateStats();
             renderExercises();
             
             if (currentExercise && (currentExercise.id === id || currentExercise.name_ru === id)) {
-                document.getElementById('favoriteBtn').innerHTML = favorites.includes(id) ? 'В избранном' : 'В избранное';
+                const isFav = favorites.includes(id);
+                document.getElementById('favoriteBtn').innerHTML = isFav ? '⭐ В избранном' : '☆ В избранное';
             }
         }
 
@@ -465,18 +577,11 @@
             });
         }
 
+        // ========== ОБРАБОТЧИКИ СОБЫТИЙ ==========
+        
         document.getElementById('searchInput').addEventListener('input', (e) => {
             searchQuery = e.target.value;
             renderExercises();
-        });
-
-        document.querySelectorAll('.category').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.category').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentCategory = btn.dataset.category;
-                renderExercises();
-            });
         });
 
         document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -485,10 +590,29 @@
                 btn.classList.add('active');
                 currentTab = btn.dataset.tab;
                 renderExercises();
+                if (tg) tg.HapticFeedback.impactOccurred('light');
             });
         });
 
+        // Закрытие модального окна по клику на фон
+        document.getElementById('exerciseModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('exerciseModal')) {
+                closeModal();
+            }
+        });
+
+        // Загрузка
         loadExercises();
+        
+        // Настройка главной кнопки Telegram
+        if (tg) {
+            tg.MainButton.setText('🔄 Обновить');
+            tg.MainButton.onClick(() => {
+                loadExercises();
+                tg.HapticFeedback.impactOccurred('light');
+            });
+            tg.MainButton.show();
+        }
     </script>
 </body>
 </html>
