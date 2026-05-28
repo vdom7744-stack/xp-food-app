@@ -326,8 +326,7 @@
         }
 
         // ========== НАСТРОЙКИ ==========
-        // ⚠️ ВАЖНО: замените на URL вашего видео сервера (Timeweb или другой)
-        const VIDEO_SERVER_URL = 'http://94.241.142.61:8088'; // ← ЗАМЕНИТЕ НА ВАШ АДРЕС
+        const VIDEO_SERVER_URL = 'http://94.241.142.61:8088';
         
         // Категории упражнений
         const CATEGORIES = [
@@ -355,7 +354,7 @@
         
         function getVideoUrl(fileId) {
             if (!fileId) return null;
-            return `${VIDEO_SERVER_URL}/video/${fileId}`;
+            return `${VIDEO_SERVER_URL}/${fileId}.mp4`;
         }
 
         function getFileId(ex) {
@@ -367,7 +366,6 @@
             container.innerHTML = '<div class="loading">📥 Загрузка упражнений...</div>';
             
             try {
-                // Загружаем JSON с GitHub Pages (относительный путь)
                 const response = await fetch('exercises_data.json');
                 if (!response.ok) throw new Error('Файл не найден');
                 
@@ -502,7 +500,7 @@
                         mediaContainer.innerHTML = `
                             <div class="media-placeholder">
                                 🎬 Видео временно недоступно<br>
-                                <small>Проверьте работу video_server.py на ${VIDEO_SERVER_URL}</small><br>
+                                <small>Проверьте работу video_server.py</small><br>
                                 <button class="retry-btn" onclick="retryVideo('${fileId}')">🔄 Повторить</button>
                             </div>
                         `;
