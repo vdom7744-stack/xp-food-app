@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -7,318 +8,265 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0a0a0f;
-            min-height: 100vh;
-            color: #e0e0e0;
-        }
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: url('https://images.unsplash.com/photo-1546483875-ad9014c88eba?q=80&w=1970&auto=format');
-            background-size: cover;
-            background-position: center;
-            opacity: 0.25;
-            z-index: -2;
-        }
-        body::after {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(145deg, #05050a 0%, #111118 60%, #0a0a12 100%);
-            opacity: 0.88;
-            z-index: -1;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0f; min-height: 100vh; color: #e0e0e0; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: url('https://images.unsplash.com/photo-1546483875-ad9014c88eba?q=80&w=1970&auto=format'); background-size: cover; background-position: center; opacity: 0.25; z-index: -2; }
+        body::after { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(145deg, #05050a 0%, #111118 60%, #0a0a12 100%); opacity: 0.88; z-index: -1; }
         .main-content { padding: 20px 16px 100px; max-width: 560px; margin: 0 auto; position: relative; z-index: 2; }
         .app-header { margin-bottom: 24px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 16px; }
         .app-header h1 { font-size: 26px; font-weight: 600; color: #ffffff; }
         .app-header p { font-size: 12px; color: #7e8493; margin-top: 6px; }
         .action-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
-        .search-btn, .scan-btn {
-            flex: 1; padding: 15px 16px; background: #1e1e28; border: 0.5px solid #323240;
-            border-radius: 60px; color: white; font-size: 15px; font-weight: 500;
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: 0.2s;
-        }
+        .search-btn, .scan-btn { flex: 1; padding: 15px 16px; background: #1e1e28; border: 0.5px solid #323240; border-radius: 60px; color: white; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
         .search-btn:active, .scan-btn:active { background: #2a2a36; transform: scale(0.98); }
         .scan-btn { background: #2a2a36; border-color: #ff6b6b; }
-        .meal-tabs {
-            display: flex; gap: 6px; margin-bottom: 24px; background: #13131c;
-            padding: 6px; border-radius: 48px; border: 0.5px solid rgba(255,255,255,0.05);
-        }
-        .meal-tab {
-            flex: 1; padding: 10px 6px; text-align: center; border-radius: 40px;
-            cursor: pointer; font-weight: 500; font-size: 12px; transition: all 0.2s ease;
-            color: #8a8f9e; background: transparent;
-        }
+        .meal-tabs { display: flex; gap: 6px; margin-bottom: 24px; background: #13131c; padding: 6px; border-radius: 48px; border: 0.5px solid rgba(255,255,255,0.05); }
+        .meal-tab { flex: 1; padding: 10px 6px; text-align: center; border-radius: 40px; cursor: pointer; font-weight: 500; font-size: 12px; transition: all 0.2s ease; color: #8a8f9e; background: transparent; }
         .meal-tab.active { background: #2c2c3a; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-        .summary {
-            background: #12121c; border-radius: 24px; padding: 20px; margin-bottom: 24px;
-            border: 0.5px solid #262633; box-shadow: 0 6px 14px rgba(0,0,0,0.4);
-        }
+        .summary { background: #12121c; border-radius: 24px; padding: 20px; margin-bottom: 24px; border: 0.5px solid #262633; box-shadow: 0 6px 14px rgba(0,0,0,0.4); }
         .summary-header { font-size: 13px; font-weight: 500; color: #7e8493; margin-bottom: 16px; }
-        .calories-row {
-            display: flex; justify-content: space-between; align-items: baseline;
-            font-size: 22px; font-weight: 600; margin-bottom: 12px;
-        }
+        .calories-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 22px; font-weight: 600; margin-bottom: 12px; }
         .calories-row span:first-child { font-size: 14px; font-weight: 400; color: #9ea3b2; }
         .calories-row span:last-child { font-size: 22px; font-weight: 700; color: #f5f5f5; }
         .calories-row b { color: #ff6b6b; font-weight: 700; }
         .progress-bar { height: 6px; background: #23232e; border-radius: 10px; margin: 14px 0 16px; overflow: hidden; }
         .progress-fill { height: 100%; background: #ff6b6b; width: 0%; border-radius: 10px; }
         .macros-row { display: flex; gap: 12px; margin-top: 12px; }
-        .macro-item {
-            flex: 1; background: #0e0e16; border-radius: 18px; padding: 12px 6px;
-            text-align: center; border: 0.5px solid #282834;
-        }
+        .macro-item { flex: 1; background: #0e0e16; border-radius: 18px; padding: 12px 6px; text-align: center; border: 0.5px solid #282834; }
         .macro-value { font-weight: 700; font-size: 18px; color: #e0e0e0; }
         .macro-label { font-size: 10px; color: #6f7485; margin-top: 5px; }
-        .diary-item {
-            background: #111118; border: 0.5px solid #282836; border-radius: 20px;
-            padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
-        }
+        .diary-item { background: #111118; border: 0.5px solid #282836; border-radius: 20px; padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .diary-name { font-weight: 600; font-size: 15px; margin-bottom: 6px; }
         .diary-details { font-size: 11px; color: #858b9c; }
-        .delete-btn {
-            background: #2a2228; border: none; color: #ff8888; padding: 8px 14px;
-            border-radius: 32px; font-size: 13px; font-weight: 500; cursor: pointer;
-        }
+        .delete-btn { background: #2a2228; border: none; color: #ff8888; padding: 8px 14px; border-radius: 32px; font-size: 13px; font-weight: 500; cursor: pointer; }
         .empty-state { text-align: center; padding: 48px 20px; color: #6a7080; font-size: 13px; }
-        .fullscreen-search {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #0c0c14;
-            z-index: 1000; display: none; flex-direction: column;
-        }
+        .fullscreen-search { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #0c0c14; z-index: 1000; display: none; flex-direction: column; }
         .fullscreen-search.active { display: flex; }
-        .search-header {
-            padding: 16px; background: #13131c; display: flex; gap: 12px;
-            align-items: center; border-bottom: 0.5px solid #282834;
-        }
-        .search-header input {
-            flex: 1; padding: 14px 18px; font-size: 16px; border: 0.5px solid #323240;
-            border-radius: 32px; background: #1a1a24; color: white; outline: none;
-        }
+        .search-header { padding: 16px; background: #13131c; display: flex; gap: 12px; align-items: center; border-bottom: 0.5px solid #282834; }
+        .search-header input { flex: 1; padding: 14px 18px; font-size: 16px; border: 0.5px solid #323240; border-radius: 32px; background: #1a1a24; color: white; outline: none; }
         .search-header input:focus { border-color: #ff6b6b; }
-        .close-search {
-            width: 44px; height: 44px; border-radius: 44px; background: #2a2228;
-            border: none; color: #ff8888; font-size: 20px; cursor: pointer;
-        }
+        .close-search { width: 44px; height: 44px; border-radius: 44px; background: #2a2228; border: none; color: #ff8888; font-size: 20px; cursor: pointer; }
         .search-results { flex: 1; overflow-y: auto; padding: 16px; }
-        .search-result-item {
-            background: #111118; border: 0.5px solid #282836; padding: 14px;
-            margin-bottom: 10px; border-radius: 20px; cursor: pointer;
-            display: flex; justify-content: space-between; align-items: center;
-        }
+        .search-result-item { background: #111118; border: 0.5px solid #282836; padding: 14px; margin-bottom: 10px; border-radius: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .result-name { font-weight: 600; }
         .result-brand { font-size: 10px; color: #ff9800; margin-top: 2px; }
         .result-category { font-size: 10px; color: #4caf50; margin-top: 2px; }
         .result-calories { font-size: 11px; color: #b0b6c7; margin-top: 4px; }
-        .check-icon {
-            width: 32px; height: 32px; border-radius: 16px; background: #1e1e28;
-            display: flex; align-items: center; justify-content: center; font-size: 18px;
-        }
-        .search-footer {
-            padding: 16px; background: #13131c; display: flex; gap: 12px;
-            border-top: 0.5px solid #282834;
-        }
-        .search-footer button {
-            flex: 1; padding: 14px; border: none; border-radius: 32px;
-            font-size: 15px; font-weight: 500; cursor: pointer;
-        }
+        .result-macros { font-size: 9px; color: #6f7485; margin-top: 4px; }
+        .check-icon { width: 32px; height: 32px; border-radius: 16px; background: #1e1e28; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .search-footer { padding: 16px; background: #13131c; display: flex; gap: 12px; border-top: 0.5px solid #282834; }
+        .search-footer button { flex: 1; padding: 14px; border: none; border-radius: 32px; font-size: 15px; font-weight: 500; cursor: pointer; }
         .save-selected { background: #ff6b6b; color: white; }
         .cancel-search { background: #23222e; color: #b0b6c7; }
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(5,5,8,0.96); align-items: center; justify-content: center; z-index: 1100;
-        }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(5,5,8,0.96); align-items: center; justify-content: center; z-index: 1100; }
         .modal.active { display: flex; }
-        .modal-content {
-            background: #12121c; border-radius: 28px; padding: 24px; width: 90%;
-            max-width: 340px; border: 0.5px solid #323240;
-        }
+        .modal-content { background: #12121c; border-radius: 28px; padding: 24px; width: 90%; max-width: 340px; border: 0.5px solid #323240; }
         .modal-title { font-weight: 600; font-size: 17px; text-align: center; margin-bottom: 20px; }
         .quick-weights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
-        .weight-btn {
-            background: #1a1a24; padding: 12px; text-align: center; border-radius: 40px;
-            cursor: pointer; font-weight: 500; border: 0.5px solid #2c2c38;
-        }
+        .weight-btn { background: #1a1a24; padding: 12px; text-align: center; border-radius: 40px; cursor: pointer; font-weight: 500; border: 0.5px solid #2c2c38; transition: 0.1s; }
         .weight-btn.active { background: #ff6b6b; border-color: #ff6b6b; color: white; }
         .modal-buttons { display: flex; gap: 12px; }
-        .modal-btn {
-            flex: 1; padding: 14px; border: none; border-radius: 32px; font-weight: 500; cursor: pointer;
-        }
+        .modal-btn { flex: 1; padding: 14px; border: none; border-radius: 32px; font-weight: 500; cursor: pointer; }
         .modal-btn.confirm { background: #ff6b6b; color: white; }
         .modal-btn.cancel { background: #23222e; color: #ccc; }
-        .search-stats {
-            background: #1a1a24; padding: 8px 12px; border-radius: 12px;
-            margin-bottom: 12px; font-size: 11px; color: #8a8f9e; text-align: center;
-        }
-        .unit-badge {
-            background: #2a2a36; border-radius: 20px; padding: 2px 8px;
-            font-size: 10px; margin-left: 8px; color: #b0b6c7;
-        }
+        .search-stats { background: #1a1a24; padding: 8px 12px; border-radius: 12px; margin-bottom: 12px; font-size: 11px; color: #8a8f9e; text-align: center; }
+        .unit-badge { background: #2a2a36; border-radius: 20px; padding: 2px 8px; font-size: 10px; margin-left: 8px; color: #b0b6c7; }
+        .api-status { position: fixed; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); padding: 4px 10px; border-radius: 20px; font-size: 10px; z-index: 100; }
+        .api-status.online { color: #4caf50; }
+        .api-status.offline { color: #ff6b6b; }
     </style>
 </head>
 <body>
     <div class="main-content">
         <div class="app-header">
-            <h1>XP Питание</h1>
+            <h1>🍽️ XP Питание</h1>
             <p>дневник КБЖУ</p>
         </div>
-
         <div class="action-buttons">
-            <button class="search-btn" id="openSearchBtn">🔍 Поиск</button>
-            <button class="scan-btn" id="barcodeBtn" onclick="handleBarcodeClick()">📷 Штрихкод</button>
+            <button class="search-btn" id="openSearchBtn">🔍 Поиск продуктов</button>
+            <button class="scan-btn" id="barcodeBtn">📷 Штрихкод</button>
         </div>
-
         <div class="meal-tabs">
             <div class="meal-tab active" data-meal="breakfast">🍳 Завтрак</div>
             <div class="meal-tab" data-meal="lunch">🍲 Обед</div>
             <div class="meal-tab" data-meal="dinner">🍽️ Ужин</div>
             <div class="meal-tab" data-meal="snack">🍎 Перекус</div>
         </div>
-
-        <div class="summary" id="summary">
-            <div class="summary-header">📅 Загрузка...</div>
-        </div>
-
+        <div class="summary" id="summary">📅 Загрузка...</div>
         <div id="diaryList" class="diary-list"></div>
     </div>
 
-    <!-- Поиск -->
     <div class="fullscreen-search" id="fullscreenSearch">
         <div class="search-header">
-            <input type="text" id="searchInput" placeholder="🔍 Поиск по названию..." autocomplete="off">
+            <input type="text" id="searchInput" placeholder="🔍 Название, бренд или категория..." autocomplete="off">
             <button class="close-search" id="closeSearchBtn">✖</button>
         </div>
-        <div class="search-results" id="searchResults">
-            <div class="empty-state">Начните вводить название продукта</div>
-        </div>
+        <div class="search-results" id="searchResults">Начните вводить название</div>
         <div class="search-footer">
             <button class="cancel-search" id="cancelSearchBtn">Отмена</button>
-            <button class="save-selected" id="saveSelectedBtn">Добавить</button>
+            <button class="save-selected" id="saveSelectedBtn">➕ Добавить</button>
         </div>
     </div>
 
-    <!-- Модалка штрихкода -->
     <div class="modal" id="barcodeModal">
         <div class="modal-content">
             <div class="modal-title">📷 Введите штрихкод</div>
-            <input type="text" id="barcodeInput" placeholder="Введите 13 цифр штрихкода" style="width:100%; padding:12px; margin:10px 0; background:#1a1a24; border:0.5px solid #323240; border-radius:12px; color:white; font-size:16px;">
+            <input type="text" id="barcodeInput" placeholder="Введите 13 цифр" style="width:100%; padding:12px; margin:10px 0; background:#1a1a24; border:0.5px solid #323240; border-radius:12px; color:white; font-size:16px;">
             <div class="modal-buttons">
-                <button class="modal-btn confirm" onclick="searchByBarcode()">Найти</button>
+                <button class="modal-btn confirm" onclick="searchByBarcode()">🔍 Найти</button>
                 <button class="modal-btn cancel" onclick="closeBarcodeModal()">Отмена</button>
             </div>
         </div>
     </div>
 
-    <!-- Модалка выбора количества -->
     <div class="modal" id="quantityModal">
         <div class="modal-content">
             <div class="modal-title" id="modalTitle">Выберите количество</div>
             <div id="modalOptions" class="quick-weights"></div>
             <div class="modal-buttons">
-                <button class="modal-btn confirm" onclick="confirmQuantity()">Подтвердить</button>
+                <button class="modal-btn confirm" onclick="confirmQuantity()">✅ Добавить</button>
                 <button class="modal-btn cancel" onclick="closeQuantityModal()">Отмена</button>
             </div>
         </div>
     </div>
 
+    <div class="api-status" id="apiStatus">🔄 Проверка API...</div>
+
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
         
+        // API URL - используем внешний IP сервера
+        const API_URL = 'http://94.241.142.61:8081';
+        
         let currentMeal = 'breakfast';
-        let selectedProducts = [];
-        let allProducts = [];
-        let pendingProduct = null;
-        let currentResolve = null;
         let diary = JSON.parse(localStorage.getItem('xp_diary') || '[]');
+        let currentSearchResults = [];
         
         const mealNames = {breakfast:'Завтрак', lunch:'Обед', dinner:'Ужин', snack:'Перекус'};
         
-        // Загрузка продуктов
-        async function loadProducts() {
-            if(window.allProducts && window.allProducts.length) {
-                allProducts = window.allProducts;
-                console.log(`✅ Загружено: ${allProducts.length} продуктов`);
-            } else {
-                console.error('❌ База продуктов не загружена');
-                showFallbackProducts();
+        // Проверка статуса API
+        async function checkAPI() {
+            try {
+                const resp = await fetch(`${API_URL}/health`);
+                if(resp.ok) {
+                    document.getElementById('apiStatus').innerHTML = '🟢 API Online';
+                    document.getElementById('apiStatus').className = 'api-status online';
+                    return true;
+                }
+            } catch(e) {
+                console.log('API offline:', e);
             }
+            document.getElementById('apiStatus').innerHTML = '🔴 API Offline';
+            document.getElementById('apiStatus').className = 'api-status offline';
+            return false;
         }
         
-        function showFallbackProducts() {
-            allProducts = [
-                {"id":1,"name":"🍗 Куриная грудка","calories":165,"protein":31,"fat":3.6,"carbs":0,"brand":"Стандарт","category":"Мясо","unit":"g","default":100},
-                {"id":2,"name":"🥛 Молоко 3.2%","calories":60,"protein":3.2,"fat":3.2,"carbs":4.7,"brand":"Простоквашино","category":"Молочка","unit":"g","default":200},
-                {"id":3,"name":"🍞 Хлеб белый","calories":265,"protein":9,"fat":3.2,"carbs":49,"brand":"Дарницкий","category":"Хлеб","unit":"g","default":100},
-                {"id":4,"name":"🍌 Банан","calories":89,"protein":1.1,"fat":0.3,"carbs":23,"brand":"Эквадор","category":"Фрукты","unit":"pieces","unit_name":"шт","piece_weight":120,"default":1},
-            ];
-        }
-
-        // Поиск продуктов
-        function searchProducts(query) {
-            query = query.toLowerCase().trim();
+        // Поиск через API
+        let searchTimeout;
+        async function searchProducts() {
+            const query = document.getElementById('searchInput').value.trim();
             if(query.length < 2) {
                 document.getElementById('searchResults').innerHTML = '<div class="empty-state">🔍 Введите минимум 2 символа</div>';
                 return;
             }
             
-            const results = allProducts.filter(p => {
-                const matchName = p.name && p.name.toLowerCase().includes(query);
-                const matchBrand = p.brand && p.brand.toLowerCase().includes(query);
-                const matchCategory = p.category && p.category.toLowerCase().includes(query);
-                return matchName || matchBrand || matchCategory;
-            }).slice(0, 50);
-            
-            if(!results.length) {
-                document.getElementById('searchResults').innerHTML = '<div class="empty-state">❌ Ничего не найдено</div>';
-                return;
+            try {
+                const resp = await fetch(`${API_URL}/api/search?q=${encodeURIComponent(query)}`);
+                const data = await resp.json();
+                
+                if(data.success && data.data && data.data.length) {
+                    currentSearchResults = data.data;
+                    const stats = `<div class="search-stats">🔍 Найдено: ${data.data.length} продуктов</div>`;
+                    document.getElementById('searchResults').innerHTML = stats + data.data.map(p => `
+                        <div class="search-result-item" onclick="selectProduct(${p.id})">
+                            <div>
+                                <div class="result-name">${p.name} <span class="unit-badge">${p.unit || 'г'}</span></div>
+                                ${p.brand ? `<div class="result-brand">🏷️ ${p.brand}</div>` : ''}
+                                ${p.category ? `<div class="result-category">📁 ${p.category}</div>` : ''}
+                                <div class="result-calories">🔥 ${p.calories} ккал / 100г</div>
+                                <div class="result-macros">🥩${p.protein || 0}г 🧈${p.fat || 0}г 🍚${p.carbs || 0}г</div>
+                            </div>
+                            <div class="check-icon">+</div>
+                        </div>
+                    `).join('');
+                } else {
+                    document.getElementById('searchResults').innerHTML = '<div class="empty-state">❌ Ничего не найдено</div>';
+                }
+            } catch(e) {
+                console.error('Search error:', e);
+                document.getElementById('searchResults').innerHTML = '<div class="empty-state">❌ Ошибка подключения к API</div>';
             }
-            
-            const statsHtml = `<div class="search-stats">🔍 Найдено: ${results.length} продуктов</div>`;
-            const selectedIds = selectedProducts.map(p => p.id);
-            
-            document.getElementById('searchResults').innerHTML = statsHtml + results.map(p => {
-                const unitText = p.unit === 'pieces' ? (p.unit_name || 'шт') : (p.unit || 'г');
-                return `
-                <div class="search-result-item" onclick="toggleProductSelection(${p.id})">
-                    <div>
-                        <div class="result-name">${p.name} <span class="unit-badge">${unitText}</span></div>
-                        ${p.brand ? `<div class="result-brand">🏷️ ${p.brand}</div>` : ''}
-                        ${p.category ? `<div class="result-category">📁 ${p.category}</div>` : ''}
-                        <div class="result-calories">🔥 ${p.calories || 0} ккал / 100г</div>
-                    </div>
-                    <div class="check-icon">${selectedIds.includes(p.id) ? '✓' : '+'}</div>
-                </div>
-            `}).join('');
         }
-
-        // Поиск по штрихкоду
+        
+        let selectedProduct = null;
+        
+        function selectProduct(id) {
+            selectedProduct = currentSearchResults.find(p => p.id === id);
+            if(!selectedProduct) return;
+            
+            const unitText = selectedProduct.unit === 'pieces' ? 'шт' : 'г';
+            const isPieces = selectedProduct.unit === 'pieces';
+            const options = isPieces ? [1, 2, 3, 5, 10] : [50, 100, 150, 200, 250, 300];
+            
+            document.getElementById('modalTitle').innerHTML = `⚖️ ${selectedProduct.name}`;
+            document.getElementById('modalOptions').innerHTML = options.map(w => 
+                `<div class="weight-btn" onclick="setQuantity(${w})">${w} ${unitText}</div>`
+            ).join('');
+            
+            selectedQuantity = selectedProduct.default_amount || (isPieces ? 1 : 100);
+            document.querySelectorAll('.weight-btn').forEach(btn => {
+                if(btn.innerText === `${selectedQuantity} ${unitText}`) btn.classList.add('active');
+            });
+            
+            document.getElementById('quantityModal').classList.add('active');
+        }
+        
+        let selectedQuantity = 100;
+        function setQuantity(q) {
+            selectedQuantity = q;
+            document.querySelectorAll('.weight-btn').forEach(btn => btn.classList.remove('active'));
+            if(event && event.target) event.target.classList.add('active');
+        }
+        
+        function confirmQuantity() {
+            if(!selectedProduct) return;
+            
+            const factor = selectedProduct.unit === 'pieces' ? (selectedQuantity * 100) / 100 : selectedQuantity / 100;
+            const calories = Math.round(selectedProduct.calories * factor);
+            const protein = +(selectedProduct.protein * factor).toFixed(1);
+            const fat = +(selectedProduct.fat * factor).toFixed(1);
+            const carbs = +(selectedProduct.carbs * factor).toFixed(1);
+            const unitText = selectedProduct.unit === 'pieces' ? 'шт' : 'г';
+            
+            const entry = {
+                id: Date.now(),
+                name: selectedProduct.name,
+                amount: selectedQuantity,
+                unit_name: unitText,
+                calories: calories,
+                protein: protein,
+                fat: fat,
+                carbs: carbs,
+                meal: currentMeal,
+                date: new Date().toDateString()
+            };
+            
+            diary.push(entry);
+            localStorage.setItem('xp_diary', JSON.stringify(diary));
+            renderDiary();
+            closeQuantityModal();
+            closeSearchModal();
+            if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        }
+        
         function searchByBarcode() {
             const barcode = document.getElementById('barcodeInput').value.trim();
             if(!barcode) {
                 alert("Введите штрихкод");
                 return;
             }
-            
-            const product = allProducts.find(p => p.barcode === barcode);
-            if(product) {
-                closeBarcodeModal();
-                addToDiary(product, product.default || 100);
-                if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            } else {
-                alert(`❌ Продукт со штрихкодом ${barcode} не найден`);
-                if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-            }
+            alert(`Поиск по штрихкоду ${barcode} - функция в разработке`);
+            closeBarcodeModal();
         }
         
         function handleBarcodeClick() {
@@ -330,19 +278,18 @@
         function closeBarcodeModal() {
             document.getElementById('barcodeModal').classList.remove('active');
         }
-
-        // Дневник
+        
         function renderDiary() {
             const today = new Date().toDateString();
             const todayEntries = diary.filter(e => e.date === today);
             const currentEntries = todayEntries.filter(e => e.meal === currentMeal);
             
-            const total = todayEntries.reduce((acc, e) => {
-                acc.calories += e.calories;
-                acc.protein += e.protein;
-                acc.fat += e.fat;
-                acc.carbs += e.carbs;
-                return acc;
+            const total = todayEntries.reduce((a, e) => {
+                a.calories += e.calories;
+                a.protein += e.protein;
+                a.fat += e.fat;
+                a.carbs += e.carbs;
+                return a;
             }, {calories: 0, protein: 0, fat: 0, carbs: 0});
             
             const goal = 2000;
@@ -378,125 +325,42 @@
                 </div>
             `).join('');
         }
-
+        
         function deleteEntry(id) {
             diary = diary.filter(e => e.id !== id);
             localStorage.setItem('xp_diary', JSON.stringify(diary));
             renderDiary();
             if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         }
-
-        function calculateNutrition(product, quantity) {
-            let calories, protein, fat, carbs;
-            if (product.unit === 'pieces') {
-                const pieceWeight = product.piece_weight || 100;
-                const totalWeight = quantity * pieceWeight;
-                const factor = totalWeight / 100;
-                calories = Math.round((product.calories || 0) * factor);
-                protein = +((product.protein || 0) * factor).toFixed(1);
-                fat = +((product.fat || 0) * factor).toFixed(1);
-                carbs = +((product.carbs || 0) * factor).toFixed(1);
-            } else {
-                const factor = quantity / 100;
-                calories = Math.round((product.calories || 0) * factor);
-                protein = +((product.protein || 0) * factor).toFixed(1);
-                fat = +((product.fat || 0) * factor).toFixed(1);
-                carbs = +((product.carbs || 0) * factor).toFixed(1);
-            }
-            return { calories, protein, fat, carbs };
-        }
-
-        function addToDiary(product, quantity) {
-            const nutrition = calculateNutrition(product, quantity);
-            const unitName = product.unit === 'pieces' ? (product.unit_name || 'шт') : 'г';
-            const amountText = product.unit === 'pieces' ? quantity : quantity;
-            
-            const entry = {
-                id: Date.now() + Math.random(),
-                name: product.name,
-                amount: amountText,
-                unit_name: unitName,
-                quantity: quantity,
-                unit_type: product.unit,
-                calories: nutrition.calories,
-                protein: nutrition.protein,
-                fat: nutrition.fat,
-                carbs: nutrition.carbs,
-                meal: currentMeal,
-                date: new Date().toDateString()
-            };
-            diary.push(entry);
-            localStorage.setItem('xp_diary', JSON.stringify(diary));
-            renderDiary();
-            if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-        }
-
-        function closeSearch() { document.getElementById('fullscreenSearch').classList.remove('active'); }
         
-        function openSearch() { 
-            selectedProducts = [];
+        function closeSearchModal() {
+            document.getElementById('fullscreenSearch').classList.remove('active');
             document.getElementById('searchInput').value = '';
-            document.getElementById('searchResults').innerHTML = '<div class="empty-state">Начните вводить название продукта</div>';
+            document.getElementById('searchResults').innerHTML = '';
+        }
+        
+        function openSearchModal() {
             document.getElementById('fullscreenSearch').classList.add('active');
             document.getElementById('searchInput').focus();
         }
-
-        function toggleProductSelection(id) {
-            const product = allProducts.find(p => p.id === id);
-            if(!product) return;
-            const idx = selectedProducts.findIndex(p => p.id === id);
-            if(idx !== -1) selectedProducts.splice(idx,1);
-            else selectedProducts.push({...product, quantity: product.default || (product.unit === 'pieces' ? 1 : 100)});
-            searchProducts(document.getElementById('searchInput').value);
-        }
-
-        function saveSelectedProducts() {
-            if(!selectedProducts.length) return;
-            closeSearch();
-            (async () => {
-                for(let p of selectedProducts) {
-                    await new Promise(resolve => { pendingProduct = p; currentResolve = resolve; showQuantityModal(p); });
-                }
-                selectedProducts = [];
-            })();
-        }
-
-        function showQuantityModal(product) {
-            const unitText = product.unit === 'pieces' ? (product.unit_name || 'шт') : 'г';
-            const isPieces = product.unit === 'pieces';
-            document.getElementById('modalTitle').innerHTML = `⚖️ ${product.name}`;
-            const options = isPieces ? [1, 2, 3, 5, 10] : [50, 100, 150, 200, 250, 300];
-            document.getElementById('modalOptions').innerHTML = options.map(w => 
-                `<div class="weight-btn" onclick="selectQuantity(${w})">${w} ${unitText}</div>`
-            ).join('');
-            selectedQuantity = product.default || (isPieces ? 1 : 100);
-            document.querySelectorAll('.weight-btn').forEach(btn => {
-                if(btn.innerText === `${selectedQuantity} ${unitText}`) btn.classList.add('active');
-            });
-            document.getElementById('quantityModal').classList.add('active');
-        }
-
-        let selectedQuantity = 100;
-        function selectQuantity(q) {
-            selectedQuantity = q;
-            document.querySelectorAll('.weight-btn').forEach(btn => btn.classList.remove('active'));
-            if(event && event.target) event.target.classList.add('active');
-        }
-
-        function confirmQuantity() {
-            if(pendingProduct) addToDiary(pendingProduct, selectedQuantity);
-            closeQuantityModal();
-            if(currentResolve) currentResolve();
-        }
-
+        
         function closeQuantityModal() {
             document.getElementById('quantityModal').classList.remove('active');
-            pendingProduct = null;
+            selectedProduct = null;
             selectedQuantity = 100;
-            currentResolve = null;
         }
-
+        
         // Инициализация
+        document.getElementById('openSearchBtn').addEventListener('click', openSearchModal);
+        document.getElementById('closeSearchBtn').addEventListener('click', closeSearchModal);
+        document.getElementById('cancelSearchBtn').addEventListener('click', closeSearchModal);
+        document.getElementById('barcodeBtn').addEventListener('click', handleBarcodeClick);
+        
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(searchProducts, 300);
+        });
+        
         document.querySelectorAll('.meal-tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('.meal-tab').forEach(t => t.classList.remove('active'));
@@ -506,29 +370,23 @@
                 if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
             });
         });
-
-        document.getElementById('openSearchBtn').addEventListener('click', openSearch);
-        document.getElementById('closeSearchBtn').addEventListener('click', closeSearch);
-        document.getElementById('cancelSearchBtn').addEventListener('click', closeSearch);
-        document.getElementById('saveSelectedBtn').addEventListener('click', saveSelectedProducts);
         
-        let searchTimeout;
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => searchProducts(e.target.value), 300);
-        });
-
-        window.toggleProductSelection = toggleProductSelection;
-        window.deleteEntry = deleteEntry;
-        window.selectQuantity = selectQuantity;
+        // Глобальные функции
+        window.selectProduct = selectProduct;
+        window.setQuantity = setQuantity;
         window.confirmQuantity = confirmQuantity;
         window.closeQuantityModal = closeQuantityModal;
+        window.deleteEntry = deleteEntry;
         window.searchByBarcode = searchByBarcode;
-        window.handleBarcodeClick = handleBarcodeClick;
         window.closeBarcodeModal = closeBarcodeModal;
-
-        loadProducts();
+        
+        // Запуск
+        checkAPI();
         renderDiary();
+        setInterval(checkAPI, 30000);
     </script>
 </body>
 </html>
+EOF
+
+echo "✅ index.html обновлён"
