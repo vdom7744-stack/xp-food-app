@@ -568,6 +568,19 @@
             margin-left: 8px;
             color: #b0b6c7;
         }
+        
+        .server-status {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            z-index: 100;
+        }
+        .server-status.online { color: #4caf50; }
+        .server-status.offline { color: #ff6b6b; }
     </style>
 </head>
 <body>
@@ -632,13 +645,15 @@
             </div>
         </div>
     </div>
-
-    <!-- ПОДКЛЮЧЕНИЕ БАЗЫ ПРОДУКТОВ (ТОЛЬКО ОДИН ФАЙЛ С 4186 ПРОДУКТАМИ) -->
-    <script src="all_products.js"></script>
+    
+    <div class="server-status" id="serverStatus">🔄 Подключение...</div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        
+        // ========== КОНФИГУРАЦИЯ СЕРВЕРА ==========
+        const API_URL = 'http://192.168.0.4:5000';  // ВАШ СЕРВЕР
         
         let currentMeal = 'breakfast';
         let selectedProducts = [];
@@ -647,10 +662,11 @@
         let currentResolve = null;
         let diary = JSON.parse(localStorage.getItem('xp_diary') || '[]');
         let html5QrCode = null;
+        let isServerAvailable = false;
         
         const mealNames = {breakfast:'Завтрак', lunch:'Обед', dinner:'Ужин', snack:'Перекус'};
         
-        // База штрихкодов (можно расширять)
+        // База штрихкодов (локальная, как запасной вариант)
         const barcodeDatabase = {
             "460000000001": {"name":"🍗 Куриная грудка","calories":165,"protein":31,"fat":3.6,"carbs":0,"brand":"Стандарт","category":"Мясо","unit":"g","default":100},
             "460000000002": {"name":"🥛 Молоко 3.2%","calories":60,"protein":3.2,"fat":3.2,"carbs":4.7,"brand":"Простоквашино","category":"Молочка","unit":"g","default":200},
@@ -662,20 +678,73 @@
             "460000000008": {"name":"🐟 Семга слабосоленая","calories":208,"protein":20,"fat":13,"carbs":0,"brand":"Русское море","category":"Рыба","unit":"g","default":100},
         };
         
-        // Загрузка продуктов из all_products.js
-        function loadProducts() {
+        // Проверка соединения с сервером
+        async function checkServerConnection() {
+            const statusDiv = document.getElementById('serverStatus');
+            try {
+                const response = await fetch(`${API_URL}/api/health`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    isServerAvailable = true;
+                    statusDiv.innerHTML = '🟢 Сервер онлайн';
+                    statusDiv.className = 'server-status online';
+                    console.log('✅ Сервер доступен');
+                    return true;
+                } else {
+                    throw new Error('Сервер не отвечает');
+                }
+            } catch (error) {
+                isServerAvailable = false;
+                statusDiv.innerHTML = '🔴 Офлайн режим (локальная БД)';
+                statusDiv.className = 'server-status offline';
+                console.warn('⚠️ Сервер недоступен, использую локальную базу');
+                return false;
+            }
+        }
+        
+        // Загрузка продуктов с сервера или из локального файла
+        async function loadProducts() {
+            // Сначала пробуем загрузить с сервера
+            const serverAvailable = await checkServerConnection();
+            
+            if (serverAvailable) {
+                try {
+                    console.log('🔄 Загрузка продуктов с сервера...');
+                    const response = await fetch(`${API_URL}/api/products?limit=5000`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.data && data.data.length > 0) {
+                        allProducts = data.data;
+                        console.log(`✅ Загружено с сервера: ${allProducts.length} продуктов`);
+                        updateStats();
+                        return;
+                    }
+                } catch (error) {
+                    console.error('❌ Ошибка загрузки с сервера:', error);
+                }
+            }
+            
+            // Если сервер недоступен, используем локальный all_products.js
             if(window.allProducts && window.allProducts.length) {
                 allProducts = window.allProducts;
                 console.log(`✅ Загружено из all_products.js: ${allProducts.length} продуктов`);
-                console.log(`📁 Категорий: ${[...new Set(allProducts.map(p => p.category).filter(Boolean))].length}`);
-                console.log(`🏷️ Брендов: ${[...new Set(allProducts.map(p => p.brand).filter(Boolean))].length}`);
-                if(allProducts[0] && allProducts[0].shop) {
-                    console.log(`🏪 Магазинов: ${[...new Set(allProducts.map(p => p.shop).filter(Boolean))].length}`);
-                }
+                updateStats();
             } else {
                 console.error('❌ Файл all_products.js не загружен!');
                 showFallbackProducts();
             }
+        }
+        
+        function updateStats() {
+            const categories = [...new Set(allProducts.map(p => p.category).filter(Boolean))];
+            const brands = [...new Set(allProducts.map(p => p.brand).filter(Boolean))];
+            const shops = [...new Set(allProducts.map(p => p.shop).filter(Boolean))];
+            console.log(`📁 Категорий: ${categories.length}`);
+            console.log(`🏷️ Брендов: ${brands.length}`);
+            console.log(`🏪 Магазинов: ${shops.length}`);
         }
         
         function showFallbackProducts() {
@@ -690,17 +759,25 @@
             console.log(`⚠️ Используются базовые продукты (${allProducts.length})`);
         }
 
-        // Поиск по штрихкоду
-        function findProductByBarcode(barcode) {
+        // Поиск по штрихкоду (сначала на сервере, потом локально)
+        async function findProductByBarcode(barcode) {
+            // Сначала пробуем на сервере
+            if (isServerAvailable) {
+                try {
+                    const response = await fetch(`${API_URL}/api/search?q=${barcode}`);
+                    const data = await response.json();
+                    if (data.success && data.data && data.data.length > 0) {
+                        return data.data[0];
+                    }
+                } catch(e) {}
+            }
+            
+            // Потом в локальной базе
             if(barcodeDatabase[barcode]) return barcodeDatabase[barcode];
             const product = allProducts.find(p => p.barcode === barcode);
             if(product) return product;
-            const lastDigits = barcode.slice(-6);
-            const partialMatch = allProducts.find(p => 
-                (p.brand && p.brand.toLowerCase().includes(lastDigits)) ||
-                (p.name && p.name.toLowerCase().includes(lastDigits))
-            );
-            return partialMatch || null;
+            
+            return null;
         }
 
         // Сканер
@@ -744,7 +821,7 @@
         async function handleBarcodeScanned(barcode) {
             await stopScanner();
             closeScanner();
-            const product = findProductByBarcode(barcode);
+            const product = await findProductByBarcode(barcode);
             if(product) {
                 tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success');
                 addToDiary(product, product.default || 100);
@@ -754,21 +831,39 @@
             }
         }
 
-        // Поиск продуктов
-        function searchProducts(query) {
+        // Поиск продуктов (с поддержкой сервера)
+        async function searchProducts(query) {
             query = query.toLowerCase().trim();
             if(query.length < 2) {
                 document.getElementById('searchResults').innerHTML = '<div class="empty-state">🔍 Введите минимум 2 символа</div>';
                 return;
             }
             
-            const results = allProducts.filter(p => {
-                const matchName = p.name && p.name.toLowerCase().includes(query);
-                const matchBrand = p.brand && p.brand.toLowerCase().includes(query);
-                const matchCategory = p.category && p.category.toLowerCase().includes(query);
-                const matchShop = p.shop && p.shop.toLowerCase().includes(query);
-                return matchName || matchBrand || matchCategory || matchShop;
-            });
+            let results = [];
+            
+            // Пробуем поискать на сервере
+            if (isServerAvailable) {
+                try {
+                    const response = await fetch(`${API_URL}/api/search?q=${encodeURIComponent(query)}`);
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        results = data.data;
+                    }
+                } catch(e) {
+                    console.warn('Ошибка поиска на сервере', e);
+                }
+            }
+            
+            // Если сервер не дал результатов, ищем локально
+            if (results.length === 0) {
+                results = allProducts.filter(p => {
+                    const matchName = p.name && p.name.toLowerCase().includes(query);
+                    const matchBrand = p.brand && p.brand.toLowerCase().includes(query);
+                    const matchCategory = p.category && p.category.toLowerCase().includes(query);
+                    const matchShop = p.shop && p.shop.toLowerCase().includes(query);
+                    return matchName || matchBrand || matchCategory || matchShop;
+                });
+            }
             
             if(!results.length) {
                 document.getElementById('searchResults').innerHTML = '<div class="empty-state">❌ Ничего не найдено</div>';
@@ -779,16 +874,16 @@
             const selectedIds = selectedProducts.map(p => p.id);
             
             document.getElementById('searchResults').innerHTML = statsHtml + results.map(p => {
-                const unitText = p.unit === 'pieces' ? (p.unit_name || 'шт') : 'г';
+                const unitText = p.unit === 'pieces' ? (p.unit_name || 'шт') : (p.unit || 'г');
                 const defaultText = p.unit === 'pieces' ? ` / 1${unitText}` : ` / 100${unitText}`;
                 return `
                 <div class="search-result-item ${selectedIds.includes(p.id) ? 'selected' : ''}" onclick="toggleProductSelection(${p.id})">
                     <div>
-                        <div class="result-name">${p.name} <span class="unit-badge">${unitText}</span></div>
+                        <div class="result-name">${p.name || 'Без названия'} <span class="unit-badge">${unitText}</span></div>
                         ${p.brand ? `<div class="result-brand">🏷️ ${p.brand}</div>` : ''}
                         ${p.category ? `<div class="result-category">📁 ${p.category}</div>` : ''}
                         ${p.shop ? `<div class="result-category" style="color:#ff9800">🏪 ${p.shop}</div>` : ''}
-                        <div class="result-calories">🔥 ${p.calories} ккал${defaultText}</div>
+                        <div class="result-calories">🔥 ${p.calories || 0} ккал${defaultText}</div>
                         <div class="result-macros">🥩${p.protein || 0}г 🧈${p.fat || 0}г 🍚${p.carbs || 0}г</div>
                     </div>
                     <div class="check-icon">${selectedIds.includes(p.id) ? '✓' : '+'}</div>
@@ -993,6 +1088,7 @@
         window.confirmQuantity = confirmQuantity;
         window.closeQuantityModal = closeQuantityModal;
 
+        // Запуск
         loadProducts();
         renderDiary();
     </script>
