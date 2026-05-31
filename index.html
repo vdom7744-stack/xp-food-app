@@ -5,22 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>XP Питание — Дневник КБЖУ</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #0a0a0f;
             min-height: 100vh;
             color: #e0e0e0;
-            position: relative;
         }
-
         body::before {
             content: "";
             position: fixed;
@@ -31,11 +23,9 @@
             background-image: url('https://images.unsplash.com/photo-1546483875-ad9014c88eba?q=80&w=1970&auto=format');
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
             opacity: 0.25;
             z-index: -2;
         }
-
         body::after {
             content: "";
             position: fixed;
@@ -47,540 +37,133 @@
             opacity: 0.88;
             z-index: -1;
         }
-
-        .main-content {
-            padding: 20px 16px 100px;
-            max-width: 560px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 2;
-        }
-
-        .app-header {
-            margin-bottom: 24px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            padding-bottom: 16px;
-        }
-
-        .app-header h1 {
-            font-size: 26px;
-            font-weight: 600;
-            letter-spacing: -0.3px;
-            color: #ffffff;
-        }
-
-        .app-header p {
-            font-size: 12px;
-            color: #7e8493;
-            margin-top: 6px;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
+        .main-content { padding: 20px 16px 100px; max-width: 560px; margin: 0 auto; position: relative; z-index: 2; }
+        .app-header { margin-bottom: 24px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 16px; }
+        .app-header h1 { font-size: 26px; font-weight: 600; color: #ffffff; }
+        .app-header p { font-size: 12px; color: #7e8493; margin-top: 6px; }
+        .action-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
         .search-btn, .scan-btn {
-            flex: 1;
-            padding: 15px 16px;
-            background: #1e1e28;
-            border: 0.5px solid #323240;
-            border-radius: 60px;
-            color: white;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            flex: 1; padding: 15px 16px; background: #1e1e28; border: 0.5px solid #323240;
+            border-radius: 60px; color: white; font-size: 15px; font-weight: 500;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
             transition: 0.2s;
         }
-
-        .search-btn:active, .scan-btn:active {
-            background: #2a2a36;
-            transform: scale(0.98);
-        }
-
-        .scan-btn {
-            background: #2a2a36;
-            border-color: #ff6b6b;
-        }
-
+        .search-btn:active, .scan-btn:active { background: #2a2a36; transform: scale(0.98); }
+        .scan-btn { background: #2a2a36; border-color: #ff6b6b; }
         .meal-tabs {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 24px;
-            background: #13131c;
-            padding: 6px;
-            border-radius: 48px;
-            border: 0.5px solid rgba(255, 255, 255, 0.05);
+            display: flex; gap: 6px; margin-bottom: 24px; background: #13131c;
+            padding: 6px; border-radius: 48px; border: 0.5px solid rgba(255,255,255,0.05);
         }
-
         .meal-tab {
-            flex: 1;
-            padding: 10px 6px;
-            text-align: center;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 12px;
-            transition: all 0.2s ease;
-            color: #8a8f9e;
-            background: transparent;
+            flex: 1; padding: 10px 6px; text-align: center; border-radius: 40px;
+            cursor: pointer; font-weight: 500; font-size: 12px; transition: all 0.2s ease;
+            color: #8a8f9e; background: transparent;
         }
-
-        .meal-tab.active {
-            background: #2c2c3a;
-            color: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
-
+        .meal-tab.active { background: #2c2c3a; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
         .summary {
-            background: #12121c;
-            border-radius: 24px;
-            padding: 20px;
-            margin-bottom: 24px;
-            border: 0.5px solid #262633;
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+            background: #12121c; border-radius: 24px; padding: 20px; margin-bottom: 24px;
+            border: 0.5px solid #262633; box-shadow: 0 6px 14px rgba(0,0,0,0.4);
         }
-
-        .summary-header {
-            font-size: 13px;
-            font-weight: 500;
-            color: #7e8493;
-            margin-bottom: 16px;
-            letter-spacing: 0.3px;
-        }
-
+        .summary-header { font-size: 13px; font-weight: 500; color: #7e8493; margin-bottom: 16px; }
         .calories-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            font-size: 22px;
-            font-weight: 600;
-            margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: baseline;
+            font-size: 22px; font-weight: 600; margin-bottom: 12px;
         }
-
-        .calories-row span:first-child {
-            font-size: 14px;
-            font-weight: 400;
-            color: #9ea3b2;
-        }
-
-        .calories-row span:last-child {
-            font-size: 22px;
-            font-weight: 700;
-            color: #f5f5f5;
-        }
-
-        .calories-row b {
-            color: #ff6b6b;
-            font-weight: 700;
-        }
-
-        .progress-bar {
-            height: 6px;
-            background: #23232e;
-            border-radius: 10px;
-            margin: 14px 0 16px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: #ff6b6b;
-            width: 0%;
-            border-radius: 10px;
-        }
-
-        .macros-row {
-            display: flex;
-            gap: 12px;
-            margin-top: 12px;
-        }
-
+        .calories-row span:first-child { font-size: 14px; font-weight: 400; color: #9ea3b2; }
+        .calories-row span:last-child { font-size: 22px; font-weight: 700; color: #f5f5f5; }
+        .calories-row b { color: #ff6b6b; font-weight: 700; }
+        .progress-bar { height: 6px; background: #23232e; border-radius: 10px; margin: 14px 0 16px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #ff6b6b; width: 0%; border-radius: 10px; }
+        .macros-row { display: flex; gap: 12px; margin-top: 12px; }
         .macro-item {
-            flex: 1;
-            background: #0e0e16;
-            border-radius: 18px;
-            padding: 12px 6px;
-            text-align: center;
-            border: 0.5px solid #282834;
+            flex: 1; background: #0e0e16; border-radius: 18px; padding: 12px 6px;
+            text-align: center; border: 0.5px solid #282834;
         }
-
-        .macro-value {
-            font-weight: 700;
-            font-size: 18px;
-            color: #e0e0e0;
-        }
-
-        .macro-label {
-            font-size: 10px;
-            color: #6f7485;
-            margin-top: 5px;
-            letter-spacing: 0.3px;
-        }
-
+        .macro-value { font-weight: 700; font-size: 18px; color: #e0e0e0; }
+        .macro-label { font-size: 10px; color: #6f7485; margin-top: 5px; }
         .diary-item {
-            background: #111118;
-            border: 0.5px solid #282836;
-            border-radius: 20px;
-            padding: 14px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: #111118; border: 0.5px solid #282836; border-radius: 20px;
+            padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
         }
-
-        .diary-name {
-            font-weight: 600;
-            font-size: 15px;
-            margin-bottom: 6px;
-        }
-
-        .diary-details {
-            font-size: 11px;
-            color: #858b9c;
-        }
-
+        .diary-name { font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+        .diary-details { font-size: 11px; color: #858b9c; }
         .delete-btn {
-            background: #2a2228;
-            border: none;
-            color: #ff8888;
-            padding: 8px 14px;
-            border-radius: 32px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
+            background: #2a2228; border: none; color: #ff8888; padding: 8px 14px;
+            border-radius: 32px; font-size: 13px; font-weight: 500; cursor: pointer;
         }
-
-        .delete-btn:active {
-            background: #3a2a2e;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 48px 20px;
-            color: #6a7080;
-            font-size: 13px;
-        }
-
+        .empty-state { text-align: center; padding: 48px 20px; color: #6a7080; font-size: 13px; }
         .fullscreen-search {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #0c0c14;
-            z-index: 1000;
-            display: none;
-            flex-direction: column;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #0c0c14;
+            z-index: 1000; display: none; flex-direction: column;
         }
-
-        .fullscreen-search.active {
-            display: flex;
-        }
-
+        .fullscreen-search.active { display: flex; }
         .search-header {
-            padding: 16px;
-            background: #13131c;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            border-bottom: 0.5px solid #282834;
+            padding: 16px; background: #13131c; display: flex; gap: 12px;
+            align-items: center; border-bottom: 0.5px solid #282834;
         }
-
         .search-header input {
-            flex: 1;
-            padding: 14px 18px;
-            font-size: 16px;
-            border: 0.5px solid #323240;
-            border-radius: 32px;
-            background: #1a1a24;
-            color: white;
-            outline: none;
+            flex: 1; padding: 14px 18px; font-size: 16px; border: 0.5px solid #323240;
+            border-radius: 32px; background: #1a1a24; color: white; outline: none;
         }
-
-        .search-header input:focus {
-            border-color: #ff6b6b;
-        }
-
+        .search-header input:focus { border-color: #ff6b6b; }
         .close-search {
-            width: 44px;
-            height: 44px;
-            border-radius: 44px;
-            background: #2a2228;
-            border: none;
-            color: #ff8888;
-            font-size: 20px;
-            cursor: pointer;
+            width: 44px; height: 44px; border-radius: 44px; background: #2a2228;
+            border: none; color: #ff8888; font-size: 20px; cursor: pointer;
         }
-
-        .search-results {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-        }
-
+        .search-results { flex: 1; overflow-y: auto; padding: 16px; }
         .search-result-item {
-            background: #111118;
-            border: 0.5px solid #282836;
-            padding: 14px;
-            margin-bottom: 10px;
-            border-radius: 20px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: #111118; border: 0.5px solid #282836; padding: 14px;
+            margin-bottom: 10px; border-radius: 20px; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
         }
-
-        .search-result-item.selected {
-            border-color: #ff6b6b;
-            background: #1e1820;
-        }
-
-        .result-name {
-            font-weight: 600;
-        }
-
-        .result-brand {
-            font-size: 10px;
-            color: #ff9800;
-            margin-top: 2px;
-        }
-
-        .result-category {
-            font-size: 10px;
-            color: #4caf50;
-            margin-top: 2px;
-        }
-
-        .result-calories {
-            font-size: 11px;
-            color: #b0b6c7;
-            margin-top: 4px;
-        }
-
-        .result-macros {
-            font-size: 9px;
-            color: #6f7485;
-            margin-top: 4px;
-        }
-
+        .result-name { font-weight: 600; }
+        .result-brand { font-size: 10px; color: #ff9800; margin-top: 2px; }
+        .result-category { font-size: 10px; color: #4caf50; margin-top: 2px; }
+        .result-calories { font-size: 11px; color: #b0b6c7; margin-top: 4px; }
         .check-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 16px;
-            background: #1e1e28;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
+            width: 32px; height: 32px; border-radius: 16px; background: #1e1e28;
+            display: flex; align-items: center; justify-content: center; font-size: 18px;
         }
-
-        .search-result-item.selected .check-icon {
-            background: #ff6b6b;
-        }
-
         .search-footer {
-            padding: 16px;
-            background: #13131c;
-            display: flex;
-            gap: 12px;
+            padding: 16px; background: #13131c; display: flex; gap: 12px;
             border-top: 0.5px solid #282834;
         }
-
         .search-footer button {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: 32px;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
+            flex: 1; padding: 14px; border: none; border-radius: 32px;
+            font-size: 15px; font-weight: 500; cursor: pointer;
         }
-
-        .save-selected {
-            background: #ff6b6b;
-            color: white;
-        }
-
-        .cancel-search {
-            background: #23222e;
-            color: #b0b6c7;
-        }
-
+        .save-selected { background: #ff6b6b; color: white; }
+        .cancel-search { background: #23222e; color: #b0b6c7; }
         .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(5, 5, 8, 0.96);
-            align-items: center;
-            justify-content: center;
-            z-index: 1100;
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(5,5,8,0.96); align-items: center; justify-content: center; z-index: 1100;
         }
-
-        .modal.active {
-            display: flex;
-        }
-
+        .modal.active { display: flex; }
         .modal-content {
-            background: #12121c;
-            border-radius: 28px;
-            padding: 24px;
-            width: 90%;
-            max-width: 340px;
-            border: 0.5px solid #323240;
+            background: #12121c; border-radius: 28px; padding: 24px; width: 90%;
+            max-width: 340px; border: 0.5px solid #323240;
         }
-
-        .modal-title {
-            font-weight: 600;
-            font-size: 17px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .quick-weights {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 24px;
-        }
-
+        .modal-title { font-weight: 600; font-size: 17px; text-align: center; margin-bottom: 20px; }
+        .quick-weights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
         .weight-btn {
-            background: #1a1a24;
-            padding: 12px;
-            text-align: center;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: 500;
-            border: 0.5px solid #2c2c38;
-            transition: 0.1s;
+            background: #1a1a24; padding: 12px; text-align: center; border-radius: 40px;
+            cursor: pointer; font-weight: 500; border: 0.5px solid #2c2c38;
         }
-
-        .weight-btn.active {
-            background: #ff6b6b;
-            border-color: #ff6b6b;
-            color: white;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 12px;
-        }
-
+        .weight-btn.active { background: #ff6b6b; border-color: #ff6b6b; color: white; }
+        .modal-buttons { display: flex; gap: 12px; }
         .modal-btn {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: 32px;
-            font-weight: 500;
-            cursor: pointer;
+            flex: 1; padding: 14px; border: none; border-radius: 32px; font-weight: 500; cursor: pointer;
         }
-
-        .modal-btn.confirm {
-            background: #ff6b6b;
-            color: white;
-        }
-
-        .modal-btn.cancel {
-            background: #23222e;
-            color: #ccc;
-        }
-
-        .scanner-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #000;
-            z-index: 2000;
-            display: none;
-            flex-direction: column;
-        }
-
-        .scanner-overlay.active {
-            display: flex;
-        }
-
-        .scanner-header {
-            padding: 16px;
-            background: #13131c;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 0.5px solid #282834;
-        }
-
-        .scanner-header h3 {
-            font-size: 16px;
-            font-weight: 500;
-        }
-
-        .close-scanner {
-            width: 40px;
-            height: 40px;
-            border-radius: 40px;
-            background: #2a2228;
-            border: none;
-            color: #ff8888;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        #reader {
-            width: 100%;
-            flex: 1;
-            background: #000;
-        }
-
-        .scanner-info {
-            padding: 16px;
-            background: #13131c;
-            text-align: center;
-            font-size: 12px;
-            color: #8a8f9e;
-            border-top: 0.5px solid #282834;
-        }
-
+        .modal-btn.confirm { background: #ff6b6b; color: white; }
+        .modal-btn.cancel { background: #23222e; color: #ccc; }
         .search-stats {
-            background: #1a1a24;
-            padding: 8px 12px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            font-size: 11px;
-            color: #8a8f9e;
-            text-align: center;
+            background: #1a1a24; padding: 8px 12px; border-radius: 12px;
+            margin-bottom: 12px; font-size: 11px; color: #8a8f9e; text-align: center;
         }
-
         .unit-badge {
-            background: #2a2a36;
-            border-radius: 20px;
-            padding: 2px 8px;
-            font-size: 10px;
-            margin-left: 8px;
-            color: #b0b6c7;
+            background: #2a2a36; border-radius: 20px; padding: 2px 8px;
+            font-size: 10px; margin-left: 8px; color: #b0b6c7;
         }
-        
-        .server-status {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.7);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 10px;
-            z-index: 100;
-        }
-        .server-status.online { color: #4caf50; }
-        .server-status.offline { color: #ff6b6b; }
     </style>
 </head>
 <body>
@@ -592,7 +175,7 @@
 
         <div class="action-buttons">
             <button class="search-btn" id="openSearchBtn">🔍 Поиск</button>
-            <button class="scan-btn" id="openScannerBtn">📷 Сканер</button>
+            <button class="scan-btn" id="barcodeBtn" onclick="handleBarcodeClick()">📷 Штрихкод</button>
         </div>
 
         <div class="meal-tabs">
@@ -612,11 +195,11 @@
     <!-- Поиск -->
     <div class="fullscreen-search" id="fullscreenSearch">
         <div class="search-header">
-            <input type="text" id="searchInput" placeholder="🔍 Поиск по названию, бренду или категории..." autocomplete="off">
+            <input type="text" id="searchInput" placeholder="🔍 Поиск по названию..." autocomplete="off">
             <button class="close-search" id="closeSearchBtn">✖</button>
         </div>
         <div class="search-results" id="searchResults">
-            <div class="empty-state">Начните вводить название, бренд или категорию</div>
+            <div class="empty-state">Начните вводить название продукта</div>
         </div>
         <div class="search-footer">
             <button class="cancel-search" id="cancelSearchBtn">Отмена</button>
@@ -624,14 +207,16 @@
         </div>
     </div>
 
-    <!-- Сканер штрихкода -->
-    <div class="scanner-overlay" id="scannerOverlay">
-        <div class="scanner-header">
-            <h3>📷 Наведите камеру на штрихкод</h3>
-            <button class="close-scanner" id="closeScannerBtn">✖</button>
+    <!-- Модалка штрихкода -->
+    <div class="modal" id="barcodeModal">
+        <div class="modal-content">
+            <div class="modal-title">📷 Введите штрихкод</div>
+            <input type="text" id="barcodeInput" placeholder="Введите 13 цифр штрихкода" style="width:100%; padding:12px; margin:10px 0; background:#1a1a24; border:0.5px solid #323240; border-radius:12px; color:white; font-size:16px;">
+            <div class="modal-buttons">
+                <button class="modal-btn confirm" onclick="searchByBarcode()">Найти</button>
+                <button class="modal-btn cancel" onclick="closeBarcodeModal()">Отмена</button>
+            </div>
         </div>
-        <div id="reader"></div>
-        <div class="scanner-info">📱 Поднесите штрихкод к камере. Продукт будет найден автоматически.</div>
     </div>
 
     <!-- Модалка выбора количества -->
@@ -645,15 +230,10 @@
             </div>
         </div>
     </div>
-    
-    <div class="server-status" id="serverStatus">🔄 Подключение...</div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        
-        // ========== КОНФИГУРАЦИЯ СЕРВЕРА ==========
-        const API_URL = 'http://192.168.0.4:5000';  // ВАШ СЕРВЕР
         
         let currentMeal = 'breakfast';
         let selectedProducts = [];
@@ -661,90 +241,18 @@
         let pendingProduct = null;
         let currentResolve = null;
         let diary = JSON.parse(localStorage.getItem('xp_diary') || '[]');
-        let html5QrCode = null;
-        let isServerAvailable = false;
         
         const mealNames = {breakfast:'Завтрак', lunch:'Обед', dinner:'Ужин', snack:'Перекус'};
         
-        // База штрихкодов (локальная, как запасной вариант)
-        const barcodeDatabase = {
-            "460000000001": {"name":"🍗 Куриная грудка","calories":165,"protein":31,"fat":3.6,"carbs":0,"brand":"Стандарт","category":"Мясо","unit":"g","default":100},
-            "460000000002": {"name":"🥛 Молоко 3.2%","calories":60,"protein":3.2,"fat":3.2,"carbs":4.7,"brand":"Простоквашино","category":"Молочка","unit":"g","default":200},
-            "460000000003": {"name":"🍞 Хлеб белый","calories":265,"protein":9,"fat":3.2,"carbs":49,"brand":"Дарницкий","category":"Хлеб","unit":"g","default":100},
-            "460000000004": {"name":"🍌 Банан","calories":89,"protein":1.1,"fat":0.3,"carbs":23,"brand":"Эквадор","category":"Фрукты","unit":"pieces","unit_name":"шт","piece_weight":120,"default":1},
-            "460000000005": {"name":"🍎 Яблоко","calories":52,"protein":0.3,"fat":0.2,"carbs":14,"brand":"Российское","category":"Фрукты","unit":"pieces","unit_name":"шт","piece_weight":150,"default":1},
-            "460000000006": {"name":"🥚 Яйцо куриное","calories":157,"protein":12.7,"fat":11.5,"carbs":0.7,"brand":"Окское","category":"Яйца","unit":"pieces","unit_name":"шт","piece_weight":50,"default":2},
-            "460000000007": {"name":"🥩 Говядина вырезка","calories":250,"protein":25,"fat":16,"carbs":0,"brand":"Мираторг","category":"Мясо","unit":"g","default":100},
-            "460000000008": {"name":"🐟 Семга слабосоленая","calories":208,"protein":20,"fat":13,"carbs":0,"brand":"Русское море","category":"Рыба","unit":"g","default":100},
-        };
-        
-        // Проверка соединения с сервером
-        async function checkServerConnection() {
-            const statusDiv = document.getElementById('serverStatus');
-            try {
-                const response = await fetch(`${API_URL}/api/health`, {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    isServerAvailable = true;
-                    statusDiv.innerHTML = '🟢 Сервер онлайн';
-                    statusDiv.className = 'server-status online';
-                    console.log('✅ Сервер доступен');
-                    return true;
-                } else {
-                    throw new Error('Сервер не отвечает');
-                }
-            } catch (error) {
-                isServerAvailable = false;
-                statusDiv.innerHTML = '🔴 Офлайн режим (локальная БД)';
-                statusDiv.className = 'server-status offline';
-                console.warn('⚠️ Сервер недоступен, использую локальную базу');
-                return false;
-            }
-        }
-        
-        // Загрузка продуктов с сервера или из локального файла
+        // Загрузка продуктов
         async function loadProducts() {
-            // Сначала пробуем загрузить с сервера
-            const serverAvailable = await checkServerConnection();
-            
-            if (serverAvailable) {
-                try {
-                    console.log('🔄 Загрузка продуктов с сервера...');
-                    const response = await fetch(`${API_URL}/api/products?limit=5000`);
-                    const data = await response.json();
-                    
-                    if (data.success && data.data && data.data.length > 0) {
-                        allProducts = data.data;
-                        console.log(`✅ Загружено с сервера: ${allProducts.length} продуктов`);
-                        updateStats();
-                        return;
-                    }
-                } catch (error) {
-                    console.error('❌ Ошибка загрузки с сервера:', error);
-                }
-            }
-            
-            // Если сервер недоступен, используем локальный all_products.js
             if(window.allProducts && window.allProducts.length) {
                 allProducts = window.allProducts;
-                console.log(`✅ Загружено из all_products.js: ${allProducts.length} продуктов`);
-                updateStats();
+                console.log(`✅ Загружено: ${allProducts.length} продуктов`);
             } else {
-                console.error('❌ Файл all_products.js не загружен!');
+                console.error('❌ База продуктов не загружена');
                 showFallbackProducts();
             }
-        }
-        
-        function updateStats() {
-            const categories = [...new Set(allProducts.map(p => p.category).filter(Boolean))];
-            const brands = [...new Set(allProducts.map(p => p.brand).filter(Boolean))];
-            const shops = [...new Set(allProducts.map(p => p.shop).filter(Boolean))];
-            console.log(`📁 Категорий: ${categories.length}`);
-            console.log(`🏷️ Брендов: ${brands.length}`);
-            console.log(`🏪 Магазинов: ${shops.length}`);
         }
         
         function showFallbackProducts() {
@@ -753,117 +261,23 @@
                 {"id":2,"name":"🥛 Молоко 3.2%","calories":60,"protein":3.2,"fat":3.2,"carbs":4.7,"brand":"Простоквашино","category":"Молочка","unit":"g","default":200},
                 {"id":3,"name":"🍞 Хлеб белый","calories":265,"protein":9,"fat":3.2,"carbs":49,"brand":"Дарницкий","category":"Хлеб","unit":"g","default":100},
                 {"id":4,"name":"🍌 Банан","calories":89,"protein":1.1,"fat":0.3,"carbs":23,"brand":"Эквадор","category":"Фрукты","unit":"pieces","unit_name":"шт","piece_weight":120,"default":1},
-                {"id":5,"name":"🍎 Яблоко","calories":52,"protein":0.3,"fat":0.2,"carbs":14,"brand":"Российское","category":"Фрукты","unit":"pieces","unit_name":"шт","piece_weight":150,"default":1},
-                {"id":6,"name":"🥚 Яйцо куриное","calories":157,"protein":12.7,"fat":11.5,"carbs":0.7,"brand":"Окское","category":"Яйца","unit":"pieces","unit_name":"шт","piece_weight":50,"default":2},
             ];
-            console.log(`⚠️ Используются базовые продукты (${allProducts.length})`);
         }
 
-        // Поиск по штрихкоду (сначала на сервере, потом локально)
-        async function findProductByBarcode(barcode) {
-            // Сначала пробуем на сервере
-            if (isServerAvailable) {
-                try {
-                    const response = await fetch(`${API_URL}/api/search?q=${barcode}`);
-                    const data = await response.json();
-                    if (data.success && data.data && data.data.length > 0) {
-                        return data.data[0];
-                    }
-                } catch(e) {}
-            }
-            
-            // Потом в локальной базе
-            if(barcodeDatabase[barcode]) return barcodeDatabase[barcode];
-            const product = allProducts.find(p => p.barcode === barcode);
-            if(product) return product;
-            
-            return null;
-        }
-
-        // Сканер
-        async function initScanner() {
-            const readerElement = document.getElementById('reader');
-            if (html5QrCode) {
-                try { await html5QrCode.stop(); } catch(e) {}
-            }
-            readerElement.innerHTML = '';
-            html5QrCode = new Html5Qrcode("reader");
-            const config = { fps: 10, qrbox: { width: 250, height: 200 }, rememberLastUsedCamera: true };
-            const onSuccess = (decodedText) => handleBarcodeScanned(decodedText);
-            const onError = (errorMessage) => {};
-            try {
-                await html5QrCode.start({ facingMode: "environment" }, config, onSuccess, onError);
-                console.log("✅ Сканер запущен");
-            } catch (err) {
-                console.error("❌ Ошибка запуска сканера:", err);
-                alert("Не удалось получить доступ к камере");
-                closeScanner();
-            }
-        }
-
-        async function stopScanner() {
-            if (html5QrCode) {
-                try { await html5QrCode.stop(); } catch(e) {}
-                html5QrCode = null;
-            }
-        }
-
-        function openScanner() {
-            document.getElementById('scannerOverlay').classList.add('active');
-            setTimeout(() => initScanner(), 100);
-        }
-
-        function closeScanner() {
-            stopScanner();
-            document.getElementById('scannerOverlay').classList.remove('active');
-        }
-
-        async function handleBarcodeScanned(barcode) {
-            await stopScanner();
-            closeScanner();
-            const product = await findProductByBarcode(barcode);
-            if(product) {
-                tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success');
-                addToDiary(product, product.default || 100);
-            } else {
-                tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('error');
-                alert(`❌ Продукт со штрихкодом ${barcode} не найден в базе`);
-            }
-        }
-
-        // Поиск продуктов (с поддержкой сервера)
-        async function searchProducts(query) {
+        // Поиск продуктов
+        function searchProducts(query) {
             query = query.toLowerCase().trim();
             if(query.length < 2) {
                 document.getElementById('searchResults').innerHTML = '<div class="empty-state">🔍 Введите минимум 2 символа</div>';
                 return;
             }
             
-            let results = [];
-            
-            // Пробуем поискать на сервере
-            if (isServerAvailable) {
-                try {
-                    const response = await fetch(`${API_URL}/api/search?q=${encodeURIComponent(query)}`);
-                    const data = await response.json();
-                    if (data.success && data.data) {
-                        results = data.data;
-                    }
-                } catch(e) {
-                    console.warn('Ошибка поиска на сервере', e);
-                }
-            }
-            
-            // Если сервер не дал результатов, ищем локально
-            if (results.length === 0) {
-                results = allProducts.filter(p => {
-                    const matchName = p.name && p.name.toLowerCase().includes(query);
-                    const matchBrand = p.brand && p.brand.toLowerCase().includes(query);
-                    const matchCategory = p.category && p.category.toLowerCase().includes(query);
-                    const matchShop = p.shop && p.shop.toLowerCase().includes(query);
-                    return matchName || matchBrand || matchCategory || matchShop;
-                });
-            }
+            const results = allProducts.filter(p => {
+                const matchName = p.name && p.name.toLowerCase().includes(query);
+                const matchBrand = p.brand && p.brand.toLowerCase().includes(query);
+                const matchCategory = p.category && p.category.toLowerCase().includes(query);
+                return matchName || matchBrand || matchCategory;
+            }).slice(0, 50);
             
             if(!results.length) {
                 document.getElementById('searchResults').innerHTML = '<div class="empty-state">❌ Ничего не найдено</div>';
@@ -875,20 +289,46 @@
             
             document.getElementById('searchResults').innerHTML = statsHtml + results.map(p => {
                 const unitText = p.unit === 'pieces' ? (p.unit_name || 'шт') : (p.unit || 'г');
-                const defaultText = p.unit === 'pieces' ? ` / 1${unitText}` : ` / 100${unitText}`;
                 return `
-                <div class="search-result-item ${selectedIds.includes(p.id) ? 'selected' : ''}" onclick="toggleProductSelection(${p.id})">
+                <div class="search-result-item" onclick="toggleProductSelection(${p.id})">
                     <div>
-                        <div class="result-name">${p.name || 'Без названия'} <span class="unit-badge">${unitText}</span></div>
+                        <div class="result-name">${p.name} <span class="unit-badge">${unitText}</span></div>
                         ${p.brand ? `<div class="result-brand">🏷️ ${p.brand}</div>` : ''}
                         ${p.category ? `<div class="result-category">📁 ${p.category}</div>` : ''}
-                        ${p.shop ? `<div class="result-category" style="color:#ff9800">🏪 ${p.shop}</div>` : ''}
-                        <div class="result-calories">🔥 ${p.calories || 0} ккал${defaultText}</div>
-                        <div class="result-macros">🥩${p.protein || 0}г 🧈${p.fat || 0}г 🍚${p.carbs || 0}г</div>
+                        <div class="result-calories">🔥 ${p.calories || 0} ккал / 100г</div>
                     </div>
                     <div class="check-icon">${selectedIds.includes(p.id) ? '✓' : '+'}</div>
                 </div>
             `}).join('');
+        }
+
+        // Поиск по штрихкоду
+        function searchByBarcode() {
+            const barcode = document.getElementById('barcodeInput').value.trim();
+            if(!barcode) {
+                alert("Введите штрихкод");
+                return;
+            }
+            
+            const product = allProducts.find(p => p.barcode === barcode);
+            if(product) {
+                closeBarcodeModal();
+                addToDiary(product, product.default || 100);
+                if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            } else {
+                alert(`❌ Продукт со штрихкодом ${barcode} не найден`);
+                if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+            }
+        }
+        
+        function handleBarcodeClick() {
+            document.getElementById('barcodeInput').value = '';
+            document.getElementById('barcodeModal').classList.add('active');
+            document.getElementById('barcodeInput').focus();
+        }
+        
+        function closeBarcodeModal() {
+            document.getElementById('barcodeModal').classList.remove('active');
         }
 
         // Дневник
@@ -920,7 +360,6 @@
                     <div class="macro-item"><div class="macro-value">${total.fat.toFixed(1)}г</div><div class="macro-label">Жиры</div></div>
                     <div class="macro-item"><div class="macro-value">${total.carbs.toFixed(1)}г</div><div class="macro-label">Углеводы</div></div>
                 </div>
-                ${total.calories > goal ? '<div style="color:#ff6b6b;text-align:center;margin-top:12px;font-size:12px;">⚠️ Превышение нормы</div>' : `<div style="color:#6f7485;text-align:center;margin-top:12px;font-size:11px;">✅ Осталось ${goal - total.calories} ккал</div>`}
             `;
             
             const container = document.getElementById('diaryList');
@@ -997,7 +436,7 @@
         function openSearch() { 
             selectedProducts = [];
             document.getElementById('searchInput').value = '';
-            document.getElementById('searchResults').innerHTML = '<div class="empty-state">Начните вводить название, бренд или категорию</div>';
+            document.getElementById('searchResults').innerHTML = '<div class="empty-state">Начните вводить название продукта</div>';
             document.getElementById('fullscreenSearch').classList.add('active');
             document.getElementById('searchInput').focus();
         }
@@ -1057,7 +496,7 @@
             currentResolve = null;
         }
 
-        // Инициализация событий
+        // Инициализация
         document.querySelectorAll('.meal-tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('.meal-tab').forEach(t => t.classList.remove('active'));
@@ -1072,8 +511,6 @@
         document.getElementById('closeSearchBtn').addEventListener('click', closeSearch);
         document.getElementById('cancelSearchBtn').addEventListener('click', closeSearch);
         document.getElementById('saveSelectedBtn').addEventListener('click', saveSelectedProducts);
-        document.getElementById('openScannerBtn').addEventListener('click', openScanner);
-        document.getElementById('closeScannerBtn').addEventListener('click', closeScanner);
         
         let searchTimeout;
         document.getElementById('searchInput').addEventListener('input', (e) => {
@@ -1081,14 +518,15 @@
             searchTimeout = setTimeout(() => searchProducts(e.target.value), 300);
         });
 
-        // Глобальные функции для onclick
         window.toggleProductSelection = toggleProductSelection;
         window.deleteEntry = deleteEntry;
         window.selectQuantity = selectQuantity;
         window.confirmQuantity = confirmQuantity;
         window.closeQuantityModal = closeQuantityModal;
+        window.searchByBarcode = searchByBarcode;
+        window.handleBarcodeClick = handleBarcodeClick;
+        window.closeBarcodeModal = closeBarcodeModal;
 
-        // Запуск
         loadProducts();
         renderDiary();
     </script>
