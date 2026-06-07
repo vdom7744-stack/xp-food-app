@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>XP Fitness - Упражнения</title>
     <style>
         * {
@@ -12,13 +12,13 @@
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #121212;
-            color: #ffffff;
+            background: #f5f5f5;
             padding: 16px;
             padding-bottom: 80px;
         }
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             padding: 20px;
             border-radius: 16px;
             margin-bottom: 20px;
@@ -28,17 +28,20 @@
             font-size: 24px;
             margin-bottom: 8px;
         }
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
         .search-box {
             margin-bottom: 16px;
         }
         .search-box input {
             width: 100%;
             padding: 12px 16px;
-            border: none;
+            border: 1px solid #ddd;
             border-radius: 12px;
             font-size: 16px;
-            background: #1e1e1e;
-            color: #fff;
+            background: white;
         }
         .category-filter {
             display: flex;
@@ -49,16 +52,17 @@
         }
         .category-btn {
             padding: 8px 16px;
-            background: #1e1e1e;
-            border: none;
+            background: white;
+            border: 1px solid #ddd;
             border-radius: 20px;
             font-size: 14px;
-            color: #fff;
             cursor: pointer;
             white-space: nowrap;
         }
         .category-btn.active {
             background: #667eea;
+            color: white;
+            border-color: #667eea;
         }
         .exercises-list {
             display: flex;
@@ -66,9 +70,10 @@
             gap: 12px;
         }
         .exercise-card {
-            background: #1e1e1e;
+            background: white;
             border-radius: 12px;
             padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             cursor: pointer;
             transition: transform 0.2s;
         }
@@ -87,7 +92,7 @@
         .loading {
             text-align: center;
             padding: 40px;
-            color: #888;
+            color: #666;
         }
         .video-modal {
             display: none;
@@ -96,7 +101,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.95);
+            background: rgba(0,0,0,0.9);
             z-index: 1000;
             justify-content: center;
             align-items: center;
@@ -114,12 +119,12 @@
             top: 20px;
             right: 20px;
             color: white;
-            font-size: 40px;
+            font-size: 30px;
             cursor: pointer;
             background: rgba(0,0,0,0.5);
-            width: 50px;
-            height: 50px;
-            border-radius: 25px;
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -129,11 +134,11 @@
 <body>
     <div class="header">
         <h1>🏋️ XP Fitness</h1>
-        <p>Видео-упражнения для тренировок</p>
+        <p>Выберите упражнение для просмотра</p>
     </div>
     
     <div class="search-box">
-        <input type="text" id="search" placeholder="🔍 Поиск упражнений...">
+        <input type="text" id="search" placeholder="Поиск упражнений...">
     </div>
     
     <div class="category-filter" id="categories"></div>
@@ -144,7 +149,7 @@
     
     <div class="video-modal" id="videoModal">
         <div class="close-btn" onclick="closeVideo()">&times;</div>
-        <video id="videoPlayer" controls>
+        <video id="videoPlayer" controls autoplay>
             <source id="videoSource" type="video/mp4">
         </video>
     </div>
@@ -152,7 +157,7 @@
     <script>
         let exercises = [];
         let currentCategory = 'all';
-        const API_URL = 'https://xp-fitness.ru/exercises';
+        const API_URL = 'http://94.241.142.61:5000/exercises';
         
         async function loadExercises() {
             try {
@@ -163,7 +168,8 @@
                 renderExercises();
             } catch (error) {
                 document.getElementById('exercises').innerHTML = 
-                    '<div class="loading">❌ Ошибка загрузки упражнений</div>';
+                    '<div class="loading">❌ Ошибка загрузки упражнений<br>Проверьте подключение</div>';
+                console.error('Error:', error);
             }
         }
         
