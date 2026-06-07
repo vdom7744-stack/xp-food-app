@@ -2,133 +2,28 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XP Fitness - Упражнения</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #f5f5f5;
-            padding: 16px;
-            padding-bottom: 80px;
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-        .header p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        .search-box {
-            margin-bottom: 16px;
-        }
-        .search-box input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            font-size: 16px;
-            background: white;
-        }
-        .category-filter {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-        }
-        .category-btn {
-            padding: 8px 16px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            font-size: 14px;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-        .category-btn.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-        .exercises-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .exercise-card {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .exercise-card:active {
-            transform: scale(0.98);
-        }
-        .exercise-name {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        .exercise-category {
-            font-size: 12px;
-            color: #667eea;
-        }
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-        .video-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        .video-modal.active {
-            display: flex;
-        }
-        .video-modal video {
-            max-width: 90%;
-            max-height: 90%;
-            border-radius: 12px;
-        }
-        .close-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: white;
-            font-size: 30px;
-            cursor: pointer;
-            background: rgba(0,0,0,0.5);
-            width: 40px;
-            height: 40px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; padding: 16px; padding-bottom: 80px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 16px; margin-bottom: 20px; text-align: center; }
+        .header h1 { font-size: 24px; margin-bottom: 8px; }
+        .search-box { margin-bottom: 16px; }
+        .search-box input { width: 100%; padding: 12px 16px; border: 1px solid #ddd; border-radius: 12px; font-size: 16px; background: white; }
+        .category-filter { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 16px; padding-bottom: 8px; }
+        .category-btn { padding: 8px 16px; background: white; border: 1px solid #ddd; border-radius: 20px; font-size: 14px; cursor: pointer; white-space: nowrap; }
+        .category-btn.active { background: #667eea; color: white; }
+        .exercises-list { display: flex; flex-direction: column; gap: 12px; }
+        .exercise-card { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; }
+        .exercise-card:active { transform: scale(0.98); }
+        .exercise-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+        .exercise-category { font-size: 12px; color: #667eea; }
+        .loading { text-align: center; padding: 40px; color: #666; }
+        .video-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
+        .video-modal.active { display: flex; }
+        .video-modal video { max-width: 90%; max-height: 90%; border-radius: 12px; }
+        .close-btn { position: absolute; top: 20px; right: 20px; color: white; font-size: 30px; cursor: pointer; background: rgba(0,0,0,0.5); width: 40px; height: 40px; border-radius: 20px; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
@@ -136,17 +31,13 @@
         <h1>🏋️ XP Fitness</h1>
         <p>Выберите упражнение для просмотра</p>
     </div>
-    
     <div class="search-box">
         <input type="text" id="search" placeholder="Поиск упражнений...">
     </div>
-    
     <div class="category-filter" id="categories"></div>
-    
     <div class="exercises-list" id="exercises">
         <div class="loading">Загрузка упражнений...</div>
     </div>
-    
     <div class="video-modal" id="videoModal">
         <div class="close-btn" onclick="closeVideo()">&times;</div>
         <video id="videoPlayer" controls autoplay>
@@ -157,7 +48,7 @@
     <script>
         let exercises = [];
         let currentCategory = 'all';
-        const API_URL = 'http://94.241.142.61:5000/exercises';
+        const API_URL = 'https://integrity-entity-spas-homepage.trycloudflare.com/exercises';
         
         async function loadExercises() {
             try {
@@ -167,8 +58,7 @@
                 renderCategories();
                 renderExercises();
             } catch (error) {
-                document.getElementById('exercises').innerHTML = 
-                    '<div class="loading">❌ Ошибка загрузки упражнений<br>Проверьте подключение</div>';
+                document.getElementById('exercises').innerHTML = '<div class="loading">❌ Ошибка загрузки упражнений<br>Проверьте подключение</div>';
                 console.error('Error:', error);
             }
         }
@@ -176,12 +66,7 @@
         function renderCategories() {
             const categories = ['all', ...new Set(exercises.map(ex => ex.category))];
             const container = document.getElementById('categories');
-            container.innerHTML = categories.map(cat => `
-                <button class="category-btn ${cat === currentCategory ? 'active' : ''}" 
-                        onclick="filterByCategory('${cat}')">
-                    ${cat === 'all' ? 'Все' : cat}
-                </button>
-            `).join('');
+            container.innerHTML = categories.map(cat => `<button class="category-btn ${cat === currentCategory ? 'active' : ''}" onclick="filterByCategory('${cat}')">${cat === 'all' ? 'Все' : cat}</button>`).join('');
         }
         
         function filterByCategory(category) {
@@ -193,53 +78,26 @@
         function renderExercises() {
             const searchTerm = document.getElementById('search').value.toLowerCase();
             let filtered = exercises;
-            
-            if (currentCategory !== 'all') {
-                filtered = filtered.filter(ex => ex.category === currentCategory);
-            }
-            
-            if (searchTerm) {
-                filtered = filtered.filter(ex => 
-                    ex.name.toLowerCase().includes(searchTerm) || 
-                    (ex.name_ru && ex.name_ru.toLowerCase().includes(searchTerm))
-                );
-            }
-            
+            if (currentCategory !== 'all') filtered = filtered.filter(ex => ex.category === currentCategory);
+            if (searchTerm) filtered = filtered.filter(ex => ex.name.toLowerCase().includes(searchTerm) || (ex.name_ru && ex.name_ru.toLowerCase().includes(searchTerm)));
             const container = document.getElementById('exercises');
-            
-            if (filtered.length === 0) {
-                container.innerHTML = '<div class="loading">😔 Упражнения не найдены</div>';
-                return;
-            }
-            
-            container.innerHTML = filtered.map(ex => `
-                <div class="exercise-card" onclick="playVideo('${ex.video_url}', '${ex.name_ru || ex.name}')">
-                    <div class="exercise-name">${ex.name_ru || ex.name}</div>
-                    <div class="exercise-category">${ex.category || 'Общее'}</div>
-                </div>
-            `).join('');
+            if (filtered.length === 0) { container.innerHTML = '<div class="loading">😔 Упражнения не найдены</div>'; return; }
+            container.innerHTML = filtered.map(ex => `<div class="exercise-card" onclick="playVideo('${ex.video_url}', '${ex.name_ru || ex.name}')"><div class="exercise-name">${ex.name_ru || ex.name}</div><div class="exercise-category">${ex.category || 'Общее'}</div></div>`).join('');
         }
         
         function playVideo(videoUrl, exerciseName) {
             const modal = document.getElementById('videoModal');
             const video = document.getElementById('videoPlayer');
             const source = document.getElementById('videoSource');
-            
             source.src = videoUrl;
             video.load();
             modal.classList.add('active');
             video.play();
         }
         
-        function closeVideo() {
-            const modal = document.getElementById('videoModal');
-            const video = document.getElementById('videoPlayer');
-            video.pause();
-            modal.classList.remove('active');
-        }
+        function closeVideo() { const modal = document.getElementById('videoModal'); const video = document.getElementById('videoPlayer'); video.pause(); modal.classList.remove('active'); }
         
         document.getElementById('search').addEventListener('input', renderExercises);
-        
         loadExercises();
     </script>
 </body>
